@@ -126,19 +126,6 @@ describe('useBaseSection', () => {
     expect(useDesignerStore.getState().params.base.magnetDiameter).toBe(6.5);
   });
 
-  it('toggleLightweight flips the boolean and exposes it as state', () => {
-    const { result } = renderHook(() => useBaseSection());
-
-    expect(result.current.state.hasLightweight).toBe(false);
-
-    act(() => {
-      result.current.handlers.toggleLightweight();
-    });
-
-    expect(useDesignerStore.getState().params.base.lightweight).toBe(true);
-    expect(result.current.state.hasLightweight).toBe(true);
-  });
-
   it('the spacer card flips the boolean and clears the magnet it cannot hold', () => {
     useDesignerStore.setState({
       params: { ...DEFAULT_BIN_PARAMS, base: { ...DEFAULT_BIN_PARAMS.base, style: 'magnet' } },
@@ -253,128 +240,6 @@ describe('useBaseSection', () => {
     expect(base.style).toBe('standard');
   });
 
-  it('lightweight coexists with magnet style (allow-all, no constraint clearing)', () => {
-    const { result } = renderHook(() => useBaseSection());
-
-    act(() => {
-      result.current.handlers.toggleLightweight();
-    });
-    act(() => {
-      result.current.handlers.toggleMagnet();
-    });
-
-    const base = useDesignerStore.getState().params.base;
-    expect(base.lightweight).toBe(true);
-    expect(base.style).toBe('magnet');
-  });
-
-  it('lightweight is greyed out with a reason when a scoop is present', () => {
-    useDesignerStore.setState({
-      params: { ...DEFAULT_BIN_PARAMS, scoop: { enabled: true, radius: 'auto' } },
-    });
-    const { result } = renderHook(() => useBaseSection());
-    expect(result.current.handlers.lightweightDisabledReason).toBeTruthy();
-
-    act(() => {
-      result.current.handlers.toggleLightweight();
-    });
-    // Blocked: scoop must be cleared first — in the INTERIOR mode. See the
-    // underside case below, where selecting the mode is what unblocks it.
-    expect(useDesignerStore.getState().params.base.lightweight).toBe(false);
-  });
-
-  // The relief mode is the one control in this panel that has to work while its
-  // feature is OFF: it decides whether the toggle can be turned on at all.
-  it('selecting the underside mode unblocks lightweight for a scooped bin', () => {
-    useDesignerStore.setState({
-      params: { ...DEFAULT_BIN_PARAMS, scoop: { enabled: true, radius: 'auto' } },
-    });
-    const { result } = renderHook(() => useBaseSection());
-
-    act(() => {
-      result.current.handlers.setLightweightMode('underside');
-    });
-    expect(result.current.handlers.lightweightDisabledReason).toBeUndefined();
-
-    act(() => {
-      result.current.handlers.toggleLightweight();
-    });
-    const params = useDesignerStore.getState().params;
-    expect(params.base.lightweight).toBe(true);
-    // ...and the scoop it was blocked over survives, which is the point.
-    expect(params.scoop.enabled).toBe(true);
-  });
-
-  // Switching BACK has to clear what the interior mode cannot carry, exactly as
-  // enabling the feature would — which is why the handler re-resolves through
-  // the constraint engine instead of writing the field directly.
-  it('switching back to the interior mode clears the scoop', () => {
-    useDesignerStore.setState({
-      params: {
-        ...DEFAULT_BIN_PARAMS,
-        scoop: { enabled: true, radius: 'auto' },
-        base: { ...DEFAULT_BIN_PARAMS.base, lightweight: true, lightweightMode: 'underside' },
-      },
-    });
-    const { result } = renderHook(() => useBaseSection());
-
-    act(() => {
-      result.current.handlers.setLightweightMode('interior');
-    });
-    const params = useDesignerStore.getState().params;
-    expect(params.scoop.enabled).toBe(false);
-    // The feature itself stays on — the engine protects the feature being
-    // re-asserted, so the mode switch is not a back-door way to turn it off.
-    expect(params.base.lightweight).toBe(true);
-  });
-
-  // 'interior' is what an absent field already means, so writing it would
-  // fingerprint a bin differently from an identical one whose owner never
-  // opened the control (the `base.tile` precedent).
-  it('leaves no lightweightMode residue when the default is selected', () => {
-    const { result } = renderHook(() => useBaseSection());
-
-    act(() => {
-      result.current.handlers.setLightweightMode('underside');
-    });
-    expect(useDesignerStore.getState().params.base.lightweightMode).toBe('underside');
-
-    act(() => {
-      result.current.handlers.setLightweightMode('interior');
-    });
-    expect(useDesignerStore.getState().params.base.lightweightMode).toBeUndefined();
-    // State still reports the effective mode, so the control stays selected.
-    expect(result.current.state.lightweightMode).toBe('interior');
-  });
-
-  it('lightweight stays selectable with leftover cutouts after leaving solid mode', () => {
-    // Cutouts persist as inert data once the bin returns to a cavity style; they
-    // must not block re-selecting lightweight (regression: deadlock — couldn't
-    // enable lightweight to clear them because they blocked it).
-    useDesignerStore.setState({
-      params: { ...DEFAULT_BIN_PARAMS, style: 'standard', cutouts: [{ id: 'c1' } as never] },
-    });
-    const { result } = renderHook(() => useBaseSection());
-    expect(result.current.handlers.lightweightDisabledReason).toBeUndefined();
-
-    act(() => {
-      result.current.handlers.toggleLightweight();
-    });
-
-    const p = useDesignerStore.getState().params;
-    expect(p.base.lightweight).toBe(true);
-    // Enabling lightweight clears the dormant cutouts via the reverse rule.
-    expect(p.cutouts).toEqual([]);
-  });
-
-  it('cutouts still block lightweight in solid mode', () => {
-    useDesignerStore.setState({
-      params: { ...DEFAULT_BIN_PARAMS, style: 'solid', cutouts: [{ id: 'c1' } as never] },
-    });
-    const { result } = renderHook(() => useBaseSection());
-    expect(result.current.handlers.lightweightDisabledReason).toBeTruthy();
-  });
-
   it('enabling flat clears lightweight (mutually exclusive — flat has no socket)', () => {
     useDesignerStore.setState({
       params: { ...DEFAULT_BIN_PARAMS, base: { ...DEFAULT_BIN_PARAMS.base, lightweight: true } },
@@ -388,20 +253,6 @@ describe('useBaseSection', () => {
     const base = useDesignerStore.getState().params.base;
     expect(base.style).toBe('flat');
     expect(base.lightweight).toBe(false);
-  });
-
-  it('lightweight is greyed out with a reason on a flat base', () => {
-    useDesignerStore.setState({
-      params: { ...DEFAULT_BIN_PARAMS, base: { ...DEFAULT_BIN_PARAMS.base, style: 'flat' } },
-    });
-    const { result } = renderHook(() => useBaseSection());
-    expect(result.current.handlers.lightweightDisabledReason).toBeTruthy();
-
-    act(() => {
-      result.current.handlers.toggleLightweight();
-    });
-    // Blocked: can't enable lightweight on a flat base.
-    expect(useDesignerStore.getState().params.base.lightweight).toBe(false);
   });
 
   it('setScrewDiameter updates screwDiameter directly', () => {
@@ -517,89 +368,6 @@ describe('useBaseSection', () => {
     });
   });
 
-  describe('floor pattern', () => {
-    it('starts disabled and turns on with a default hole shape', () => {
-      const { result } = renderHook(() => useBaseSection());
-      expect(result.current.state.floorPatternEnabled).toBe(false);
-
-      act(() => {
-        result.current.handlers.toggleFloorPattern();
-      });
-
-      expect(useDesignerStore.getState().params.floorPattern).toEqual({
-        enabled: true,
-        pattern: 'round',
-        scale: 0.5,
-      });
-    });
-
-    it('selecting a shape from the picker turns the feature on', () => {
-      const { result } = renderHook(() => useBaseSection());
-
-      act(() => {
-        result.current.handlers.setFloorPatternType('honeycomb');
-      });
-
-      expect(useDesignerStore.getState().params.floorPattern).toMatchObject({
-        enabled: true,
-        pattern: 'honeycomb',
-      });
-    });
-
-    it("selecting the picker's none entry turns the feature off", () => {
-      useDesignerStore.setState({
-        params: {
-          ...DEFAULT_BIN_PARAMS,
-          floorPattern: { enabled: true, pattern: 'round', scale: 0.5 },
-        },
-      });
-      const { result } = renderHook(() => useBaseSection());
-
-      act(() => {
-        result.current.handlers.setFloorPatternType(null);
-      });
-
-      expect(useDesignerStore.getState().params.floorPattern?.enabled).toBe(false);
-    });
-
-    it('ignores a pattern the floor cannot tile', () => {
-      const { result } = renderHook(() => useBaseSection());
-
-      act(() => {
-        result.current.handlers.setFloorPatternType('mitsukude');
-      });
-
-      expect(useDesignerStore.getState().params.floorPattern?.enabled).toBe(false);
-    });
-
-    it('turning drainage on clears the lightweight base', () => {
-      useDesignerStore.setState({
-        params: {
-          ...DEFAULT_BIN_PARAMS,
-          base: { ...DEFAULT_BIN_PARAMS.base, lightweight: true },
-        },
-      });
-      const { result } = renderHook(() => useBaseSection());
-
-      // The constraint engine refuses while lightweight owns the floor.
-      expect(result.current.handlers.floorPatternDisabledReason).toBeDefined();
-      act(() => {
-        result.current.handlers.toggleFloorPattern();
-      });
-      expect(useDesignerStore.getState().params.floorPattern?.enabled).toBe(false);
-    });
-
-    it('scale is stored normalized but surfaced as a percentage', () => {
-      const { result } = renderHook(() => useBaseSection());
-
-      act(() => {
-        result.current.handlers.setFloorPatternScale(80);
-      });
-
-      expect(useDesignerStore.getState().params.floorPattern?.scale).toBeCloseTo(0.8, 6);
-    });
-  });
-
   describe('lid-compatible bottom (#3036)', () => {
     it('toggleLidBottom switches the style and materialises the mating config', () => {
       const { result } = renderHook(() => useBaseSection());
@@ -691,17 +459,6 @@ describe('useBaseSection — base-only bin residue', () => {
     expect('tile' in base).toBe(false);
   });
 
-  // On a tile both floor features are engine-disabled, but the underside
-  // relief lifts the block — so the family must stay on screen or the one
-  // control that can unblock it is unmounted (the pre-restructure layout
-  // rendered the mode picker unconditionally for exactly this reason).
-  it('keeps the Floor family on screen when only the underside relief can unblock it', () => {
-    const { result } = renderHook(() => useBaseSection());
-    act(() => result.current.handlers.setBodyType('tile'));
-    expect(result.current.state.undersideReliefUnblocks).toBe(true);
-    expect(result.current.state.showFloor).toBe(true);
-  });
-
   it('drops the inert collar when entering base-only mode', () => {
     useDesignerStore.getState().setParams({
       ...useDesignerStore.getState().params,
@@ -743,7 +500,6 @@ describe('useBaseSection — base-only bin residue', () => {
       const { result } = renderHook(() => useBaseSection());
       act(() => result.current.handlers.toggleDetachableFeet());
 
-      expect(result.current.handlers.lightweightDisabledReason).toBeDefined();
       expect(result.current.handlers.halfSocketsDisabledReason).toBeDefined();
       // Still stored, so turning the mode off brings it back.
       expect(useDesignerStore.getState().params.base.lightweight).toBe(true);
@@ -816,9 +572,6 @@ describe('useBaseSection — base-only bin residue', () => {
       if (params.base.halfSockets || hasDetachableFeet(params.base)) {
         expect(state.showFeet).toBe(true);
       }
-      if (params.base.lightweight || params.floorPattern?.enabled) {
-        expect(state.showFloor).toBe(true);
-      }
     });
 
     // Dropping a family's controls without saying why is the confusing version
@@ -835,7 +588,6 @@ describe('useBaseSection — base-only bin residue', () => {
       const { state } = result.current;
       if (!state.showMounting) expect(state.mountingUnavailable).toBeTruthy();
       if (!state.showFeet) expect(state.feetUnavailable).toBeTruthy();
-      if (!state.showFloor) expect(state.floorUnavailable).toBeTruthy();
     });
 
     it('never hides a foot lattice that is actually in force', () => {

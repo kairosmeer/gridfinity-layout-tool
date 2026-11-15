@@ -218,12 +218,9 @@ const drainage: Shot = {
   async take(s) {
     await openDesigner(s, 'Sponge tray', { width: 2, depth: 2, height: 3 });
     const sw = toggle(s, 'binDesigner.base.floorPattern');
-    const heading = s.page.getByText(label('binDesigner.base.section.floorPattern'), {
-      exact: true,
-    });
     await s.ui.preReveal(sw);
     // Ends above the hint under the scale slider, so no line of text is cut in half.
-    const area = panelFrame((await s.box(heading.first())).y - 32);
+    const area = panelFrame((await s.box(sw)).y - 32);
     await s.ui.park(area.x + area.width * 0.62, area.y + area.height * 0.4);
     await s.take(
       area,

@@ -10,7 +10,7 @@
 import { DEFAULT_BIN_PARAMS } from '@/features/bin-designer/constants';
 import type { BinParams, DesignerCategory } from '@/features/bin-designer/types';
 
-import { paramFieldModified } from './paramFieldModified';
+import { baseFieldModified, paramFieldModified } from './paramFieldModified';
 
 export type PageCategory = Exclude<DesignerCategory, 'selection'>;
 
@@ -25,6 +25,7 @@ const CATEGORY_OF: Partial<Record<keyof BinParams, PageCategory>> = {
   compartments: 'interior',
   scoop: 'interior',
   interiorFilletMm: 'interior',
+  floorRaiseMm: 'interior',
   label: 'interior',
   slotConfig: 'interior',
   dividerPieces: 'interior',
@@ -39,7 +40,7 @@ const CATEGORY_OF: Partial<Record<keyof BinParams, PageCategory>> = {
   pullTab: 'features',
   slide: 'features',
   wallPattern: 'style',
-  floorPattern: 'style',
+  floorPattern: 'interior',
   featureColors: 'style',
   surfaceText: 'style',
   textDefaults: 'style',
@@ -68,6 +69,13 @@ export function modifiedCategories(params: BinParams): Record<PageCategory, bool
   // `surfaceText` and `textDefaults` are text appearance wherever the letters
   // sit, so both attribute cleanly to Style instead of being excluded.
   for (const key of keys) {
+    if (key === 'base') {
+      // The floor type's base fields are edited in the Floor section.
+      const base = baseFieldModified(params);
+      if (base.floor) modified.interior = true;
+      if (base.rest) modified.shape = true;
+      continue;
+    }
     if (paramFieldModified(params, key)) {
       modified[CATEGORY_OF[key as keyof BinParams] ?? 'shape'] = true;
     }

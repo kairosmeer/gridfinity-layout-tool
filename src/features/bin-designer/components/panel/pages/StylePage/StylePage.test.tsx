@@ -29,7 +29,7 @@ describe('StylePage', () => {
       },
     });
     const { container } = render(<StylePage />);
-    for (const target of ['bd-type', 'bd-colors', 'bd-wall-style', 'bd-floor-pattern']) {
+    for (const target of ['bd-type', 'bd-colors', 'bd-wall-style']) {
       expect(container.querySelector(`[data-help-target="${target}"]`), target).not.toBeNull();
     }
   });

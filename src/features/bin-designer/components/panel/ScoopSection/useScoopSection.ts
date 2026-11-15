@@ -17,15 +17,16 @@ import {
 } from '@/shared/utils/scoopCalculations';
 import { resolveBinFloorMm } from '@/shared/utils/slotMath';
 import type { ScoopStyle, ScoopSide } from '@/shared/types/bin';
-import { getFeatureStatus } from '@/shared/constraints';
+import { getFeatureStatus, resolveConstraints } from '@/shared/constraints';
 
 const DEFAULT_MANUAL_RADIUS = 10;
 
 export function useScoopSection() {
-  const { scoop, updateScoop, params } = useDesignerStore(
+  const { scoop, updateScoop, setParams, params } = useDesignerStore(
     useShallow((s) => ({
       scoop: s.params.scoop,
       updateScoop: s.updateScoop,
+      setParams: s.setParams,
       params: s.params,
     }))
   );
@@ -146,8 +147,15 @@ export function useScoopSection() {
   }, [isAutoRadius, params, scoop, sides, t]);
 
   const toggleScoop = useCallback(() => {
-    updateScoop({ enabled: !scoop.enabled });
-  }, [scoop.enabled, updateScoop]);
+    // Through the engine like every other floor feature, so turning it on
+    // clears what it cannot share a floor with, and a blocked scoop stays off.
+    if (!scoop.enabled && isUnavailable) return;
+    const { params: resolved } = resolveConstraints(params, {
+      feature: 'scoop',
+      enabled: !scoop.enabled,
+    });
+    setParams(resolved);
+  }, [params, scoop.enabled, isUnavailable, setParams]);
 
   const toggleAutoRadius = useCallback(() => {
     // Entering custom mode: pin both axes to concrete values so the two

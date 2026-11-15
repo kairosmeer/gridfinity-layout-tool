@@ -114,7 +114,7 @@ The bin designer panel puts its settings in five groups. Click a group to open i
 | <Ui k="binDesigner.group.lid" />       | Lid, pull tab and handles                                                 |
 | <Ui k="binDesigner.group.interior" />  | Compartments, dividers, label tabs, finger scoop and more                 |
 | <Ui k="binDesigner.group.base" />      | Feet, stacking lip, magnets and screws                                    |
-| <Ui k="binDesigner.group.finishing" /> | Text, colors, wall and floor patterns, and physical units                 |
+| <Ui k="binDesigner.group.finishing" /> | Text, colors, wall patterns, and physical units                           |
 
 This is the <Ui k="binDesigner.panel.viewAsScroll" /> view, the default, and every bin designer page in these docs uses it. A switch next to the search field at the top of the panel also offers <Ui k="binDesigner.panel.viewAsRail" />, a more compact view of the same settings.
 

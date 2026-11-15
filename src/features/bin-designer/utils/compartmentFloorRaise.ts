@@ -1,8 +1,12 @@
 import type { BinParams } from '../types';
-import { MAX_COMPARTMENT_FLOOR_RAISE_MM, MIN_RAISED_CAVITY_MM } from '../types';
+import {
+  FLOOR_RAISE_STEP_MM,
+  MAX_COMPARTMENT_FLOOR_RAISE_MM,
+  MIN_RAISED_CAVITY_MM,
+} from '../types';
 import { GRIDFINITY } from '../constants/gridfinity';
 import { computeInteriorHeight } from '@/shared/utils/scoopCalculations';
-import { resolveBinFloorMm } from '@/shared/utils/slotMath';
+import { resolveBaseFloorMm, resolveBinFloorMm } from '@/shared/utils/slotMath';
 import { binDimensions } from './binDimensions';
 import { compartmentHasTiltedEdge } from './compartments';
 import { isPartialMask } from '@/shared/utils/cellMask';
@@ -22,6 +26,23 @@ export function maxCompartmentFloorRaiseMm(params: BinParams): number {
   );
   const room = interiorHeight - resolveBinFloorMm(params) - MIN_RAISED_CAVITY_MM;
   return Math.max(0, Math.min(MAX_COMPARTMENT_FLOOR_RAISE_MM, Math.floor(room)));
+}
+
+/**
+ * Highest whole-floor raise the panel offers: what leaves
+ * {@link MIN_RAISED_CAVITY_MM} of pocket above the base slab, rounded down to
+ * the control's step so the slider never names a height the geometry trims.
+ */
+export function maxFloorRaiseMm(params: BinParams): number {
+  const { wallHeight } = binDimensions(params);
+  const interiorHeight = computeInteriorHeight(
+    wallHeight,
+    params.base.stackingLip,
+    GRIDFINITY.LIP_SMALL_TAPER
+  );
+  const room = interiorHeight - resolveBaseFloorMm(params) - MIN_RAISED_CAVITY_MM;
+  const stepped = Math.floor(room / FLOOR_RAISE_STEP_MM) * FLOOR_RAISE_STEP_MM;
+  return Math.max(0, Math.min(MAX_COMPARTMENT_FLOOR_RAISE_MM, stepped));
 }
 
 /**

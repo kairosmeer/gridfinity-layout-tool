@@ -5,7 +5,7 @@ sources:
   - src/features/bin-designer/components/panel/WallsSection/
   - src/features/bin-designer/components/panel/WallCutoutsSection/
   - src/features/bin-designer/components/panel/HandleSection/
-  - src/features/bin-designer/components/panel/BaseSection/FloorPatternSection.tsx
+  - src/features/bin-designer/components/panel/FloorSection/FloorPatternSection.tsx
   - src/features/bin-designer/types/walls.ts
   - src/features/bin-designer/types/handles.ts
   - src/shared/utils/wallLabelSlotPlan.ts
@@ -21,7 +21,7 @@ The wall controls are in three groups of the bin designer:
 
 - <Ui k="binDesigner.group.shape" />: the wall thickness and wall cutouts.
 - <Ui k="binDesigner.group.lid" />: handles.
-- <Ui k="binDesigner.group.finishing" />: wall patterns, label slots and drainage holes.
+- <Ui k="binDesigner.group.finishing" />: wall patterns and label slots.
 
 ## Set the wall thickness
 
@@ -140,14 +140,14 @@ When the wall is too thin to hold the slot, a rib on the inside backs it. Each s
 
 <Ui k="binDesigner.base.floorPattern" /> cut holes through the floor and the feet below it, so water and dust fall straight through. Use them for wet items, or for items that must dry.
 
-1. In the <Ui k="binDesigner.group.finishing" /> group, go to <Ui k="binDesigner.base.section.floorPattern" />.
+1. In the <Ui k="binDesigner.group.interior" /> group, go to the <Ui k="binDesigner.floor.heading" /> section.
 2. Turn on <Ui k="binDesigner.base.floorPattern" />.
 3. Pick a <Ui k="binDesigner.base.floorPattern.shape" />.
 4. Set <Ui k="binDesigner.walls.pattern.scale" />.
 
-The holes stay inside the flat bottom of each foot, so the edges that lock into the baseplate stay whole. If the holes are too large for the base, the panel asks for a finer scale. The inside mode of a lightweight floor leaves no solid floor to drill, so use its underside mode. A solid bin, a spacer and a <Ui k="binDesigner.tile" /> bin cannot have drainage holes.
+The holes stay inside the flat bottom of each foot, so the edges that lock into the baseplate stay whole. If the holes are too large for the base, the panel asks for a finer scale. A floor that follows the feet leaves no flat floor to drill, so hollow the feet from below instead. On a raised floor the holes go through the fill too. A solid bin, a spacer and a <Ui k="binDesigner.tile" /> bin cannot have drainage holes.
 
-<Screenshot id="designer-walls-drainage" alt="Turning on Drainage holes shows the Round hole shape at 50 percent scale. Then a view from below shows the round holes through the floor of each foot." spec="Bin designer, Finishing group open, bin 2 x 2 x 3. Turn on Drainage holes in close-up, then show the underside of the bin in the preview." />
+<Screenshot id="designer-walls-drainage" alt="Turning on Drainage holes shows the Round hole shape at 50 percent scale. Then a view from below shows the round holes through the floor of each foot." spec="Bin designer, Interior group open, bin 2 x 2 x 3. Turn on Drainage holes in close-up, then show the underside of the bin in the preview." />
 
 ## When it goes wrong
 

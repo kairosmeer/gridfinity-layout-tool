@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { FloorPatternSection } from './FloorPatternSection';
+import { FloorSection } from './FloorSection';
 import { useDesignerStore } from '@/features/bin-designer/store';
 import { DEFAULT_BIN_PARAMS, DEFAULT_UI_STATE } from '@/features/bin-designer/constants';
 import en from '@/i18n/locales/en';
@@ -48,12 +49,13 @@ describe('FloorPatternSection', () => {
     expect(screen.getByRole('switch', { name: 'Drainage holes' })).toBeDisabled();
   });
 
-  it('names the family instead of rendering controls when the body has no floor', () => {
+  it('names the floor instead of rendering controls when the body has no floor', () => {
     useDesignerStore.setState({
       params: { ...DEFAULT_BIN_PARAMS, base: { ...DEFAULT_BIN_PARAMS.base, spacer: true } },
     });
-    render(<FloorPatternSection />);
+    render(<FloorSection />);
     expect(screen.queryByRole('switch', { name: 'Drainage holes' })).not.toBeInTheDocument();
+    expect(screen.getByText(en['binDesigner.floor.noFloor'])).toBeInTheDocument();
   });
 
   it('plays a clip of drainage holes from the dot beside its toggle', () => {

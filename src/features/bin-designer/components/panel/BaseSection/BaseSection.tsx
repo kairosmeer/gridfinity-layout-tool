@@ -7,11 +7,13 @@
  *   2. Stacking:  the lip, which is the base's mating partner one bin up
  *   3. Mounting:  magnet and screw pockets
  *   4. Feet:      how the feet are laid out under the bin
- *   5. Floor:     what is removed from the floor
  *
- * Subsections 3-5 drop their controls where the chosen body has no use for
- * them: a spacer has no floor to perforate, a flat base has no socket to drill
- * or lighten. Each keeps its heading and one line saying why, so a control is
+ * The floor (what the feet are hollowed into, a raised floor, and the features
+ * that stand on it) is its own section in the Interior group.
+ *
+ * Subsections 3-4 drop their controls where the chosen body has no use for
+ * them: a flat base has no socket to drill or lighten. Each keeps its heading
+ * and one line saying why, so a control is
  * never simply absent between one body type and the next. Nothing that is still
  * in force is hidden either. The constraint engine CLEARS what it disables, so
  * a dropped row is always a row that is off.
@@ -21,7 +23,7 @@
 
 import { PanelSection } from '@/shared/components/PanelSection';
 import { DESIGNER_CONSTRAINTS } from '@/features/bin-designer/constants';
-import { Button, SegmentedControl, SliderInput } from '@/design-system';
+import { SegmentedControl, SliderInput } from '@/design-system';
 import { FeatureToggle } from '../FeatureToggle';
 import { FeatureTip } from '../../FeatureTip';
 import {
@@ -41,7 +43,6 @@ import {
   LID_EXTRA_HEIGHT_MIN_MM,
   LID_RAIL_SIDES,
   LIP_TIP_STYLES,
-  LIGHTWEIGHT_MODES,
   DETACHABLE_PIN_DIAMETERS_MM,
 } from '@/features/bin-designer/types';
 import { useTranslation } from '@/i18n';
@@ -492,78 +493,6 @@ export function BaseSection() {
               <Hint info={handlers.footLatticeLockDetail}>{handlers.footLatticeLockReason}</Hint>
             </MoreDisclosure>
           )}
-        </PanelSection>
-      )}
-
-      {/* ── Floor ── lightweight relief only; the drainage pattern lives on
-          the Style page with the other surface patterns. */}
-      {!state.showFloor && state.floorUnavailable && (
-        <PanelSection>
-          <UnavailableFamily
-            title={t('binDesigner.base.section.floor')}
-            reason={state.floorUnavailable}
-          />
-        </PanelSection>
-      )}
-      {state.showFloor && (
-        <PanelSection className="space-y-3">
-          <SubHeader>{t('binDesigner.base.section.floor')}</SubHeader>
-
-          <div>
-            <FeatureToggle
-              label={t('binDesigner.lightweight')}
-              checked={state.hasLightweight}
-              onChange={handlers.toggleLightweight}
-              disabledReason={handlers.lightweightDisabledReason}
-              valueSummary={t(`binDesigner.lightweightMode.${state.lightweightMode}`)}
-              badge={<FeatureTip tip="lightweightFloor" feature={t('binDesigner.lightweight')} />}
-            >
-              {/* Relief side (#3524). Nested now that the toggle's blocked case
-                  has its own way out: the mode decides whether the feature CAN
-                  be turned on, so leaving it visible-but-inert was the old way
-                  of keeping a scooped bin (the case the feature exists for)
-                  from being stranded. The action below does that job instead. */}
-              <FieldLabel
-                info={
-                  <OptionNotes
-                    options={LIGHTWEIGHT_MODES.map((mode) => ({
-                      label: t(`binDesigner.lightweightMode.${mode}`),
-                      note: t(`binDesigner.lightweightMode.${mode}.hint`),
-                    }))}
-                  />
-                }
-              >
-                {t('binDesigner.lightweightMode')}
-              </FieldLabel>
-              <SegmentedControl
-                aria-label={t('binDesigner.lightweightMode')}
-                activeStyle="accent"
-                fullWidth
-                size="sm"
-                value={state.lightweightMode}
-                onChange={handlers.setLightweightMode}
-                options={LIGHTWEIGHT_MODES.map((mode) => ({
-                  value: mode,
-                  label: t(`binDesigner.lightweightMode.${mode}`),
-                }))}
-              />
-            </FeatureToggle>
-
-            {/* The interior relief is blocked but the underside one is not, so
-                the reason above is not the whole story. Mirrors the lid's
-                compatibility "Fix" affordance rather than inventing a second
-                shape for the same idea. */}
-            {state.undersideReliefUnblocks && (
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={handlers.enableUndersideRelief}
-                className="mt-1 rounded border border-stroke-subtle bg-surface-elevated px-1.5 py-0.5 text-micro font-medium text-content-secondary hover:bg-surface-hover"
-              >
-                {t('binDesigner.lightweight.useUnderside')}
-              </Button>
-            )}
-          </div>
         </PanelSection>
       )}
     </div>

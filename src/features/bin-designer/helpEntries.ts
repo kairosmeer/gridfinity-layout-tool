@@ -5,8 +5,8 @@
  *
  * Each target.surface is one of:
  *   - 'binDesigner:shape'    — Shape group (dimensions, shape, walls)
- *   - 'binDesigner:interior' — Interior dividers, label tabs, scoop
- *   - 'binDesigner:base'     : Body type, stacking lip, mounting, feet, floor
+ *   - 'binDesigner:interior' — Interior dividers, label tabs, floor (type, scoop, fillet, drainage, text)
+ *   - 'binDesigner:base'     : Body type, stacking lip, mounting, feet
  *   - 'binDesigner:lid'      — Lid group (its own top-level group)
  *   - 'binDesigner:finishing': Multi-color and physical units
  *
@@ -92,6 +92,16 @@ export const helpEntries: FeatureHelpEntry[] = [
   // when `params.style === 'standard'`. With static `routes` filtering we'd
   // either need conditional entries (runtime predicate) or to always mount
   // the marker. Re-add when we ship runtime-conditional entry support.
+  {
+    id: 'feature/bin-designer/floor',
+    kind: 'feature',
+    titleKey: 'help.target.binDesigner.floor.title',
+    descriptionKey: 'help.target.binDesigner.floor.description',
+    keywordsKey: 'help.target.binDesigner.floor.keywords',
+    category: 'interior',
+    routes: ['designer'],
+    target: { surface: 'binDesigner:interior', controlId: 'bd-floor' },
+  },
   {
     id: 'feature/bin-designer/interior-fillet',
     kind: 'feature',

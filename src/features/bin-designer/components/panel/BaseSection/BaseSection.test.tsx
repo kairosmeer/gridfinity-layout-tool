@@ -49,7 +49,6 @@ describe('BaseSection', () => {
     expect(screen.getByText('Top rim')).toBeInTheDocument();
     expect(screen.getByText('Mounting')).toBeInTheDocument();
     expect(screen.getByText('Feet')).toBeInTheDocument();
-    expect(screen.getByText('Floor')).toBeInTheDocument();
   });
 
   it('notes a low-profile base it does not let the user change', () => {
@@ -71,7 +70,6 @@ describe('BaseSection', () => {
     expect(screen.getByText('Magnet holes')).toBeInTheDocument();
     expect(screen.getByText('Screw holes')).toBeInTheDocument();
     expect(screen.getByText('Stacking lip')).toBeInTheDocument();
-    expect(screen.getByText('Lightweight floor')).toBeInTheDocument();
   });
 
   it('plays a clip of the magnet holes from the dot beside their toggle', async () => {
@@ -79,13 +77,6 @@ describe('BaseSection', () => {
     render(<BaseSection />);
     await user.click(screen.getByRole('button', { name: 'Watch a clip: Magnet holes' }));
     expect(screen.getByText(en['binDesigner.featureTip.magnetHoles'])).toBeInTheDocument();
-  });
-
-  it('plays a clip of the lightweight floor from the dot beside its toggle', async () => {
-    const user = userEvent.setup();
-    render(<BaseSection />);
-    await user.click(screen.getByRole('button', { name: 'Watch a clip: Lightweight floor' }));
-    expect(screen.getByText(en['binDesigner.featureTip.lightweightFloor'])).toBeInTheDocument();
   });
 
   describe('lip notches', () => {
@@ -220,7 +211,6 @@ describe('BaseSection', () => {
       await user.click(screen.getByRole('radio', { name: 'Nesting' }));
 
       expect(screen.getByText('A Nesting base has no sockets')).toBeInTheDocument();
-      expect(screen.getByText('Nothing to shell through on a Nesting base')).toBeInTheDocument();
       expect(screen.queryByText(en['binDesigner.lidBaseDisablesHalfSockets'])).toBeNull();
       expect(screen.queryByText(en['binDesigner.lidBaseDisablesShelling'])).toBeNull();
     });
@@ -230,55 +220,6 @@ describe('BaseSection', () => {
 
       expect(screen.getByText('Mounting')).toBeInTheDocument();
       expect(screen.getByText('Feet')).toBeInTheDocument();
-      expect(screen.getByText('Floor')).toBeInTheDocument();
-    });
-  });
-
-  describe('lightweight relief mode', () => {
-    it('is hidden while the feature is off', () => {
-      render(<BaseSection />);
-
-      expect(screen.queryByLabelText('Lightweight mode')).not.toBeInTheDocument();
-    });
-
-    it('appears under the toggle once the feature is on', () => {
-      useDesignerStore.setState({
-        params: { ...DEFAULT_BIN_PARAMS, base: { ...DEFAULT_BIN_PARAMS.base, lightweight: true } },
-      });
-      render(<BaseSection />);
-
-      expect(screen.getByLabelText('Lightweight mode')).toBeInTheDocument();
-    });
-
-    // The reachability guarantee, rebuilt: the mode used to sit outside the
-    // toggle purely so a scooped bin could reach the underside relief that IS
-    // allowed. Nesting it would have stranded that bin, so the blocked toggle
-    // offers the way through instead.
-    it('offers a way to the underside relief when the interior one is blocked', async () => {
-      const user = userEvent.setup();
-      useDesignerStore.setState({
-        params: { ...DEFAULT_BIN_PARAMS, scoop: { enabled: true, radius: 'auto' } },
-      });
-      render(<BaseSection />);
-
-      expect(screen.getByRole('switch', { name: 'Lightweight floor' })).toBeDisabled();
-
-      await user.click(screen.getByRole('button', { name: 'Use underside relief' }));
-
-      const base = useDesignerStore.getState().params.base;
-      expect(base.lightweight).toBe(true);
-      expect(base.lightweightMode).toBe('underside');
-      // The scoop the interior relief would have ruled out survives, which is
-      // the whole point of reaching for the underside one.
-      expect(useDesignerStore.getState().params.scoop.enabled).toBe(true);
-    });
-
-    it('offers no such action when nothing is blocking the feature', () => {
-      render(<BaseSection />);
-
-      expect(
-        screen.queryByRole('button', { name: 'Use underside relief' })
-      ).not.toBeInTheDocument();
     });
   });
 

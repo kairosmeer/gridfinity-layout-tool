@@ -8,6 +8,8 @@ import { useShallow } from 'zustand/react/shallow';
 import { useTranslation } from '@/i18n';
 import { SliderInput } from '@/design-system';
 import { LabelInfo } from '@/shared/components/InfoDot';
+import { Hint } from '@/shared/components/PanelText';
+import { getFeatureStatus } from '@/shared/constraints';
 import { useDesignerStore } from '@/features/bin-designer/store';
 import { maxCompartmentFloorRaiseMm } from '@/features/bin-designer/utils/compartmentFloorRaise';
 
@@ -19,13 +21,21 @@ export function BentoCompartmentFloorControls({
   compartmentId,
 }: BentoCompartmentFloorControlsProps) {
   const t = useTranslation();
-  const { raise, maxRaise, setCompartmentFloorRaise } = useDesignerStore(
-    useShallow((s) => ({
-      raise: s.params.compartments.floorRaises?.[compartmentId] ?? 0,
-      maxRaise: maxCompartmentFloorRaiseMm(s.params),
-      setCompartmentFloorRaise: s.setCompartmentFloorRaise,
-    }))
+  const { raise, maxRaise, blockedReason, setCompartmentFloorRaise } = useDesignerStore(
+    useShallow((s) => {
+      const status = getFeatureStatus(s.params, 'compartmentFloorRaises');
+      return {
+        raise: s.params.compartments.floorRaises?.[compartmentId] ?? 0,
+        maxRaise: maxCompartmentFloorRaiseMm(s.params),
+        // The engine's reason when the floor cannot take a raise (one that
+        // follows the feet). The worker skips it there, so the slider must not
+        // offer one that would silently not build.
+        blockedReason: status.available ? undefined : status.reason,
+        setCompartmentFloorRaise: s.setCompartmentFloorRaise,
+      };
+    })
   );
+  if (blockedReason !== undefined) return <Hint>{t(blockedReason)}</Hint>;
   if (maxRaise <= 0) return null;
 
   return (

@@ -11,7 +11,7 @@
 import { DEFAULT_BIN_PARAMS } from '@/features/bin-designer/constants';
 import type { BinParams } from '@/features/bin-designer/types';
 
-import { paramFieldModified } from './paramFieldModified';
+import { baseFieldModified, paramFieldModified } from './paramFieldModified';
 
 export type PanelGroup = 'shape' | 'lid' | 'interior' | 'base' | 'finishing';
 
@@ -31,6 +31,7 @@ const GROUP_OF: Partial<Record<keyof BinParams, PanelGroup>> = {
   compartments: 'interior',
   scoop: 'interior',
   interiorFilletMm: 'interior',
+  floorRaiseMm: 'interior',
   label: 'interior',
   slotConfig: 'interior',
   dividerPieces: 'interior',
@@ -42,7 +43,7 @@ const GROUP_OF: Partial<Record<keyof BinParams, PanelGroup>> = {
   knifeRest: 'interior',
   slide: 'interior',
   wallPattern: 'finishing',
-  floorPattern: 'finishing',
+  floorPattern: 'interior',
   featureColors: 'finishing',
   gridUnitMm: 'finishing',
   gridUnitMmY: 'finishing',
@@ -76,6 +77,13 @@ export function modifiedGroups(params: BinParams): Record<PanelGroup, boolean> {
 
   for (const key of keys) {
     if (SPANS_GROUPS.has(key)) continue;
+    if (key === 'base') {
+      // The floor type's base fields are edited in the Floor section.
+      const base = baseFieldModified(params);
+      if (base.floor) modified.interior = true;
+      if (base.rest) modified.base = true;
+      continue;
+    }
     if (paramFieldModified(params, key)) {
       modified[GROUP_OF[key as keyof BinParams] ?? 'shape'] = true;
     }

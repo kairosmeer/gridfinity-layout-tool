@@ -198,26 +198,17 @@ const baseLightweight: Shot = {
   async take(s) {
     const name = 'Spare screws';
     await openDesigner(s, name, LIGHTWEIGHT_BIN);
-    const lightweight = toggle(s, 'binDesigner.lightweight');
-    const heading = await nearest(
-      s,
-      texts(s, 'binDesigner.base.section.floor'),
-      lightweight,
-      'above'
-    );
-    const underside = s.page
-      .getByRole('radio', { name: label('binDesigner.lightweightMode.underside'), exact: true })
-      .first();
-    const steps: Step[] = [
-      () => lightweight,
-      () => below(s, customize(s), lightweight),
-      () => underside,
-    ];
+    const tile = (key: string): Locator => s.page.getByRole('radio', { name: label(key) }).first();
+    const followsFeet = tile('binDesigner.floor.type.followsFeet');
+    const flat = tile('binDesigner.floor.type.flat');
+    const heading = await nearest(s, texts(s, 'binDesigner.floor.heading'), followsFeet, 'above');
+    const hollow = toggle(s, 'binDesigner.floor.hollowBelow');
+    const steps: Step[] = [() => followsFeet, () => flat, () => hollow];
     const area = await dryRun(
       s,
       { anchor: heading, y: 300 },
       steps,
-      async () => union(await s.box(heading), await s.box(underside)),
+      async () => union(await s.box(heading), await s.box(hollow)),
       () => setDesign(s, name, LIGHTWEIGHT_BIN)
     );
     await closeUp(s, area, async () => {

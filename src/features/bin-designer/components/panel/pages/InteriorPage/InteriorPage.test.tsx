@@ -24,7 +24,12 @@ describe('InteriorPage', () => {
       container.querySelector('[data-help-target="bd-label-tabs"]'),
       'bd-label-tabs'
     ).not.toBeNull();
+    expect(container.querySelector('[data-help-target="bd-floor"]'), 'bd-floor').not.toBeNull();
     expect(container.querySelector('[data-help-target="bd-scoop"]'), 'bd-scoop').not.toBeNull();
+    expect(
+      container.querySelector('[data-help-target="bd-floor-pattern"]'),
+      'bd-floor-pattern'
+    ).not.toBeNull();
     expect(
       container.querySelector('[data-help-target="bd-knife-rest"]'),
       'bd-knife-rest'

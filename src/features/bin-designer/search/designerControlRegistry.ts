@@ -74,6 +74,12 @@ export const DESIGNER_CONTROL_SEARCH: readonly DesignerControlSearchEntry[] = [
     keywordsKey: 'help.target.binDesigner.labelTabs.keywords',
   },
   {
+    controlId: 'bd-floor',
+    titleKey: 'help.target.binDesigner.floor.title',
+    descriptionKey: 'help.target.binDesigner.floor.description',
+    keywordsKey: 'help.target.binDesigner.floor.keywords',
+  },
+  {
     controlId: 'bd-interior-fillet',
     titleKey: 'help.target.binDesigner.interiorFillet.title',
     descriptionKey: 'help.target.binDesigner.interiorFillet.description',
@@ -191,21 +197,21 @@ export interface DesignerOptionRecord {
  * golden-set eval in `searchCoverage.test.tsx`.
  */
 export const DESIGNER_OPTION_RECORDS: readonly DesignerOptionRecord[] = [
-  // Base
+  // Floor
   {
     id: 'opt-lightweight',
-    labelKey: 'binDesigner.lightweight',
-    section: 'bd-base',
-    keywords: [
-      'lightweight',
-      'lightweight floor',
-      'weight savings',
-      'honeycomb',
-      'infill',
-      'hollow',
-      'gyroid',
-    ],
+    labelKey: 'binDesigner.floor.type.followsFeet',
+    section: 'bd-floor',
+    // prettier-ignore
+    keywords: ['lightweight', 'lightweight floor', 'weight savings', 'honeycomb', 'infill', 'hollow', 'gyroid', 'follows feet'],
   },
+  {
+    id: 'opt-raised-floor',
+    labelKey: 'binDesigner.floor.type.raised',
+    section: 'bd-floor',
+    keywords: ['raised floor', 'false floor', 'shallow', 'fill', 'lift', 'higher floor'],
+  },
+  // Base
   {
     id: 'opt-stacking-lip',
     labelKey: 'assembledHeight.stackingLip',
@@ -354,7 +360,7 @@ export const DESIGNER_OPTION_RECORDS: readonly DesignerOptionRecord[] = [
   {
     id: 'opt-floor-text',
     labelKey: 'binDesigner.floor.text.heading',
-    section: 'bd-floor-pattern',
+    section: 'bd-floor',
     keywords: ['floor text', 'engrave floor', 'bottom text', 'inside label', 'caption'],
   },
   {

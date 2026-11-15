@@ -114,7 +114,7 @@ New to Gridfinity, or stuck on a word? Look it up here. This page explains the t
 
 **Lid**: a cover that the bin designer builds to fit a bin. Most lids grip the stacking lip of the bin. A sliding lid runs in a channel and needs no lip. See [Lids](../designer/lids).
 
-**Lightweight floor**: a base option that hollows each foot to save filament. See [The base](../designer/base).
+**Lightweight floor**: a floor type that hollows each foot to save filament, from inside (Follows feet) or from below. See [The base](../designer/base#make-the-floor-lighter).
 
 **Linked bin**: a bin in a layout that uses a saved design. The layout shows and exports the shape of that design. See [Saved designs and linked bins](../concepts/saved-designs).
 

@@ -52,3 +52,26 @@ export function paramFieldModified(params: BinParams, key: string): boolean {
 
   return JSON.stringify(canonical(current[key])) !== JSON.stringify(canonical(defaults[key]));
 }
+
+/** `base` fields edited in the Floor section rather than with the rest of the base. */
+const FLOOR_BASE_FIELDS = ['lightweight', 'lightweightMode'] as const;
+
+/**
+ * Whether `base` differs from its default, split by where it is edited: the
+ * floor fields belong to the Floor section (Interior), the rest to the base.
+ */
+export function baseFieldModified(params: BinParams): { floor: boolean; rest: boolean } {
+  if (!paramFieldModified(params, 'base')) return { floor: false, rest: false };
+  const pick = (base: BinParams['base'], floor: boolean): unknown =>
+    canonical(
+      Object.fromEntries(
+        Object.entries(base).filter(
+          ([field]) => (FLOOR_BASE_FIELDS as readonly string[]).includes(field) === floor
+        )
+      )
+    );
+  const differs = (floor: boolean): boolean =>
+    JSON.stringify(pick(params.base, floor)) !==
+    JSON.stringify(pick(DEFAULT_BIN_PARAMS.base, floor));
+  return { floor: differs(true), rest: differs(false) };
+}

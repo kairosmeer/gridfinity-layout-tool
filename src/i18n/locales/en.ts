@@ -1342,6 +1342,11 @@ const en: Record<string, string> = {
     'Perforate the bin floor with a drainage or ventilation pattern so water and air pass through.',
   'help.target.binDesigner.floorPattern.keywords':
     'floor|pattern|drainage|drain|vent|ventilation|holes|perforation|mesh|airflow',
+  'help.target.binDesigner.floor.title': 'Floor',
+  'help.target.binDesigner.floor.description':
+    'Choose the floor type (flat, following the feet, or raised) and the features on it.',
+  'help.target.binDesigner.floor.keywords':
+    'floor|lightweight|hollow|raised|false floor|underside|scoop|fillet|drainage|floor text',
   'help.target.binDesigner.printFit.title': 'Print bed fit and splitting',
   'help.target.binDesigner.printFit.description':
     'Check whether the bin fits your printer bed, and split it into joinable pieces when it does not.',
@@ -3128,24 +3133,34 @@ const en: Record<string, string> = {
   'binDesigner.lightweightDisablesScoop':
     'An interior lightweight floor has no solid floor for a scoop ramp',
   'binDesigner.scoopDisablesLightweight':
-    'A finger scoop needs a solid floor: switch the mode to Underside to keep both',
+    'A finger scoop needs a flat floor: hollow the feet from below to keep both',
   'binDesigner.lightweightDisablesInteriorFillet':
     'An interior lightweight floor has no solid floor for the fillet to round into',
   'binDesigner.interiorFilletDisablesLightweight':
-    'An interior fillet needs a solid floor: switch the mode to Underside to keep both',
+    'An interior fillet needs a flat floor: hollow the feet from below to keep both',
   'binDesigner.lightweightDisablesCutouts':
     'Cutouts are not available with an interior lightweight floor',
   'binDesigner.cutoutsDisableLightweight':
-    'Top cutouts need a solid floor: switch the mode to Underside to keep both',
+    'Top cutouts need a flat floor: hollow the feet from below to keep both',
   'binDesigner.lightweightDisablesInserts': 'Floor inserts would cut through a lightweight floor',
   'binDesigner.insertsDisableLightweight': 'Cannot combine floor inserts with a lightweight floor',
   'binDesigner.attachmentDisablesFlatFloor': 'Attachment holes require sockets',
   'binDesigner.lightweightDisablesFloorPattern':
     'An interior lightweight floor is already open: there is no slab to perforate',
   'binDesigner.floorPatternDisablesLightweight':
-    'Drainage holes need a slab to perforate: switch the mode to Underside to keep both',
+    'Drainage holes need a flat floor: hollow the feet from below to keep both',
+  'binDesigner.lightweightDisablesFloorRaise':
+    'A floor that follows the feet has no flat floor to raise',
+  'binDesigner.floorRaiseDisablesLightweight':
+    'A raised floor fills the floor the feet would open into',
+  'binDesigner.lightweightDisablesCompartmentFloorRaises':
+    'A floor that follows the feet cannot raise a compartment',
+  'binDesigner.compartmentFloorRaisesDisableLightweight':
+    'Raised compartments need a flat floor under them',
+  'binDesigner.floorRaiseUnavailableSlotted':
+    'Removable dividers seat in the floor, so it cannot be raised',
   'binDesigner.tileDisablesLightweight':
-    'A base-only bin is just the floor: switch the mode to Underside to lighten it',
+    'A base-only bin is just the floor: hollow its feet from below to lighten it',
   'binDesigner.spacerDisablesInterior': 'A spacer has no floor to hold interior features',
   'binDesigner.spacerDisablesStyle': 'A spacer is an open frame: there is no interior to shape',
   'binDesigner.spacerDisablesAttachment': 'A spacer has no floor to hold a magnet or screw',
@@ -4175,6 +4190,28 @@ const en: Record<string, string> = {
     'Sits on the largest clear part of the floor, away from dividers, scoops and raised floors.',
   'binDesigner.floor.text.disabled': 'Needs a standard bin with a closed floor.',
   'binDesigner.floor.text.anchor': 'Floor text position',
+  'binDesigner.floor.heading': 'Floor',
+  'binDesigner.floor.type': 'Floor type',
+  'binDesigner.floor.type.flat': 'Flat',
+  'binDesigner.floor.type.followsFeet': 'Follows feet',
+  'binDesigner.floor.type.raised': 'Raised',
+  'binDesigner.floor.type.flat.caption': 'A flat floor over the feet.',
+  'binDesigner.floor.type.followsFeet.caption':
+    'The floor dips into each foot. Saves the most filament.',
+  'binDesigner.floor.type.raised.caption': 'Solid fill lifts the floor nearer the rim.',
+  'binDesigner.floor.type.flat.note':
+    'The standard floor. Scoops, fillets, drainage holes and floor text all work on it.',
+  'binDesigner.floor.type.followsFeet.note':
+    'Each foot is hollowed from inside, so the grid shape shows through the floor. Saves the most filament, but small items can settle into the dips, and scoops, fillets and drainage holes are off.',
+  'binDesigner.floor.type.raised.note':
+    'Fills the floor up by the height you set, so short items are easy to reach. Scoops, fillets, drainage holes and floor text move up with it; Bento compartment raises add on top.',
+  'binDesigner.floor.hollowBelow': 'Hollow feet from below',
+  'binDesigner.floor.hollowBelowDetail':
+    'Hollows each foot from underneath and keeps the floor whole, so nothing falls into it. Saves filament without giving up scoops or drainage holes.',
+  'binDesigner.floor.raiseHeight': 'Raise by',
+  'binDesigner.floor.gramsSaved': '−{grams} g',
+  'binDesigner.floor.gramsAdded': '+{grams} g',
+  'binDesigner.floor.noFloor': 'This body has no inside floor.',
   'binDesigner.walls.text.heading': 'Wall text',
   'binDesigner.walls.text.placeholder': 'e.g. Cables',
   'binDesigner.walls.text.sideAria': '{side} wall text',
@@ -4467,15 +4504,6 @@ const en: Record<string, string> = {
   'binDesigner.footLattice.fractionalHintDetail':
     'Its half cell already handles both placements, and the half-unit edge setting decides which end it sits on.',
   'binDesigner.lightweight': 'Lightweight floor',
-  'binDesigner.lightweightMode': 'Lightweight mode',
-  // 'Inside', not 'Interior': the panel already has an Interior GROUP tab, and
-  // two controls with the same word in one panel read as the same thing.
-  'binDesigner.lightweightMode.interior': 'Inside',
-  'binDesigner.lightweightMode.underside': 'Underside',
-  'binDesigner.lightweightMode.interior.hint':
-    'Hollows each foot from the inside, so the grid shape shows through the bin floor. Saves the most filament, but small or flat items can settle into the recesses.',
-  'binDesigner.lightweightMode.underside.hint':
-    'Hollows each foot from below and leaves the bin floor flat, so nothing can fall into it. Finger scoops and drainage holes still work.',
   'binDesigner.spacer': 'Spacer',
   'binDesigner.spacerHint':
     'Turns the bin into an open riser you stack under another bin, so bins of different heights finish flush. Its height counts like a bin of the same size: a 2u spacer under a 2u bin reaches the top of a 4u one.',
@@ -4510,8 +4538,6 @@ const en: Record<string, string> = {
   'binDesigner.base.lowProfileNote':
     'This layout uses a low-profile base: feet are 1.1mm shorter and the floor sits 1.1mm lower. Change it in the baseplate settings.',
   'binDesigner.base.lowProfileNoteShort': 'This layout uses a low-profile base.',
-  'binDesigner.base.section.floor': 'Floor',
-  'binDesigner.base.section.floorPattern': 'Floor pattern',
   'binDesigner.base.stackingLip.hint': "Lets another bin's feet sit on top of this one",
   'binDesigner.base.lipTip': 'Lip peak',
   'binDesigner.base.lipTip.sharp': 'Sharp',
@@ -4555,7 +4581,6 @@ const en: Record<string, string> = {
     'Puts magnet and screw holes only at the outer corners of the bin. A large bin needs fewer magnets and lifts off the baseplate more easily.',
   'binDesigner.base.screwHoles': 'Screw holes',
   'binDesigner.base.screwDiameter': 'Screw diameter',
-  'binDesigner.lightweight.useUnderside': 'Use underside relief',
   'binDesigner.finishing.summary.units': '{grid}mm grid · {height}mm height',
   'binDesigner.base.floorPattern.shape': 'Hole shape',
   'binDesigner.base.floorPattern.hint':
@@ -4945,23 +4970,25 @@ const en: Record<string, string> = {
   'baseplate.ecoLevel.standardHint':
     'Hollows the straight grid lines down to a thin bottom bridge.',
   'baseplate.ecoLevel.ultraHint':
-    'Keeps only a thin shell of the socket around each grid corner and a low rib between. About half the filament of the standard eco plate. Print a small test first.',
+    'About half the filament of the standard eco plate. Print a small test first.',
+  'baseplate.ecoLevel.ultraHintDetail':
+    'Keeps only a thin shell of the socket around each grid corner and a low rib between.',
   'baseplate.ecoLevel.blocked.stacking':
-    'Ultra light is too thin to stack for printing, so this plate prints as the standard eco plate.',
+    'Too thin to stack for printing, so this plate prints as standard eco.',
   'baseplate.ecoLevel.blocked.magnets':
-    'Ultra light needs a plate without magnet holes, so this plate prints as the standard eco plate.',
+    'Magnet holes rule out Ultra light, so this plate prints as standard eco.',
   'baseplate.ecoLevel.blocked.solidFloor':
-    'Ultra light needs a plate without a solid floor, so this plate prints as the standard eco plate.',
+    'A solid floor rules out Ultra light, so this plate prints as standard eco.',
   'baseplate.ecoLevel.blocked.screws':
-    'Ultra light needs a plate without screw holes, so this plate prints as the standard eco plate.',
+    'Screw holes rule out Ultra light, so this plate prints as standard eco.',
   'baseplate.ecoLevel.blocked.mountMagnets':
-    'Ultra light needs a plate without mounting magnets, so this plate prints as the standard eco plate.',
+    'Mounting magnets rule out Ultra light, so this plate prints as standard eco.',
   'baseplate.ecoLevel.blocked.outline':
-    'Ultra light needs a rectangular drawer, so this shaped plate prints as the standard eco plate.',
+    'A shaped drawer rules out Ultra light, so this plate prints as standard eco.',
   'baseplate.ecoLevel.blocked.overTile':
-    'Ultra light does not fill padding with grid tiles, so this plate prints as the standard eco plate.',
+    'Grid tiles in the padding rule out Ultra light, so this prints as standard eco.',
   'baseplate.ecoLevel.blocked.connector':
-    'Ultra light does not support the snap clip or the margin connector, so this plate prints as the standard eco plate.',
+    'A snap clip or margin connector rules out Ultra light; this prints as standard eco.',
   'baseplate.solidFloorThickness': 'Floor thickness',
   'baseplate.solidFloorThicknessDetail':
     'Added below the standard grid. Total height of the plate increases by this amount to accommodate.',

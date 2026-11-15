@@ -16,6 +16,8 @@ export type FeatureKey =
   | 'compartments'
   | 'scoop'
   | 'interiorFillet'
+  | 'floorRaise'
+  | 'compartmentFloorRaises'
   | 'label'
   | 'wallPattern'
   | 'floorPattern'

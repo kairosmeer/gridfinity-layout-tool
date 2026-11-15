@@ -12,24 +12,18 @@ import {
 } from '@/features/bin-designer/types/base';
 import type {
   BinParams,
-  FloorPatternType,
   FootLattice,
-  LightweightMode,
   LipTipStyle,
   LidAttachment,
   LidRailSide,
   TrayBottomConfig,
-  WallPatternType,
 } from '@/features/bin-designer/types';
 import { maxBinRimFilletRadius, rimFilletAvailable } from '@/shared/utils/rimFillet';
 import { lipNotchBlocker } from '@/shared/utils/lipNotchPlan';
 import { isPartialMask } from '@/shared/utils/cellMask';
 import { isFractional } from '@/core/constants';
 import {
-  DEFAULT_FLOOR_PATTERN_CONFIG,
-  DEFAULT_PATTERN_SCALE,
   resolveTrayBottomConfig,
-  FLOOR_PATTERN_TYPES,
   hasMountingMagnets,
   isNestingBase,
   isScrewStyle,
@@ -42,11 +36,9 @@ import {
   LID_MAGNET_EDGE_COUNT_STEP,
   LID_MAGNET_DIMENSION_STEP_MM,
 } from '@/features/bin-designer/types';
-import { assessFloorPatternFit } from '@/features/bin-designer/utils/floorPatternFit';
 import { DESIGNER_CONSTRAINTS } from '@/features/bin-designer/constants';
 import {
   DEFAULT_FOOT_LATTICE,
-  DEFAULT_LIGHTWEIGHT_MODE,
   resolveLipTip,
   isSocketlessBase,
 } from '@/features/bin-designer/types/base';
@@ -70,11 +62,6 @@ function omitDetachableFeet(base: BinParams['base']): BinParams['base'] {
   return rest;
 }
 
-/** Narrow a picker selection to the subset the floor supports. */
-function isFloorPatternType(pattern: WallPatternType): pattern is FloorPatternType {
-  return (FLOOR_PATTERN_TYPES as readonly WallPatternType[]).includes(pattern);
-}
-
 /** The rest of each foot-lattice note, shown behind its info dot. */
 const FOOT_LATTICE_DETAIL: Partial<Record<string, string>> = {
   'binDesigner.footLattice.hint': 'binDesigner.footLattice.hintDetail',
@@ -84,11 +71,10 @@ const FOOT_LATTICE_DETAIL: Partial<Record<string, string>> = {
 
 export function useBaseSection() {
   const t = useTranslation();
-  const { params, updateBase, updateFloorPattern, setParams } = useDesignerStore(
+  const { params, updateBase, setParams } = useDesignerStore(
     useShallow((s) => ({
       params: s.params,
       updateBase: s.updateBase,
-      updateFloorPattern: s.updateFloorPattern,
       setParams: s.setParams,
     }))
   );
@@ -175,7 +161,6 @@ export function useBaseSection() {
   const magnetStatus = getFeatureStatus(params, 'base.magnet');
   const screwStatus = getFeatureStatus(params, 'base.screw');
   const halfSocketsStatus = getFeatureStatus(params, 'base.halfSockets');
-  const lightweightStatus = getFeatureStatus(params, 'base.lightweight');
 
   const bodyType = deriveBodyType(base);
 
@@ -193,36 +178,9 @@ export function useBaseSection() {
   // there is nothing for a lattice or a half socket to describe.
   const hasFeet = !isSocketlessBase(base.style);
 
-  const floorPatternStatusForApplies = getFeatureStatus(params, 'floorPattern');
-
   const showMounting = applies(magnetStatus) || applies(screwStatus);
   const showFeet =
     hasFeet && (applies(detachableFeetStatus) || applies(halfSocketsStatus) || !footLatticeInert);
-  /**
-   * Whether the underside relief would lift the block the toggle is reporting.
-   *
-   * Asked of the engine against a hypothetical `underside` selection rather
-   * than matched against a list of fixable reasons. The mode-split pairs
-   * (`scoop`, `cutouts`) already read `undersideReliefSelected` while the
-   * feature is OFF, and a list would have to be revisited every time one is
-   * added. Inserts stay mutual across both modes, so they correctly answer
-   * false here and no fix is offered for them.
-   */
-  const undersideReliefUnblocks =
-    !lightweightStatus.available &&
-    !feetSupersedeReason &&
-    getFeatureStatus(
-      { ...params, base: { ...params.base, lightweightMode: 'underside' } },
-      'base.lightweight'
-    ).available;
-
-  // The escape hatch has to keep the family on screen: on a tile or a solid
-  // board BOTH floor features are disabled, and hiding the section unmounts
-  // the one control that can lift the block — the exact trap the pre-#3571
-  // layout avoided by rendering the mode picker unconditionally.
-  const showFloor =
-    applies(lightweightStatus) || applies(floorPatternStatusForApplies) || undersideReliefUnblocks;
-
   /**
    * Why a family is not on offer, kept next to the heading rather than removing
    * the heading with it.
@@ -242,10 +200,6 @@ export function useBaseSection() {
   const feetUnavailable = showFeet
     ? undefined
     : familyReason(halfSocketsStatus, detachableFeetStatus);
-  const floorUnavailable = showFloor
-    ? undefined
-    : familyReason(lightweightStatus, floorPatternStatusForApplies);
-
   const commit = useCallback(
     (resolved: BinParams) => {
       setParams(finalizeBaseParams(resolved));
@@ -263,12 +217,6 @@ export function useBaseSection() {
     : halfSocketsStatus.reason
       ? t(halfSocketsStatus.reason)
       : undefined;
-  const lightweightDisabledReason = feetSupersedeReason
-    ? t(feetSupersedeReason)
-    : lightweightStatus.reason
-      ? t(lightweightStatus.reason)
-      : undefined;
-
   const toggleMagnet = useCallback(() => {
     // Only block enabling — allow disabling so users can recover from invalid states
     if (!hasMagnet && !magnetStatus.available) return;
@@ -315,58 +263,6 @@ export function useBaseSection() {
     },
     [updateBase]
   );
-
-  const toggleLightweight = useCallback(() => {
-    if (!base.lightweight && !lightweightStatus.available) return;
-    const { params: resolved } = resolveConstraints(params, {
-      feature: 'base.lightweight',
-      enabled: !base.lightweight,
-    });
-    commit(resolved);
-  }, [params, base.lightweight, lightweightStatus.available, commit]);
-
-  /**
-   * Switch which side the lite floor opens from.
-   *
-   * Routed through the constraint engine rather than `updateBase` because the
-   * mode decides three rule pairs: coming back to Interior with a finger scoop,
-   * drainage holes or cutouts on has to clear them, exactly as enabling the
-   * feature would. The change is applied first and then re-resolved as a no-op
-   * toggle of `base.lightweight` — re-asserting its current value — so the
-   * engine's protection for "the feature the user just enabled" keeps
-   * lightweight itself on while the incompatible set is cleared around it.
-   */
-  const setLightweightMode = useCallback(
-    (mode: LightweightMode) => {
-      const withMode: BinParams = { ...params, base: { ...params.base, lightweightMode: mode } };
-      const { params: resolved } = resolveConstraints(withMode, {
-        feature: 'base.lightweight',
-        enabled: withMode.base.lightweight,
-      });
-      commit(resolved);
-    },
-    [params, commit]
-  );
-
-  /**
-   * Turn the lightweight floor on THROUGH the underside relief.
-   *
-   * Offered where the interior relief is blocked but the underside one is not,
-   * which is the case `setLightweightMode` cannot serve: it re-asserts the
-   * feature's current value, so on a bin where the toggle is the thing being
-   * blocked it would switch the mode and leave the feature off.
-   */
-  const enableUndersideRelief = useCallback(() => {
-    const withMode: BinParams = {
-      ...params,
-      base: { ...params.base, lightweightMode: 'underside' },
-    };
-    const { params: resolved } = resolveConstraints(withMode, {
-      feature: 'base.lightweight',
-      enabled: true,
-    });
-    commit(resolved);
-  }, [params, commit]);
 
   const toggleHalfSockets = useCallback(() => {
     if (!hasHalfSockets && !halfSocketsStatus.available) return;
@@ -442,48 +338,6 @@ export function useBaseSection() {
       }),
     [updateTrayBottom, trayBottom]
   );
-
-  // ── Floor pattern ────────────────────────────────────────────────
-  // Drainage / ventilation holes through the floor slab and the feet below it.
-  const floorPattern = params.floorPattern ?? DEFAULT_FLOOR_PATTERN_CONFIG;
-  const floorPatternStatus = getFeatureStatus(params, 'floorPattern');
-  const floorPatternDisabledReason = floorPatternStatus.reason
-    ? t(floorPatternStatus.reason)
-    : undefined;
-
-  const toggleFloorPattern = useCallback(() => {
-    if (!floorPattern.enabled && !floorPatternStatus.available) return;
-    const { params: resolved } = resolveConstraints(params, {
-      feature: 'floorPattern',
-      enabled: !floorPattern.enabled,
-    });
-    commit(resolved);
-  }, [params, floorPattern.enabled, floorPatternStatus.available, commit]);
-
-  const setFloorPatternType = useCallback(
-    (pattern: WallPatternType | null) => {
-      // The picker's "none" entry is the off switch, so it has to route through
-      // the constraint engine like the toggle rather than just clearing the type.
-      if (pattern === null) {
-        const { params: resolved } = resolveConstraints(params, {
-          feature: 'floorPattern',
-          enabled: false,
-        });
-        commit(resolved);
-        return;
-      }
-      if (!isFloorPatternType(pattern)) return;
-      updateFloorPattern({ pattern, enabled: true });
-    },
-    [params, commit, updateFloorPattern]
-  );
-
-  const setFloorPatternScale = useCallback(
-    (percent: number) => updateFloorPattern({ scale: percent / 100 }),
-    [updateFloorPattern]
-  );
-
-  const floorPatternFit = useMemo(() => assessFloorPatternFit(params), [params]);
 
   const setMagnetDiameter = useCallback(
     (diameter: number) => {
@@ -581,28 +435,23 @@ export function useBaseSection() {
       footLatticeY,
       footLatticeLockedX,
       footLatticeLockedY,
-      hasLightweight: base.lightweight,
       // Set by the layout, never here: the panel only reports it.
       lowProfile: base.lowProfile === true,
-      lightweightMode: base.lightweightMode ?? DEFAULT_LIGHTWEIGHT_MODE,
       lipTip: resolveLipTip(base),
       lipNotches: base.lipNotches === true,
       lipNotchBlocker: lipNotchBlocker(params),
       rimFilletAvailable: rimFilletAvailable(params) && !base.tile,
       rimFilletRadius: Math.min(base.rimFilletRadius ?? 0.4, maxBinRimFilletRadius(params)),
       rimFilletMax: maxBinRimFilletRadius(params),
-      undersideReliefUnblocks,
       // Which families of controls this body actually has. A hidden one is
       // never hiding a live setting: the engine clears what it disables.
       showMounting,
       showScrewMounting: applies(screwStatus),
       showFeet,
-      showFloor,
       // A family this body cannot have keeps its heading and says why, so a
       // control never simply vanishes between one body type and the next.
       mountingUnavailable,
       feetUnavailable,
-      floorUnavailable,
       showFootLattice: hasFeet && !footLatticeInert,
       // Why the lattice is not on offer, rendered in the slot it would have
       // occupied. Half sockets is the only cause with a control in this section
@@ -616,10 +465,6 @@ export function useBaseSection() {
         hasFeet && footLatticeInert && footLatticeDetailKey !== undefined
           ? t(footLatticeDetailKey)
           : undefined,
-      floorPatternEnabled: floorPattern.enabled,
-      floorPatternType: floorPattern.pattern,
-      floorPatternScalePercent: Math.round((floorPattern.scale ?? DEFAULT_PATTERN_SCALE) * 100),
-      floorPatternDoesNotFit: floorPattern.enabled && floorPatternFit === 'none',
     },
     handlers: {
       toggleDetachableFeet,
@@ -641,8 +486,6 @@ export function useBaseSection() {
       toggleLipNotches,
       toggleRimFillet,
       setRimFilletRadius,
-      toggleLightweight,
-      setLightweightMode,
       toggleHalfSockets,
       setFootLatticeX,
       setFootLatticeY,
@@ -654,7 +497,6 @@ export function useBaseSection() {
       footLatticeLockDetail:
         footLatticeDetailKey === undefined ? undefined : t(footLatticeDetailKey),
       setBodyType,
-      enableUndersideRelief,
       setTrayAttachment,
       setTrayExtraHeight,
       toggleTrayRail,
@@ -664,14 +506,9 @@ export function useBaseSection() {
       setMagnetCrushRibs: holes.setCrushRibs,
       setMagnetChamfer: holes.setChamfer,
       setScrewDiameter,
-      toggleFloorPattern,
-      setFloorPatternType,
-      setFloorPatternScale,
-      floorPatternDisabledReason,
       magnetDisabledReason,
       screwDisabledReason,
       halfSocketsDisabledReason,
-      lightweightDisabledReason,
     },
   };
 }

@@ -91,6 +91,9 @@ const cases: ReadonlyArray<readonly [string, Partial<BinParams>]> = [
     { width: 2, depth: 2, height: 3, base: { ...buildParams({}).base, lowProfile: true } },
   ],
   ['2×2×3 wall thicker than the spec floor', { width: 2, depth: 2, height: 3, wallThickness: 2.6 }],
+  // A raised floor is a thicker floor slab, which the draft draws from the
+  // same `resolveBinFloorMm`; the cavity probe pins it to the exact mesh.
+  ['2×2×4 raised floor', { width: 2, depth: 2, height: 4, floorRaiseMm: 6 }],
 ];
 
 describe('binDirectMesh — draft/exact parity', () => {

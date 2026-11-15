@@ -128,9 +128,9 @@ Open <Ui k="binDesigner.cutouts.section.label" /> and type the text, up to 50 ch
 
 ### The cut editor is gray and won't open
 
-Read the line under <Ui k="binDesigner.editCutouts" />. It names the setting that blocks the cutouts. Is it a lightweight floor? Open <Ui k="binDesigner.group.base" />, and set <Ui k="binDesigner.lightweightMode" /> to <Ui k="binDesigner.lightweightMode.underside" />. The bin stays light, and the cutouts come back.
+Read the line under <Ui k="binDesigner.editCutouts" />. It names the setting that blocks the cutouts. Is it a floor that follows the feet? In the <Ui k="binDesigner.floor.heading" /> section, pick <Ui k="binDesigner.floor.type.flat" /> and turn on <Ui k="binDesigner.floor.hollowBelow" />. The bin stays light, and the cutouts come back.
 
-A cutout cuts down into a solid floor. The inside lightweight mode hollows each foot from the inside, so no solid floor stays to cut into. A <Ui k="binDesigner.spacer" /> or a <Ui k="binDesigner.tile" /> bin has no room for cutouts at all.
+A cutout cuts down into a solid floor. <Ui k="binDesigner.floor.type.followsFeet" /> hollows each foot from the inside, so no solid floor stays to cut into. A <Ui k="binDesigner.spacer" /> or a <Ui k="binDesigner.tile" /> bin has no room for cutouts at all.
 
 ### You can't pick Through
 

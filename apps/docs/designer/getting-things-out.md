@@ -48,7 +48,7 @@ The finger scoop needs a solid floor in a rectangular bin with compartment walls
 
 - Removable dividers and solid bins have no place for a scoop.
 - A custom shape needs a rectangular footprint.
-- The inside mode of a lightweight floor has no solid floor for the ramp. Change the mode to underside to keep both. See [The base](./base#hollow-the-floor-from-underneath).
+- A floor that follows the feet has no flat floor for the ramp. Pick the flat floor and hollow the feet from below to keep both. See [The base](./base#hollow-the-floor-from-underneath).
 - A spacer, a base-only bin and a <Ui k="binDesigner.base.bodyType.nesting" /> body have no place for a scoop.
 
 <Screenshot id="designer-getting-things-out-scoop" alt="Finger scoop is turned on, and the Back wall is added to the Front wall with the Curved style. The bin then shows three compartments with a curved ramp at the front and the back of each." spec="Bin designer, bin 3 x 2 x 6 with Grid dividers set to 3 columns and 1 row. Close-up of the Interior group: turn on Finger scoop, open Customize, add the Back wall. Curved is the default style. Cut to the bin from above, so the ramps show." />
@@ -68,7 +68,7 @@ The radius starts at the radius of the inside corners of the bin, so the fillet 
 
 A compartment that is too small for the radius gets the largest rounding that fits. The panel tells you when this happens. On a tray of small compartments, a large radius makes each compartment a bowl.
 
-The fillet needs a solid floor. It does not work with removable dividers, because it would fill the divider slots. A solid bin, a spacer, a base-only bin and a <Ui k="binDesigner.base.bodyType.nesting" /> body cannot have it either. With a lightweight floor, use the underside mode.
+The fillet needs a solid floor. It does not work with removable dividers, because it would fill the divider slots. A solid bin, a spacer, a base-only bin and a <Ui k="binDesigner.base.bodyType.nesting" /> body cannot have it either. To save filament as well, hollow the feet from below.
 
 ## Add a pull tab
 
@@ -138,4 +138,4 @@ A pull tab needs plain walls. Wall cutouts, handles, a wall pattern, wall text o
 - [Compartments and dividers](./compartments): set up the compartments that get the scoops.
 - [Stacking](./stacking): see how the tab adds to the height of the bin.
 - [Walls](./walls): add handles if you need a grip without a tab.
-- [The base](./base#make-the-floor-lighter): choose a lightweight floor that keeps the scoop.
+- [The base](./base#make-the-floor-lighter): choose a floor type that keeps the scoop.

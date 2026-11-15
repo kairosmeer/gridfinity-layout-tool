@@ -8,8 +8,7 @@ import { FeatureGate } from '../../FeatureGate';
 import { DependencyHint } from '../../shared';
 import { InteriorSection } from '../../InteriorSection';
 import { LabelTabsSection } from '../../LabelTabsSection';
-import { ScoopSection } from '../../ScoopSection';
-import { InteriorFilletSection } from '../../InteriorFilletSection';
+import { FloorSection } from '../../FloorSection';
 import { KnifeRestSection } from '../../KnifeRestSection';
 
 export function InteriorPage() {
@@ -44,14 +43,8 @@ export function InteriorPage() {
           </FeatureGate>
         </PanelSection>
       )}
-      <PanelSection helpTarget="bd-interior-fillet">
-        <InteriorFilletSection />
-      </PanelSection>
-      <PanelSection helpTarget="bd-scoop">
-        {footprintFix}
-        <FeatureGate disabled={isCustomShape} reason={customShapeReason}>
-          <ScoopSection />
-        </FeatureGate>
+      <PanelSection helpTarget="bd-floor">
+        <FloorSection />
       </PanelSection>
       <PanelSection helpTarget="bd-knife-rest">
         <KnifeRestSection />

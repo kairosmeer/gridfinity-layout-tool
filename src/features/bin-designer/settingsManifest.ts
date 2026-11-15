@@ -25,8 +25,10 @@ export const DESIGNER_SETTINGS: readonly DesignerSettingEntry[] = [
   { controlId: 'bd-base', category: 'shape' },
   { controlId: 'bd-interior', category: 'interior' },
   { controlId: 'bd-label-tabs', category: 'interior' },
+  { controlId: 'bd-floor', category: 'interior' },
   { controlId: 'bd-interior-fillet', category: 'interior' },
   { controlId: 'bd-scoop', category: 'interior' },
+  { controlId: 'bd-floor-pattern', category: 'interior' },
   { controlId: 'bd-knife-rest', category: 'interior' },
   { controlId: 'bd-lid', category: 'features' },
   { controlId: 'bd-lid-grip', category: 'features' },
@@ -37,7 +39,6 @@ export const DESIGNER_SETTINGS: readonly DesignerSettingEntry[] = [
   { controlId: 'bd-type', category: 'style' },
   { controlId: 'bd-colors', category: 'style' },
   { controlId: 'bd-wall-style', category: 'style' },
-  { controlId: 'bd-floor-pattern', category: 'style' },
   { controlId: 'bd-physical-units', category: 'print' },
   { controlId: 'bd-print-fit', category: 'print' },
 ];

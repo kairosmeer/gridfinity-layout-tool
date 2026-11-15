@@ -29,7 +29,7 @@ The bin designer panel puts the parts in five groups:
 | <Ui k="binDesigner.group.lid" />       | Lid, pull tab and handles                                       |
 | <Ui k="binDesigner.group.interior" />  | Compartments and dividers, label tabs, fillet and finger scoop  |
 | <Ui k="binDesigner.group.base" />      | Body type, stacking lip, magnet and screw holes, feet and floor |
-| <Ui k="binDesigner.group.finishing" /> | Text, colors, wall surface, floor pattern and physical units    |
+| <Ui k="binDesigner.group.finishing" /> | Text, colors, wall surface and physical units                   |
 
 ## Feet
 
@@ -58,12 +58,12 @@ The <Ui k="binDesigner.group.base" /> group holds the options for the feet.
 
 The floor sits on the feet. On a standard bin, the first height unit (7 mm) holds the feet and the floor, and the room for your items starts above it.
 
-Want to save filament? Under <Ui k="binDesigner.base.section.floor" />, <Ui k="binDesigner.lightweight" /> hollows the feet. It has two modes:
+Want to save filament? The <Ui k="binDesigner.floor.heading" /> section in the <Ui k="binDesigner.group.interior" /> group hollows the feet in two ways:
 
-- <Ui k="binDesigner.lightweightMode.interior" /> hollows each foot from the inside. It saves the most filament, but small items can settle into the hollows.
-- <Ui k="binDesigner.lightweightMode.underside" /> hollows each foot from below and keeps the floor flat. Pick this one for a bin of small parts.
+- <Ui k="binDesigner.floor.type.followsFeet" /> hollows each foot from the inside. It saves the most filament, but small items can settle into the hollows.
+- <Ui k="binDesigner.floor.hollowBelow" /> hollows each foot from below and keeps the floor flat. Pick this one for a bin of small parts.
 
-<Ui k="binDesigner.base.floorPattern" /> in the <Ui k="binDesigner.group.finishing" /> group cuts holes through the floor and the feet, so water and dust fall through.
+<Ui k="binDesigner.base.floorPattern" /> in the same section cuts holes through the floor and the feet, so water and dust fall through.
 
 ## Walls
 
@@ -132,7 +132,7 @@ Click <Ui k="binDesigner.dependency.enableStackingLip" /> under the switch. The 
 
 ### The scoop or the fillet won't turn on
 
-Set <Ui k="binDesigner.lightweightMode" /> to <Ui k="binDesigner.lightweightMode.underside" />. Then the bin keeps its lightweight floor and gets the scoop too. <Ui k="binDesigner.lightweightMode.interior" /> leaves no solid floor for a scoop ramp or a fillet. The same goes for drainage holes and cutouts in the top of the bin.
+Pick the <Ui k="binDesigner.floor.type.flat" /> floor and turn on <Ui k="binDesigner.floor.hollowBelow" />. Then the bin stays light and gets the scoop too. <Ui k="binDesigner.floor.type.followsFeet" /> leaves no flat floor for a scoop ramp or a fillet. The same goes for drainage holes and cutouts in the top of the bin.
 
 ## Next steps
 

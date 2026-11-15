@@ -43,6 +43,18 @@ describe('modifiedCategories', () => {
     ).toEqual({ ...stock(), shape: true });
   });
 
+  it('attributes the floor type to Interior, where the Floor section edits it', () => {
+    expect(
+      modifiedCategories({
+        ...DEFAULT_BIN_PARAMS,
+        base: { ...DEFAULT_BIN_PARAMS.base, lightweight: true },
+      })
+    ).toEqual({ ...stock(), interior: true });
+    expect(modifiedCategories({ ...DEFAULT_BIN_PARAMS, floorRaiseMm: 6 })).toEqual({
+      ...stock(),
+      interior: true,
+    });
+  });
   it('attributes a lid change to Features', () => {
     expect(
       modifiedCategories({

@@ -36,7 +36,7 @@ import {
 import { computeInteriorHeight } from '@/shared/utils/scoopCalculations';
 import { GRIDFINITY } from '@/features/bin-designer/constants/gridfinity';
 import { isPartialMask } from '@/shared/utils/cellMask';
-import { interiorFilletCornerMm, interiorFilletRiseMm } from '@/shared/utils/interiorFillet';
+import { floorSeamRiseMm, interiorFilletCornerMm } from '@/shared/utils/interiorFillet';
 import { wallPatternElementMetrics } from '@/shared/generation/wallPatternMetrics';
 
 /** Keep-out from the divider's top edge (mm) — mirrors `wallPatterns.ts`. */
@@ -156,7 +156,7 @@ function resolveIntegratedBand(
     bandHeight:
       dividerHeight -
       TOP_KEEP_OUT -
-      (params.wallThickness + BOTTOM_SOLID_SKIRT + interiorFilletRiseMm(params)),
+      (params.wallThickness + BOTTOM_SOLID_SKIRT + floorSeamRiseMm(params)),
     spans: spans.map((span) => span - 2 * (border + interiorFilletCornerMm(params))),
   };
 }

@@ -13,6 +13,9 @@ export const MAX_COMPARTMENT_FLOOR_RAISE_MM = 100;
 /** Pocket depth (mm) a raise must leave, so a raised compartment is still a pocket. */
 export const MIN_RAISED_CAVITY_MM = 3;
 
+/** Step (mm) of the raised-floor height control. */
+export const FLOOR_RAISE_STEP_MM = 0.5;
+
 /** Divider configuration for compartment splitting (legacy — use CompartmentConfig) */
 export interface DividerConfig {
   readonly x: number;

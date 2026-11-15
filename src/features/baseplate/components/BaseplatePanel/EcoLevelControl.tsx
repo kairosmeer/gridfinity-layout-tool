@@ -1,6 +1,7 @@
 import type { EcoLevel, StoredBaseplateParams } from '@/core/types';
 import { useTranslation } from '@/i18n';
 import { SegmentedControl } from '@/design-system';
+import { Hint } from '@/shared/components/PanelText';
 import { ultraLightBlocker } from '@/shared/generation/ecoPlate';
 import { updateBaseplateParam as updateParam } from './panelState';
 
@@ -41,12 +42,12 @@ export function EcoLevelControl({
         <p className="text-label leading-relaxed text-warning">
           {t(`baseplate.ecoLevel.blocked.${blocker}`)}
         </p>
+      ) : value === 'ultra' ? (
+        <Hint info={t('baseplate.ecoLevel.ultraHintDetail')}>
+          {t('baseplate.ecoLevel.ultraHint')}
+        </Hint>
       ) : (
-        <p className="text-label leading-relaxed text-content-tertiary">
-          {t(
-            value === 'ultra' ? 'baseplate.ecoLevel.ultraHint' : 'baseplate.ecoLevel.standardHint'
-          )}
-        </p>
+        <Hint>{t('baseplate.ecoLevel.standardHint')}</Hint>
       )}
     </div>
   );

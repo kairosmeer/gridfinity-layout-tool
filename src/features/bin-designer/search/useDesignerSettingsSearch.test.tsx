@@ -49,18 +49,17 @@ describe('useDesignerSettingsSearch', () => {
 
   it('surfaces a finer sub-option, with its section as a breadcrumb', () => {
     const { result } = renderHook(() => useDesignerSettingsSearch('lightweight', allAvailable));
-    const hit = result.current.find((r) => r.label === 'Lightweight floor');
+    const hit = result.current.find((r) => r.label === 'Follows feet');
     expect(hit).toBeDefined();
     expect(hit?.kind).toBe('option');
-    expect(hit?.controlId).toBe('bd-base');
+    expect(hit?.controlId).toBe('bd-floor');
     expect(hit?.breadcrumb).toBeTruthy();
   });
 
   it('highlights the matched span of the label', () => {
     const { result } = renderHook(() => useDesignerSettingsSearch('floor', allAvailable));
-    const hit = result.current.find((r) => r.label === 'Lightweight floor');
-    // "Lightweight floor" — the run "floor" starts at index 12.
-    expect(hit?.highlight).toEqual([[12, 17]]);
+    const hit = result.current.find((r) => r.label === 'Floor text');
+    expect(hit?.highlight).toEqual([[0, 5]]);
   });
 
   it('matches a section by a synonym that is not in its label', () => {

@@ -27,7 +27,11 @@ import {
   type ResolvedOverhang,
 } from '@/shared/utils/overhang';
 import { maskFootprint, rectFootprint, type ShellFootprint } from './printFootprint';
-import { resolveBinFloorMm } from '@/shared/utils/slotMath';
+import {
+  resolveBaseFloorMm,
+  resolveBinFloorMm,
+  resolveFloorRaiseMm,
+} from '@/shared/utils/slotMath';
 import { baseWallHeight } from './binDimensions';
 import { maxCompartmentFloorRaiseMm } from './compartmentFloorRaise';
 import { GRIDFINITY } from '@/features/bin-designer/constants/gridfinity';
@@ -292,7 +296,8 @@ function computeBinVolume(params: BinParams): number {
     params.heightUnitMm,
     gridUnitMmY
   );
-  const floorThickness = resolveBinFloorMm({ ...params, wallThickness });
+  const floorThickness = resolveBaseFloorMm({ ...params, wallThickness });
+  const floorRaise = resolveFloorRaiseMm({ ...params, wallThickness });
   const socketless = isSocketlessBase(params.base.style);
   let volume: number;
   if (socketless) {
@@ -423,6 +428,21 @@ function computeBinVolume(params: BinParams): number {
     volume += raisedFloorVolume(params, outerW, outerD, wallThickness);
   }
 
+  // A raised floor fills the whole cavity floor by its height, under any
+  // per-compartment raise above.
+  if (floorRaise > 0) {
+    let fill =
+      Math.max(0, outerW - 2 * wallThickness) *
+      Math.max(0, outerD - 2 * wallThickness) *
+      floorRaise *
+      SOLID_FILL_EFFICIENCY;
+    if (isPartialMask(params.cellMask)) {
+      const { cols, rows } = params.cellMask;
+      if (cols * rows > 0) fill *= countFilled(params.cellMask) / (cols * rows);
+    }
+    volume += fill;
+  }
+
   // Label tabs (shelf + support structure)
   if (isFeatureActive(params, 'label')) {
     volume += computeLabelTabVolume(params, outerW, outerD, wallThickness);
@@ -446,7 +466,7 @@ function computeBinVolume(params: BinParams): number {
   volume -= computeFloorPatternReduction(
     params,
     wallThickness,
-    floorThickness,
+    floorThickness + floorRaise,
     shell.base,
     feetDetach
   );

@@ -25,7 +25,7 @@ import { labelShelfKeepoutMm } from '@/shared/utils/lidInteriorRelief';
 import { findCompartmentBounds, interiorDividerSegments } from './compartmentBuilder';
 import type { InteriorDividerSegment } from './compartmentBuilder';
 import { BOTTOM_SOLID_SKIRT, CUTOUT_BORDER_WIDTH, TOP_KEEP_OUT } from './wallPatterns';
-import { interiorFilletCornerMm, interiorFilletRiseMm } from '@/shared/utils/interiorFillet';
+import { floorSeamRiseMm, interiorFilletCornerMm } from '@/shared/utils/interiorFillet';
 import { resolveFloorRaises } from './floorRaisePlan';
 import { planScoopRamps, scoopRampsApply } from './scoopRampPlan';
 import type { BinDimensions } from './pipeline/types';
@@ -316,7 +316,7 @@ export function planDividerPatterns(
   // and BOTTOM_SOLID_SKIRT is the band the lowest element row anchors to.
   // Re-fitted to the divider's own height, so a shortened divider keeps whole
   // elements instead of a sliced top row.
-  const bandZ0 = params.wallThickness + BOTTOM_SOLID_SKIRT + interiorFilletRiseMm(params);
+  const bandZ0 = params.wallThickness + BOTTOM_SOLID_SKIRT + floorSeamRiseMm(params);
   const bandHeight = dividerHeight - TOP_KEEP_OUT - bandZ0;
   if (bandHeight <= 0) return null;
   const bandTop = bandZ0 + bandHeight;

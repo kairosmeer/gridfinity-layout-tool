@@ -35,12 +35,10 @@ import { LidSection } from '../../panel/LidSection';
 import { HandleSection } from '../../panel/HandleSection';
 import { InteriorSection } from '../../panel/InteriorSection';
 import { LabelTabsSection } from '../../panel/LabelTabsSection';
-import { ScoopSection } from '../../panel/ScoopSection';
-import { InteriorFilletSection } from '../../panel/InteriorFilletSection';
 import { KnifeRestSection } from '../../panel/KnifeRestSection';
 import { SlideTraySection } from '../../panel/SlideTraySection';
-import { BaseSection, FloorPatternSection } from '../../panel/BaseSection';
-import { FloorTextSection } from '../../panel/FloorTextSection';
+import { BaseSection } from '../../panel/BaseSection';
+import { FloorSection } from '../../panel/FloorSection';
 import { TypeSection } from '../../panel/TypeSection';
 import { ColorsSection } from '../../panel/ColorsSection';
 import { PhysicalUnitsSection } from '../../panel/PhysicalUnitsSection';
@@ -225,14 +223,8 @@ export function BinScrollPanel({
               </FeatureGate>
             </PanelSection>
           )}
-          <PanelSection helpTarget="bd-interior-fillet">
-            <InteriorFilletSection />
-          </PanelSection>
-          <PanelSection helpTarget="bd-scoop">
-            {footprintFix}
-            <FeatureGate disabled={isCustomShape} reason={customShapeReason}>
-              <ScoopSection />
-            </FeatureGate>
+          <PanelSection helpTarget="bd-floor">
+            <FloorSection />
           </PanelSection>
           <PanelSection helpTarget="bd-knife-rest">
             <KnifeRestSection />
@@ -269,10 +261,6 @@ export function BinScrollPanel({
           </PanelSection>
           <PanelSection helpTarget="bd-wall-style">
             <WallSurfaceSection />
-          </PanelSection>
-          <PanelSection helpTarget="bd-floor-pattern" className="space-y-4">
-            <FloorPatternSection />
-            <FloorTextSection />
           </PanelSection>
           <PanelSection helpTarget="bd-physical-units">
             <PhysicalUnitsSection />
