@@ -4,6 +4,9 @@
  */
 
 import type { LabelPlateIconId } from '@/shared/constants/labelPlates';
+import { holderItemById } from '@/shared/constants/holderItems';
+import type { HolderItemId } from '@/shared/constants/holderItems';
+import { maxCompartmentFloorRaiseMm } from '@/features/bin-designer/utils/compartmentFloorRaise';
 import { TEXT_MAX_LENGTH } from '@/features/bin-designer/types/text';
 import { DEFAULT_BIN_PARAMS } from '@/features/bin-designer/constants';
 import { DEFAULT_CUTOUT_COLOR } from '@/features/bin-designer/constants/defaults';
@@ -76,6 +79,8 @@ export function createCompartmentActions(set: Set, get: Get) {
           dividerOverrides: _o,
           compartmentColors: _c,
           compartmentColorScopes: _cs,
+          floorRaises: _r,
+          holders: _h,
           ...keep
         } = state.params.compartments;
         state.params.compartments = {
@@ -264,13 +269,38 @@ export function createCompartmentActions(set: Set, get: Get) {
 
       set((state) => {
         pushHistoryEntry(state);
-        const next = prev.slice();
-        while (next.length <= compartmentId) next.push(null);
-        next[compartmentId] = value;
-        while (next.length > 0 && next[next.length - 1] === null) next.pop();
+        const { holders } = state.params.compartments;
         state.params.compartments = {
           ...state.params.compartments,
-          floorRaises: next.length > 0 ? next : undefined,
+          floorRaises: withSlot(prev, compartmentId, value),
+          // The pockets are cut into the raise; with no raise there is no holder.
+          ...(value === null && holders && { holders: withSlot(holders, compartmentId, null) }),
+        };
+      });
+    },
+
+    setCompartmentHolder: (compartmentId: number, itemId: HolderItemId | null) => {
+      const { params } = get();
+      const item = itemId === null ? null : holderItemById(itemId);
+      if (item === undefined) return;
+      const prevHolders = params.compartments.holders ?? [];
+      const prevRaises = params.compartments.floorRaises ?? [];
+      const maxRaise = maxCompartmentFloorRaiseMm(params);
+      if (item && maxRaise <= 0) return;
+      const raise = item ? Math.min(item.depthMm, maxRaise) : (prevRaises[compartmentId] ?? null);
+      if (
+        (prevHolders[compartmentId] ?? null) === (item?.id ?? null) &&
+        (prevRaises[compartmentId] ?? null) === raise
+      ) {
+        return;
+      }
+
+      set((state) => {
+        pushHistoryEntry(state);
+        state.params.compartments = {
+          ...state.params.compartments,
+          holders: withSlot(prevHolders, compartmentId, item?.id ?? null),
+          floorRaises: withSlot(prevRaises, compartmentId, raise),
         };
       });
     },

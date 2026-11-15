@@ -371,6 +371,13 @@ export const DESIGNER_OPTION_RECORDS: readonly DesignerOptionRecord[] = [
     keywords: ['bento', 'freeform', 'custom sizes', 'mixed compartments'],
   },
   {
+    id: 'opt-bento-holder',
+    labelKey: 'binDesigner.bento.holder.label',
+    section: 'bd-interior',
+    // prettier-ignore
+    keywords: ['holder', 'battery holder', 'batteries', 'sd card', 'micro sd', 'usb stick', 'pen holder', 'pencils', '18650', 'aa', 'hex bits', 'm.2', 'pockets'],
+  },
+  {
     id: 'opt-interior-slotted',
     labelKey: 'binDesigner.interior.slotted.title',
     section: 'bd-interior',

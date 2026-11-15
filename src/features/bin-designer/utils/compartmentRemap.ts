@@ -154,6 +154,18 @@ export function remapLabelIcons(
 }
 
 /**
+ * Remap per-compartment holders across a `normalizeIdsWithRemap`
+ * renumbering, exactly like `remapLabelIcons`: a holder whose compartment
+ * vanished drops, and a new ID holds nothing.
+ */
+export function remapHolders(
+  oldHolders: readonly (string | null)[] | undefined,
+  remap: ReadonlyMap<number, number>
+): (string | null)[] | undefined {
+  return remapLabelIcons(oldHolders, remap);
+}
+
+/**
  * Remap per-compartment shadow-box colours across a `normalizeIdsWithRemap`
  * renumbering, exactly like `remapLabelIcons` — a colour whose compartment
  * vanished drops, and a new ID (a split) starts uncoloured. Without this the
@@ -376,6 +388,9 @@ export function renumberCompartments(
       }),
       ...(config.floorRaises && {
         floorRaises: remapFloorRaises(config.floorRaises, remap),
+      }),
+      ...(config.holders && {
+        holders: remapHolders(config.holders, remap),
       }),
       ...(config.dividerOverrides && {
         dividerOverrides: remapDividerOverrides(config.dividerOverrides, remap),

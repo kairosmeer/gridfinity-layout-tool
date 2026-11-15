@@ -425,6 +425,10 @@ export function canBinUseDirectMesh(params: BinParams): boolean {
 
   // Interior features.
   if (params.compartments.cols !== 1 || params.compartments.rows !== 1) return false;
+  // A one-compartment Bento can still raise its floor (and cut a holder into it).
+  if ((params.compartments.floorRaises ?? []).some((r) => typeof r === 'number' && r > 0)) {
+    return false;
+  }
   if (params.scoop.enabled) return false;
   if (params.interiorFilletMm !== undefined) return false;
   if (params.label.enabled) return false;

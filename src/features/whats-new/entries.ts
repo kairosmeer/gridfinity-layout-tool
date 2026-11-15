@@ -14,6 +14,17 @@ import type { WhatsNewEntry } from './types';
  */
 export const WHATS_NEW_ENTRIES: WhatsNewEntry[] = [
   {
+    id: 'bento-holders',
+    date: '2026-11-16',
+    kind: 'new',
+    featured: true,
+    title: { en: 'Pockets for batteries, cards and pens' },
+    body: {
+      en: 'A Bento compartment can now hold one kind of item in fitted pockets. Select the compartment, pick the item under Holds, and its raised floor fills with as many pockets as fit: slots for SD and microSD cards, USB-A and USB-C sticks, M.2 drives and coin cells, round pockets for AA, AAA, C, D and 18650 cells, sockets for 1/4" hex bits and troughs for pens. Pocket depth sets how far the items sink in.',
+    },
+    action: { kind: 'openTool', tool: 'designer' },
+  },
+  {
     id: 'fit-contents-and-inside-size',
     date: '2026-11-14',
     kind: 'new',

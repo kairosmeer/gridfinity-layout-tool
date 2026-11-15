@@ -21,6 +21,7 @@ import {
   scoopFrameHeights,
 } from '@/shared/utils/scoopCalculations';
 import type { ScoopPlacement } from '@/shared/utils/scoopCalculations';
+import { holderItemById } from '@/shared/constants/holderItems';
 import { findCompartmentBounds } from './compartmentBuilder';
 import { LIP_SMALL_TAPER, LIP_TAPER_WIDTH } from './generatorConstants';
 import { taperInsetAt } from './overhang';
@@ -102,7 +103,11 @@ export function planScoopRamps(
     const bounds = findCompartmentBounds(compId, cols, rows, cells);
     if (!bounds) continue;
 
-    const compFloorZ = floorZ + floorRaiseFor(compId);
+    // A holder's items stand in pockets; a ramp would fill the front row.
+    const raise = floorRaiseFor(compId);
+    if (raise > 0 && holderItemById(params.compartments.holders?.[compId])) continue;
+
+    const compFloorZ = floorZ + raise;
     const frame = scoopFrameHeights(wallHeight, interiorHeightRaw, compFloorZ);
 
     for (const side of sides) {

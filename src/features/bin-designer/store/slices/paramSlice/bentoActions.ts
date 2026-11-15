@@ -184,7 +184,9 @@ export function createBentoActions(set: Set, get: Get) {
         !compartments.dividerOverrides &&
         !compartments.drawnUnitCells &&
         !compartments.compartmentColors &&
-        !compartments.compartmentColorScopes
+        !compartments.compartmentColorScopes &&
+        !compartments.floorRaises &&
+        !compartments.holders
       ) {
         return;
       }

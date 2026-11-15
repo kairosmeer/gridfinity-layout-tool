@@ -1,6 +1,6 @@
 ---
 title: Compartments and dividers
-description: 'Divide a bin into compartments with fixed, diagonal, leaning or removable dividers, and raise the floor of a compartment.'
+description: 'Divide a bin into compartments with fixed, diagonal, leaning or removable dividers, raise the floor of a compartment, and fill it with pockets for batteries, cards or pens.'
 sources:
   - src/features/bin-designer/components/panel/InteriorSection/
   - src/features/bin-designer/components/CompartmentEditor/
@@ -13,6 +13,8 @@ sources:
   - src/features/bin-designer/utils/validation.ts
   - src/features/bin-designer/store/slices/paramSlice/compartmentActions.ts
   - src/shared/utils/slotMath.ts
+  - src/shared/constants/holderItems.ts
+  - src/shared/utils/holderPockets.ts
 ---
 
 # Compartments and dividers
@@ -104,6 +106,18 @@ Small things in a deep compartment are hard to pick out. <Ui k="binDesigner.bent
 <Screenshot id="designer-compartments-floor-raise" alt="The bin shows five compartments of full depth. The narrow Tips compartment is clicked on the Bento canvas, and Floor raise is dragged to 24 mm in the compartment panel. The bin then shows the Tips compartment with its floor near the rim." spec="Bin designer on a wide window, the soldering kit bin with five labeled compartments in the Bento workspace. Start on the bin from a little higher than the default view. Close-up of the canvas and the compartment panel: click the Tips compartment, drag Floor raise to 24 mm. Cut to the bin again." />
 
 The raised floor is solid, and the infill of your slicer keeps it light. The bin designer keeps at least 3 mm of depth above the raised floor. A finger scoop climbs from the raised floor. For a <Ui k="binDesigner.interior.standard.title" /> bin, pick <Ui k="binDesigner.interior.bento.title" />: the compartments stay the same, and you get the same control. A floor that follows the feet has no flat floor to raise, so the control shows the reason instead.
+
+## Hold batteries, cards and pens
+
+<Ui k="binDesigner.bento.holder.label" /> turns the raised floor of a Bento compartment into pockets that fit one kind of item:
+
+- Cards: SD and microSD cards stand in slots.
+- USB sticks: the USB-A or USB-C plug stands in a slot.
+- Pens and pencils lie in round-bottomed troughs along the longer side.
+- Batteries: AA, AAA, C, D and 18650 cells stand in round pockets, 9V blocks and CR2032 coin cells in slots.
+- Other: 1/4" hex bits stand in hexagonal sockets, M.2 2280 drives in slots.
+  . Select a compartment on the Bento canvas.. Pick the item under <Ui k="binDesigner.bento.holder.label" />. The compartment fills with as many pockets as fit, and the panel shows how many.. Change <Ui k="binDesigner.bento.holder.depth" /> if the items should sit deeper or stick out more.
+  pocket has the clearance for the item built in and goes down to the floor of the bin. A slot turns a quarter when that fits more pockets. The pockets keep clear of the walls and of an interior fillet, and a finger scoop skips the compartment. A merged outline or a leaning divider can't hold items, so the panel says so. Set the floor raise to 0 to remove the holder.
 
 ## Use removable dividers
 

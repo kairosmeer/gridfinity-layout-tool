@@ -1039,3 +1039,53 @@ describe('setCompartmentFloorRaise', () => {
     expect(useDesignerStore.getState().params.compartments.floorRaises).toEqual([null, 7]);
   });
 });
+
+describe('setCompartmentHolder', () => {
+  // Tall enough that every item's own pocket depth fits.
+  beforeEach(() => useDesignerStore.getState().setParam('height', 6));
+
+  it('sets the raise to the item depth and clears with the raise', () => {
+    const { setCompartmentGrid, setCompartmentHolder, setCompartmentFloorRaise } =
+      useDesignerStore.getState();
+    setCompartmentGrid(2, 1);
+    setCompartmentHolder(1, 'aaa');
+    let { compartments } = useDesignerStore.getState().params;
+    expect(compartments.holders).toEqual([null, 'aaa']);
+    expect(compartments.floorRaises?.[1]).toBe(12);
+    setCompartmentFloorRaise(1, 0);
+    ({ compartments } = useDesignerStore.getState().params);
+    expect(compartments.holders).toBeUndefined();
+    expect(compartments.floorRaises).toBeUndefined();
+  });
+
+  it('keeps the raise when the holder is cleared', () => {
+    const { setCompartmentGrid, setCompartmentHolder } = useDesignerStore.getState();
+    setCompartmentGrid(2, 1);
+    setCompartmentHolder(0, 'aaa');
+    setCompartmentHolder(0, null);
+    const { compartments } = useDesignerStore.getState().params;
+    expect(compartments.holders).toBeUndefined();
+    expect(compartments.floorRaises).toEqual([12]);
+  });
+
+  it('records one undo step and none for a repeat pick', () => {
+    const { setCompartmentGrid, setCompartmentHolder } = useDesignerStore.getState();
+    setCompartmentGrid(2, 1);
+    const before = useDesignerStore.getState().history.past.length;
+    setCompartmentHolder(0, 'aa');
+    setCompartmentHolder(0, 'aa');
+    expect(useDesignerStore.getState().history.past).toHaveLength(before + 1);
+  });
+
+  it('follows the compartment through a merge and drops on a regrid', () => {
+    const { setCompartmentGrid, setCompartmentHolder, mergeCells } = useDesignerStore.getState();
+    setCompartmentGrid(3, 1);
+    setCompartmentHolder(2, 'usbA');
+    mergeCells([0, 1]);
+    expect(useDesignerStore.getState().params.compartments.holders).toEqual([null, 'usbA']);
+    setCompartmentGrid(2, 2);
+    const { compartments } = useDesignerStore.getState().params;
+    expect(compartments.holders).toBeUndefined();
+    expect(compartments.floorRaises).toBeUndefined();
+  });
+});

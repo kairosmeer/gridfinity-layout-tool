@@ -107,6 +107,16 @@ export interface CompartmentConfig {
    */
   readonly floorRaises?: (number | null)[];
   /**
+   * Optional per-compartment holder: an item id from `HOLDER_ITEMS`
+   * (`@/shared/constants/holderItems`), indexed by compartment ID after
+   * `normalizeIds`. The compartment's floor raise becomes a block of pockets
+   * fitted to the item, as deep as the raise; without a raise nothing is cut.
+   * Entries are loose strings like `labelIcons` (persisted payloads are
+   * untrusted) and unknown ids are ignored. Kept in lockstep with `cells` via
+   * `normalizeIdsWithRemap` and absent when empty (fingerprint rule above).
+   */
+  readonly holders?: (string | null)[];
+  /**
    * Optional per-divider tilt overrides. Each entry shifts the endpoints of
    * one interior divider away from its axis-aligned grid position, producing
    * an angled (tapered) divider — useful for wedge-shaped compartments

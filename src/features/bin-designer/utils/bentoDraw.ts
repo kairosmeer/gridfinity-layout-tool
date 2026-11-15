@@ -374,6 +374,29 @@ export function resizeCompartment(
   return { config: rebuilt, id: newId };
 }
 
+type SlotKey =
+  | 'labelPlateWidths'
+  | 'labelIcons'
+  | 'compartmentColors'
+  | 'compartmentColorScopes'
+  | 'floorRaises'
+  | 'holders';
+
+/** Copy one id-keyed entry onto another id; a missing entry copies nothing. */
+function copySlot(
+  config: CompartmentConfig,
+  key: SlotKey,
+  from: number,
+  to: number
+): CompartmentConfig {
+  const value = config[key]?.[from] ?? null;
+  if (value === null) return config;
+  const next: unknown[] = (config[key] ?? []).slice();
+  while (next.length <= to) next.push(null);
+  next[to] = value;
+  return { ...config, [key]: next };
+}
+
 /**
  * Stamp a copy of a drawn compartment (label and plate decoration included)
  * onto background grid at `target`, which must match the source footprint.
@@ -402,36 +425,17 @@ export function duplicateCompartment(
   let next = rebuilt;
   const label = next.compartmentTexts?.[srcId];
   if (label) next = writeText(next, newId, label);
-  const plate = next.labelPlateWidths?.[srcId];
-  if (plate !== null && plate !== undefined) {
-    const widths = (next.labelPlateWidths ?? []).slice();
-    while (widths.length <= newId) widths.push(null);
-    widths[newId] = plate;
-    next = { ...next, labelPlateWidths: widths };
+  next = copySlot(next, 'labelPlateWidths', srcId, newId);
+  next = copySlot(next, 'labelIcons', srcId, newId);
+  // Colour rides along like the other decorations: a duplicate that comes out
+  // unpainted makes the user re-pick the swatch per copy. A raised floor and
+  // its holder are the compartment's contents, so they come too.
+  if ((next.compartmentColors?.[srcId] ?? null) !== null) {
+    next = copySlot(next, 'compartmentColors', srcId, newId);
+    next = copySlot(next, 'compartmentColorScopes', srcId, newId);
   }
-  const icon = next.labelIcons?.[srcId];
-  if (icon !== null && icon !== undefined) {
-    const icons = (next.labelIcons ?? []).slice();
-    while (icons.length <= newId) icons.push(null);
-    icons[newId] = icon;
-    next = { ...next, labelIcons: icons };
-  }
-  // Colour rides along like the other decorations — a duplicate that comes
-  // out unpainted makes the user re-pick the swatch per copy.
-  const color = next.compartmentColors?.[srcId];
-  if (color !== null && color !== undefined) {
-    const colors = (next.compartmentColors ?? []).slice();
-    while (colors.length <= newId) colors.push(null);
-    colors[newId] = color;
-    next = { ...next, compartmentColors: colors };
-    const scope = next.compartmentColorScopes?.[srcId];
-    if (scope !== null && scope !== undefined) {
-      const scopes = (next.compartmentColorScopes ?? []).slice();
-      while (scopes.length <= newId) scopes.push(null);
-      scopes[newId] = scope;
-      next = { ...next, compartmentColorScopes: scopes };
-    }
-  }
+  next = copySlot(next, 'floorRaises', srcId, newId);
+  if ((next.floorRaises?.[newId] ?? null) !== null) next = copySlot(next, 'holders', srcId, newId);
   return { config: next, id: newId };
 }
 
@@ -670,6 +674,8 @@ export function clearDrawnCompartments(config: CompartmentConfig): CompartmentCo
     drawnUnitCells: _drawn,
     compartmentColors: _colors,
     compartmentColorScopes: _scopes,
+    floorRaises: _raises,
+    holders: _holders,
     backgroundIds: _background,
     ...keep
   } = config;

@@ -8,9 +8,23 @@
  * overlaps real volume rather than meeting on a face; a compartment of any
  * outline is then its cells fused together. A compartment with a tilted
  * divider is skipped: its cavity is a trapezoid the cell boxes would cross.
+ *
+ * A compartment with a holder has its slab cut into pockets fitted to the
+ * item (`planHolders`), each the full height of the raise, so the pocket
+ * floor is the bin's own floor and no tool face lies on it.
  */
 
-import { box, clone, fuseAll, unwrap, withScope } from 'brepjs';
+import {
+  box,
+  clone,
+  cutAll,
+  cylinder,
+  drawPolysides,
+  fuseAll,
+  translate,
+  unwrap,
+  withScope,
+} from 'brepjs';
 import type { DisposalScope, Shape3D, ValidSolid } from 'brepjs';
 import type { BinParams } from '@/shared/types/bin';
 import { isNestingBase } from '@/shared/types/bin';
@@ -18,9 +32,19 @@ import type { FeatureBuilder } from './pipeline/featureBuilder';
 import { FeatureTag } from './featureTags';
 import { buildCacheKey, compactKey, quantize, stableSerialize } from './cacheKeyUtils';
 import { resolveFloorRaises } from './floorRaisePlan';
+import { sketch } from './meshUtils';
+import { planHolders } from '@/shared/utils/holderPockets';
+import type { HolderPlan, HolderPocket } from '@/shared/utils/holderPockets';
+import { interiorFilletRadiusMm } from '@/shared/utils/interiorFillet';
 
 /** Growth (mm) into the surrounding walls, dividers and floor. */
 const FUSE_OVERLAP_MM = 0.2;
+
+/** How far (mm) a pocket tool reaches past the slab, below and above. */
+const POCKET_OVERSHOOT_MM = 0.5;
+
+/** Slab (mm) a lying trough keeps under its round bottom, off the bin floor. */
+const TROUGH_FLOOR_MM = 0.8;
 
 export function hasAnyFloorRaise(params: BinParams): boolean {
   return (params.compartments.floorRaises ?? []).some((r) => typeof r === 'number' && r > 0);
@@ -89,8 +113,78 @@ export function buildFloorRaises(
     if (slabs.length === 0) return null;
     const fused =
       slabs.length === 1 ? slabs[0] : scope.register(unwrap(fuseAll(slabs as ValidSolid[])));
-    return unwrap(clone(fused));
+
+    const holders = planHolders(params, innerW, innerD, raises);
+    const tools: Shape3D[] = [];
+    for (const [id, plan] of holders) {
+      const top = floorZ + (raises.get(id) ?? 0);
+      for (const tool of pocketTools(plan, floorZ, z0 - POCKET_OVERSHOOT_MM, top)) {
+        tools.push(scope.register(tool));
+      }
+    }
+    if (tools.length === 0) return unwrap(clone(fused));
+    const cut = unwrap(cutAll(fused as ValidSolid, tools as ValidSolid[]));
+    return cut === fused ? unwrap(clone(cut)) : cut;
   });
+}
+
+/**
+ * One tool per pocket. A standing pocket runs from `bottom`, under the slab,
+ * to above `top`, so the bin's own floor is its bottom. A trough's round
+ * bottom stops {@link TROUGH_FLOOR_MM} above the bin floor instead, since a
+ * curve resting on that face would only touch it along a line.
+ */
+function pocketTools(plan: HolderPlan, floorZ: number, bottom: number, top: number): Shape3D[] {
+  const { item, pockets } = plan;
+  const height = top + POCKET_OVERSHOOT_MM - bottom;
+  const tools: Shape3D[] = [];
+  for (const p of pockets) {
+    switch (item.shape) {
+      case 'rect':
+        tools.push(box(p.w, p.d, height, { at: [p.x, p.y, bottom + height / 2] }));
+        break;
+      case 'round':
+        tools.push(cylinder(p.w / 2, height, { at: [p.x, p.y, bottom], axis: [0, 0, 1] }));
+        break;
+      case 'hex': {
+        // drawPolysides takes the corner radius and puts a corner at +Y, so
+        // the flats face ±X and `w` is the width across them.
+        const prism = sketch(drawPolysides(p.w / Math.sqrt(3), 6), 'XY', bottom).extrude(height);
+        tools.push(translate(prism, [p.x, p.y, 0]));
+        prism.delete();
+        break;
+      }
+      case 'trough':
+        tools.push(...troughTools(p, floorZ + TROUGH_FLOOR_MM, top + POCKET_OVERSHOOT_MM));
+        break;
+    }
+  }
+  return tools;
+}
+
+/** A round-bottomed channel the length of the pocket's longer side. */
+function troughTools(pocket: HolderPocket, floorTop: number, toolTop: number): Shape3D[] {
+  const alongX = pocket.w >= pocket.d;
+  const length = alongX ? pocket.w : pocket.d;
+  const radius = (alongX ? pocket.d : pocket.w) / 2;
+  if (toolTop - POCKET_OVERSHOOT_MM <= floorTop) return [];
+  const axisZ = floorTop + radius;
+  const start: [number, number, number] = alongX
+    ? [pocket.x - length / 2, pocket.y, axisZ]
+    : [pocket.x, pocket.y - length / 2, axisZ];
+  const tools: Shape3D[] = [
+    cylinder(radius, length, { at: start, axis: alongX ? [1, 0, 0] : [0, 1, 0] }),
+  ];
+  // Straight sides from the axis up when the channel is deeper than its radius.
+  if (axisZ < toolTop) {
+    const h = toolTop - axisZ;
+    tools.push(
+      box(alongX ? length : 2 * radius, alongX ? 2 * radius : length, h, {
+        at: [pocket.x, pocket.y, axisZ + h / 2],
+      })
+    );
+  }
+  return tools;
 }
 
 export const floorRaiseFeature: FeatureBuilder = {
@@ -111,7 +205,7 @@ export const floorRaiseFeature: FeatureBuilder = {
     const { dimensions: dim, params } = ctx;
     return compactKey(
       buildCacheKey(
-        'v1',
+        'v2',
         dim.shellKey,
         quantize(dim.innerW),
         quantize(dim.innerD),
@@ -122,6 +216,8 @@ export const floorRaiseFeature: FeatureBuilder = {
         params.compartments.rows,
         params.compartments.cells.join(','),
         stableSerialize(params.compartments.floorRaises ?? []),
+        stableSerialize(params.compartments.holders ?? []),
+        quantize(interiorFilletRadiusMm(params)),
         stableSerialize(params.compartments.dividerOverrides ?? [])
       )
     );

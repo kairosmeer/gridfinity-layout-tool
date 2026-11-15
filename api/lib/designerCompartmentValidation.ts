@@ -11,6 +11,7 @@ import { isNumber, inRange, isObject } from './validationUtils.js';
 
 import {
   CONSTRAINTS,
+  VALID_HOLDER_ITEMS,
   VALID_LABEL_PLATE_ICONS,
   VALID_LABEL_PLATE_WIDTHS,
 } from './designerValidationConstants.js';
@@ -257,6 +258,21 @@ export function validateCompartments(compartments: unknown): string | null {
         !(isNumber(r) && inRange(r, 0, CONSTRAINTS.MAX_COMPARTMENT_FLOOR_RAISE_MM))
       ) {
         return `compartments.floorRaises[${i}] must be null or 0-${CONSTRAINTS.MAX_COMPARTMENT_FLOOR_RAISE_MM}`;
+      }
+    }
+  }
+  // Optional per-compartment holder item, parallel to the raises it is cut into.
+  if (compartments.holders !== undefined) {
+    if (!Array.isArray(compartments.holders)) {
+      return 'compartments.holders must be an array';
+    }
+    if (compartments.holders.length > expectedLength) {
+      return `compartments.holders length must not exceed cols × rows (${expectedLength})`;
+    }
+    for (let i = 0; i < compartments.holders.length; i++) {
+      const h = compartments.holders[i] as unknown;
+      if (h !== null && !VALID_HOLDER_ITEMS.includes(h as string)) {
+        return `compartments.holders[${i}] must be null or a known holder item`;
       }
     }
   }

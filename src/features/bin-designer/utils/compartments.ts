@@ -678,6 +678,7 @@ export {
   remapCompartmentColors,
   remapCompartmentColorScopes,
   remapFloorRaises,
+  remapHolders,
   remapCompartmentTexts,
   remapDividerOverrides,
   remapDrawnUnitCells,

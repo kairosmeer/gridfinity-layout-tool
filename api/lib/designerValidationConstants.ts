@@ -191,6 +191,29 @@ export const VALID_LABEL_PLATE_ICONS: readonly string[] = [
 ];
 
 /**
+ * Mirrors `HOLDER_ITEM_IDS` in `src/shared/constants/holderItems.ts`: the
+ * allowlist for a compartment's `holders` entries. Like the icons above, an
+ * item the designer offers and this omits makes the whole design 400 on sync;
+ * `designerValidation.test.ts` asserts the two agree.
+ */
+export const VALID_HOLDER_ITEMS: readonly string[] = [
+  'sdCard',
+  'microSdCard',
+  'usbA',
+  'usbC',
+  'pen',
+  'aa',
+  'aaa',
+  'c',
+  'd',
+  'li18650',
+  'nineVolt',
+  'cr2032',
+  'hexBit',
+  'm2Ssd',
+];
+
+/**
  * Sliding-tray bounds. Mirrors `SLIDE_CONSTRAINTS` in
  * `src/features/bin-designer/types/slide.ts` — keep in sync, or valid client
  * payloads 400 on sync.

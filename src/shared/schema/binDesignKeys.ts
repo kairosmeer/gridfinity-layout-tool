@@ -162,6 +162,7 @@ export const COMPARTMENT_CONFIG_KEYS = [
   'compartmentColors',
   'compartmentColorScopes',
   'floorRaises',
+  'holders',
   'dividerOverrides',
   'drawnUnitCells',
   'stash',

@@ -12,10 +12,15 @@ import {
   DESIGN_TAG_MAX_COUNT,
   DESIGN_TAG_MAX_LENGTH,
 } from './designerValidation.js';
-import { CONSTRAINTS, VALID_LABEL_PLATE_ICONS } from './designerValidationConstants.js';
+import {
+  CONSTRAINTS,
+  VALID_HOLDER_ITEMS,
+  VALID_LABEL_PLATE_ICONS,
+} from './designerValidationConstants.js';
 import { meshRefHashes } from './designerCutoutValidation.js';
 import { MAX_MESH_UPLOAD_BYTES } from './meshFile.js';
 import { LABEL_PLATE_ICONS } from '../../src/shared/constants/labelPlates.js';
+import { HOLDER_ITEM_IDS } from '../../src/shared/constants/holderItems.js';
 
 import { DEFAULT_PULL_TAB } from '../../src/shared/utils/pullTabPlan.js';
 
@@ -2036,6 +2041,10 @@ describe('validateDesignerShare', () => {
         expect(withCutouts([{ id: 'a', labelIcon: icon }]).valid, icon).toBe(true);
       }
       expect(VALID_LABEL_PLATE_ICONS).toEqual([...LABEL_PLATE_ICONS]);
+    });
+
+    it('lists every holder item the designer offers', () => {
+      expect(VALID_HOLDER_ITEMS).toEqual([...HOLDER_ITEM_IDS]);
     });
   });
 

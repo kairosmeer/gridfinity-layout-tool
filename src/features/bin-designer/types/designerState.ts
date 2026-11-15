@@ -3,6 +3,7 @@ import type { MeshAssetEntry } from '@/shared/generation/meshAsset';
 import type { MeasurePoint } from '@/features/bin-designer/utils/measure3d';
 import type { CellMask } from '@/shared/utils/cellMask';
 import type { LabelPlateIconId } from '@/shared/constants/labelPlates';
+import type { HolderItemId } from '@/shared/constants/holderItems';
 import type { ItemEnvelope, ItemKind, ItemStructure } from '@/shared/types/item';
 import type {
   AssemblyBase,
@@ -232,6 +233,11 @@ export interface DesignerState {
   /** Shadow-box colour for one compartment; null clears it. */
   setCompartmentColor: (compartmentId: number, color: string | null) => void;
   setCompartmentFloorRaise: (compartmentId: number, raiseMm: number | null) => void;
+  /**
+   * Fill a compartment with pockets for an item (null clears it). Picking an
+   * item sets the floor raise to that item's pocket depth, within the bin.
+   */
+  setCompartmentHolder: (compartmentId: number, item: HolderItemId | null) => void;
   /** Which surfaces that compartment's colour paints; colours an uncoloured
    *  compartment with the default in the same undo step. */
   setCompartmentColorScope: (compartmentId: number, scope: CompartmentColorScope) => void;

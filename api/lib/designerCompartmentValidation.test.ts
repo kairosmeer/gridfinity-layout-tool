@@ -896,6 +896,19 @@ describe('validateCompartments — shadow-box colours', () => {
     );
   });
 
+  it('accepts known holder items and rejects anything else', () => {
+    expect(validateCompartments({ ...base(), holders: [null, 'sdCard'] })).toBeNull();
+    expect(validateCompartments({ ...base(), holders: ['flux'] })).toBe(
+      'compartments.holders[0] must be null or a known holder item'
+    );
+    expect(validateCompartments({ ...base(), holders: 'aa' })).toBe(
+      'compartments.holders must be an array'
+    );
+    expect(validateCompartments({ ...base(), holders: ['aa', 'aa', 'aa'] })).toContain(
+      'must not exceed cols × rows'
+    );
+  });
+
   it('rejects a non-hex colour', () => {
     expect(
       validateCompartments({ ...base(), compartmentColors: ['javascript:alert(1)', null] })

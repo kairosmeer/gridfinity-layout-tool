@@ -30,6 +30,8 @@ import { maskFootprint, rectFootprint, type ShellFootprint } from './printFootpr
 import { resolveBinFloorMm } from '@/shared/utils/slotMath';
 import { baseWallHeight } from './binDimensions';
 import { maxCompartmentFloorRaiseMm } from './compartmentFloorRaise';
+import { planHolders } from '@/shared/utils/holderPockets';
+import type { HolderPocketShape } from '@/shared/constants/holderItems';
 import { GRIDFINITY } from '@/features/bin-designer/constants/gridfinity';
 import { getCompartmentBounds } from '@/features/bin-designer/utils/compartments';
 import { isFeatureActive } from '@/shared/constraints';
@@ -551,13 +553,38 @@ function raisedFloorVolume(
   if (!raises) return 0;
   const ceiling = maxCompartmentFloorRaiseMm(params);
   const { cols, rows, cells } = params.compartments;
-  const cellArea = ((outerW - 2 * wallThickness) / cols) * ((outerD - 2 * wallThickness) / rows);
+  const innerW = outerW - 2 * wallThickness;
+  const innerD = outerD - 2 * wallThickness;
+  const cellArea = (innerW / cols) * (innerD / rows);
+  const built = new Map<number, number>();
   let volume = 0;
   for (const id of cells) {
     const raise = raises[id];
-    if (typeof raise === 'number' && raise > 0) volume += cellArea * Math.min(raise, ceiling);
+    if (typeof raise === 'number' && raise > 0) {
+      volume += cellArea * Math.min(raise, ceiling);
+      built.set(id, Math.min(raise, ceiling));
+    }
   }
-  return volume;
+  // A holder's pockets take their volume back out of the slab.
+  for (const [id, plan] of planHolders(params, innerW, innerD, built)) {
+    const depth = built.get(id) ?? 0;
+    for (const p of plan.pockets) volume -= holderPocketArea(plan.item.shape, p) * depth;
+  }
+  return Math.max(0, volume);
+}
+
+/** Footprint area of one pocket; a trough's round bottom counted at π/4 of its box. */
+function holderPocketArea(shape: HolderPocketShape, p: { w: number; d: number }): number {
+  switch (shape) {
+    case 'rect':
+      return p.w * p.d;
+    case 'round':
+      return (Math.PI / 4) * p.w * p.w;
+    case 'hex':
+      return (Math.sqrt(3) / 2) * p.w * p.w;
+    case 'trough':
+      return (Math.PI / 4) * p.w * p.d;
+  }
 }
 
 /**

@@ -402,7 +402,7 @@ export const scoopRampsFeature: FeatureBuilder = {
     const { dimensions: dim, params } = ctx;
     return compactKey(
       buildCacheKey(
-        'v9',
+        'v10',
         dim.shellKey,
         stableSerialize(params.scoop),
         params.style,
@@ -421,6 +421,7 @@ export const scoopRampsFeature: FeatureBuilder = {
         stableSerialize(params.compartments.dividerOverrides ?? []),
         quantize(dim.interiorHeight),
         stableSerialize(params.compartments.floorRaises ?? []),
+        stableSerialize(params.compartments.holders ?? []),
         interiorFilletRadiusMm(params) > 0,
         params.walls.enabled
       )
