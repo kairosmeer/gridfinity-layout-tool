@@ -50,10 +50,6 @@ describe('modifiedCategories', () => {
         base: { ...DEFAULT_BIN_PARAMS.base, lightweight: true },
       })
     ).toEqual({ ...stock(), interior: true });
-    expect(modifiedCategories({ ...DEFAULT_BIN_PARAMS, floorRaiseMm: 6 })).toEqual({
-      ...stock(),
-      interior: true,
-    });
   });
   it('attributes a lid change to Features', () => {
     expect(

@@ -41,11 +41,3 @@ export function FollowsFeetFloorIcon(props: IconProps) {
     </Section>
   );
 }
-
-export function RaisedFloorIcon(props: IconProps) {
-  return (
-    <Section {...props}>
-      <path d="M4 18h16M4 12h16M8 15h2M14 15h2" />
-    </Section>
-  );
-}

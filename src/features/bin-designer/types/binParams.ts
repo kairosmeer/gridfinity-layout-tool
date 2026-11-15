@@ -70,14 +70,6 @@ export interface BinParams {
    * used the feature must not start carrying the key.
    */
   readonly interiorFilletMm?: number;
-  /**
-   * Raised floor: solid fill (mm) on top of the floor slab across the whole
-   * cavity, so a short item sits nearer the rim. Per-compartment Bento raises
-   * add on top of it. Absent when off, for the same fingerprint reason as
-   * {@link interiorFilletMm}; `resolveFloorRaiseMm` is the clamped value every
-   * reader uses.
-   */
-  readonly floorRaiseMm?: number;
   readonly label: LabelTabConfig;
   readonly walls: WallConfig;
   /** Sliding tray: a rail on this bin plus the companion tray that rides it. */

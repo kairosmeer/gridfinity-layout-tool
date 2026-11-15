@@ -10,7 +10,6 @@
 import { DESIGNER_CONSTRAINTS, GRIDFINITY } from '@/shared/constants/bin';
 import type { BinParams } from '@/shared/types/bin';
 import { MASK_CELL_SIZE, isPartialMask } from '@/shared/utils/cellMask';
-import { resolveFloorRaiseMm } from '@/shared/utils/slotMath';
 
 /**
  * The radius the control starts at: the shell's own inner corner, rounded down
@@ -49,17 +48,6 @@ export function interiorFilletRiseMm(
     (raise): raise is number => typeof raise === 'number' && Number.isFinite(raise) && raise > 0
   );
   return r + Math.max(0, ...raises);
-}
-
-/**
- * How far above the base floor slab the floor seam sits, for the pattern bands
- * that must start clear of it: a raised floor's fill, and the fillet standing
- * on top of it.
- */
-export function floorSeamRiseMm(
-  params: Parameters<typeof resolveFloorRaiseMm>[0] & Parameters<typeof interiorFilletRiseMm>[0]
-): number {
-  return resolveFloorRaiseMm(params) + interiorFilletRiseMm(params);
 }
 
 /**

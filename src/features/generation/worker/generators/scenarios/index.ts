@@ -50,7 +50,6 @@ import { lightweight } from './lightweight';
 import { spacer } from './spacer';
 import { wallLabelSlots } from './wallLabelSlots';
 import { floorRaise } from './floorRaise';
-import { raisedFloor } from './raisedFloor';
 import { interiorFillet } from './interiorFillet';
 import { interiorFilletScoops } from './interiorFilletScoops';
 import { tile } from './tile';
@@ -142,7 +141,6 @@ export const ALL_SCENARIOS: readonly ScenarioCase[] = [
   ...scoopMultiCompartment,
   ...wallLabelSlots,
   ...floorRaise,
-  ...raisedFloor,
   ...interiorFillet,
   ...interiorFilletScoops,
   ...lowProfile,

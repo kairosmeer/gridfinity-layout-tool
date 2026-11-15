@@ -13,9 +13,6 @@ import {
   isNestingBase,
 } from '@/shared/types/bin';
 import type { FeatureKey, FeatureManifest } from './types';
-
-/** Height (mm) a raised floor starts at when the floor type is first picked. */
-const DEFAULT_FLOOR_RAISE_MM = 5;
 import { defaultInteriorFilletMm, interiorFilletRadiusMm } from '@/shared/utils/interiorFillet';
 
 /**
@@ -175,22 +172,6 @@ export const FEATURE_MANIFESTS: Record<FeatureKey, FeatureManifest> = {
     // reason as detachable feet.
     apply: (p, enabled) => ({
       interiorFilletMm: enabled ? defaultInteriorFilletMm(p.wallThickness) : undefined,
-    }),
-  },
-
-  floorRaise: {
-    key: 'floorRaise',
-    label: 'Raised Floor',
-    isEnabled: (p) => (p.floorRaiseMm ?? 0) > 0,
-    // Off clears the key, like the interior fillet. On keeps a height the
-    // design already carries, so a round trip through another floor type
-    // restores it.
-    apply: (p, enabled) => ({
-      floorRaiseMm: enabled
-        ? (p.floorRaiseMm ?? 0) > 0
-          ? p.floorRaiseMm
-          : DEFAULT_FLOOR_RAISE_MM
-        : undefined,
     }),
   },
 

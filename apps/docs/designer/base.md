@@ -109,29 +109,22 @@ A spacer needs its built-in feet to hold together, so it cannot have detachable 
 
 ## Make the floor lighter
 
-The floor has its own <Ui k="binDesigner.floor.heading" /> section in the <Ui k="binDesigner.group.interior" /> group. It starts with one choice, the floor type, and below it holds the finger scoop, the interior fillet, drainage holes and floor text. Each type shows the grams it saves or adds against a flat floor.
+The floor has its own <Ui k="binDesigner.floor.heading" /> section in the <Ui k="binDesigner.group.interior" /> group. It starts with one choice, the floor type, and below it holds the finger scoop, the interior fillet, drainage holes and floor text. <Ui k="binDesigner.floor.type.followsFeet" /> shows the grams it saves against a flat floor.
 
-| Floor type                                    | Result                                                                                                        |
-| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| <Ui k="binDesigner.floor.type.flat" />        | A flat floor over the feet. Every floor feature works.                                                        |
-| <Ui k="binDesigner.floor.type.followsFeet" /> | Each foot is hollow from the inside, and the grid shape shows in the floor. It saves the most filament.       |
-| <Ui k="binDesigner.floor.type.raised" />      | Solid fill lifts the whole floor, so short items sit nearer the rim. See [Raise the floor](#raise-the-floor). |
+| Floor type                                    | Result                                                                                                  |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| <Ui k="binDesigner.floor.type.flat" />        | A flat floor over the feet. Every floor feature works.                                                  |
+| <Ui k="binDesigner.floor.type.followsFeet" /> | Each foot is hollow from the inside, and the grid shape shows in the floor. It saves the most filament. |
 
 Small or flat items can fall into the dips of <Ui k="binDesigner.floor.type.followsFeet" />. That type also has no flat floor for a finger scoop, an interior fillet, cutouts, drainage holes or raised compartments, so its tile is greyed out while one of them is on, with the reason.
 
 ### Hollow the floor from underneath
 
-Turn on <Ui k="binDesigner.floor.hollowBelow" /> under a flat or raised floor to save filament and keep a flat floor inside the bin. If you're not sure which way to save filament, this is the safer pick. Each foot becomes a ring with a 3 mm wall, and the floor of the bin closes it at the top. Finger scoops and drainage holes still work.
+Turn on <Ui k="binDesigner.floor.hollowBelow" /> under a flat floor to save filament and keep a flat floor inside the bin. If you're not sure which way to save filament, this is the safer pick. Each foot becomes a ring with a 3 mm wall, and the floor of the bin closes it at the top. Finger scoops and drainage holes still work.
 
 A spacer has no inside floor. A <Ui k="binDesigner.tile" /> bin can still hollow its feet from below.
 
 <Screenshot id="designer-base-lightweight" alt="In the Floor section, Follows feet is picked, then Flat, then Hollow feet from below is turned on. The bin then shows from below, with each foot hollow." spec="Bin designer, bin 2 x 2 x 3. Close-up of the Floor section in the Interior group: pick Follows feet, pick Flat, turn on Hollow feet from below. Cut to the bin from below." />
-
-### Raise the floor
-
-Pick <Ui k="binDesigner.floor.type.raised" /> and set <Ui k="binDesigner.floor.raiseHeight" />. The floor fills up by that height, so a deep bin holds short items where a hand can reach them. At least 3 mm of pocket always stays above the fill. The finger scoop, the interior fillet, drainage holes and floor text move up with the floor, and a per-compartment raise in Bento adds on top.
-
-A raised floor needs a standard interior: removable dividers seat in the floor, and a solid bin is already full.
 
 ## Use a low-profile base
 

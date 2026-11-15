@@ -103,7 +103,7 @@ Small things in a deep compartment are hard to pick out. <Ui k="binDesigner.bent
 
 <Screenshot id="designer-compartments-floor-raise" alt="The bin shows five compartments of full depth. The narrow Tips compartment is clicked on the Bento canvas, and Floor raise is dragged to 24 mm in the compartment panel. The bin then shows the Tips compartment with its floor near the rim." spec="Bin designer on a wide window, the soldering kit bin with five labeled compartments in the Bento workspace. Start on the bin from a little higher than the default view. Close-up of the canvas and the compartment panel: click the Tips compartment, drag Floor raise to 24 mm. Cut to the bin again." />
 
-The raised floor is solid, and the infill of your slicer keeps it light. The bin designer keeps at least 3 mm of depth above the raised floor. A finger scoop climbs from the raised floor. For a <Ui k="binDesigner.interior.standard.title" /> bin, pick <Ui k="binDesigner.interior.bento.title" />: the compartments stay the same, and you get the same control. To lift every compartment at once, pick the [raised floor](./base#raise-the-floor) in the Floor section; a compartment raise then adds on top. A floor that follows the feet has no flat floor to raise, so the control shows the reason instead.
+The raised floor is solid, and the infill of your slicer keeps it light. The bin designer keeps at least 3 mm of depth above the raised floor. A finger scoop climbs from the raised floor. For a <Ui k="binDesigner.interior.standard.title" /> bin, pick <Ui k="binDesigner.interior.bento.title" />: the compartments stay the same, and you get the same control. A floor that follows the feet has no flat floor to raise, so the control shows the reason instead.
 
 ## Use removable dividers
 

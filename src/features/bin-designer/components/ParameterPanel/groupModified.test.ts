@@ -43,7 +43,6 @@ describe('modifiedGroups', () => {
     ['base', { ...DEFAULT_BIN_PARAMS.base, stackingLip: false }, 'base'],
     // The floor type's base fields are edited in the Floor section.
     ['base', { ...DEFAULT_BIN_PARAMS.base, lightweight: true }, 'interior'],
-    ['floorRaiseMm', 6, 'interior'],
     ['featureColors', { modified: true }, 'finishing'],
     ['wallPattern', { modified: true }, 'finishing'],
     ['floorPattern', { modified: true }, 'interior'],

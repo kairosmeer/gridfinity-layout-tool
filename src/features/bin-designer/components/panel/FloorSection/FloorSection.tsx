@@ -8,7 +8,6 @@
  */
 
 import type { ReactNode } from 'react';
-import { SliderInput } from '@/design-system';
 import { isPartialMask } from '@/shared/utils/cellMask';
 import { useDesignerStore } from '@/features/bin-designer/store';
 import { jumpToDesignerControl } from '@/features/bin-designer/settingsManifest';
@@ -21,14 +20,13 @@ import { ScoopSection } from '../ScoopSection';
 import { InteriorFilletSection } from '../InteriorFilletSection';
 import { FloorTextSection } from '../FloorTextSection';
 import { FloorPatternSection } from './FloorPatternSection';
-import { FlatFloorIcon, FollowsFeetFloorIcon, RaisedFloorIcon } from './icons';
+import { FlatFloorIcon, FollowsFeetFloorIcon } from './icons';
 import { useFloorSection } from './useFloorSection';
 import type { FloorType } from './floorType';
 
 const ICON = {
   flat: <FlatFloorIcon />,
   followsFeet: <FollowsFeetFloorIcon />,
-  raised: <RaisedFloorIcon />,
 } as const satisfies Record<FloorType, ReactNode>;
 
 export function FloorSection() {
@@ -38,10 +36,7 @@ export function FloorSection() {
 
   const grams = (type: FloorType): string | undefined => {
     const delta = state.grams?.[type] ?? 0;
-    if (delta === 0) return undefined;
-    return t(delta < 0 ? 'binDesigner.floor.gramsSaved' : 'binDesigner.floor.gramsAdded', {
-      grams: Math.abs(delta),
-    });
+    return delta < 0 ? t('binDesigner.floor.gramsSaved', { grams: -delta }) : undefined;
   };
 
   const hollowToggle = (
@@ -82,10 +77,6 @@ export function FloorSection() {
                   label: t('binDesigner.floor.type.followsFeet'),
                   note: t('binDesigner.floor.type.followsFeet.note'),
                 },
-                {
-                  label: t('binDesigner.floor.type.raised'),
-                  note: t('binDesigner.floor.type.raised.note'),
-                },
               ]}
             />
           }
@@ -112,17 +103,6 @@ export function FloorSection() {
               ) : undefined,
           }))}
         >
-          {state.floorType === 'raised' && (
-            <SliderInput
-              label={t('binDesigner.floor.raiseHeight')}
-              value={state.raiseMm}
-              onChange={handlers.setRaise}
-              min={state.raiseStep}
-              max={Math.max(state.raiseStep, state.raiseMax)}
-              step={state.raiseStep}
-              unit="mm"
-            />
-          )}
           {state.floorType !== 'followsFeet' && hollowToggle}
         </ModeTiles>
       </div>

@@ -5,7 +5,7 @@
  * No dependencies on brepjs or Three.js.
  */
 
-import { GRIDFINITY, DESIGNER_CONSTRAINTS } from '@/shared/constants/bin';
+import { GRIDFINITY } from '@/shared/constants/bin';
 import type {
   BaseStyle,
   BinParams,
@@ -13,22 +13,13 @@ import type {
   PartialDividerStyle,
   SlotConfig,
 } from '@/shared/types/bin';
-import {
-  MAX_COMPARTMENT_FLOOR_RAISE_MM,
-  MIN_RAISED_CAVITY_MM,
-  binFloorMm,
-  hasDetachableFeet,
-  isNestingBase,
-  isUndersideRelief,
-} from '@/shared/types/bin';
-import { socketHeightMm } from '@/shared/printSettings/gridfinityGeometry';
+import { binFloorMm, hasDetachableFeet, isUndersideRelief } from '@/shared/types/bin';
 import { resolveDetachableFeet } from '@/shared/utils/detachableFeetPlan';
 import type { DetachableFeetParams } from '@/shared/utils/detachableFeetPlan';
 import { isPartialMask } from '@/shared/utils/cellMask';
 import { hasOverhang, overhangExpansion, resolveOverhang } from '@/shared/utils/overhang';
 
 const LIP_SMALL_TAPER = GRIDFINITY.LIP_SMALL_TAPER;
-const { MIN_BODY_WALL_MM } = DESIGNER_CONSTRAINTS;
 
 /**
  * Extra per-side clearance subtracted from divider length (not from slot width).
@@ -222,58 +213,11 @@ export function dividerSeatZ(wallThickness: number, style: BaseStyle, grooveDept
   return binFloorMm(wallThickness, style, grooveDepth) - grooveDepth;
 }
 
-type FloorParams = Pick<
-  BinParams,
-  'wallThickness' | 'style' | 'dividerPieces' | 'base' | 'slotConfig'
-> &
-  Partial<Pick<BinParams, 'floorRaiseMm' | 'height' | 'heightUnitMm'>> &
-  DetachableFeetParams;
-
-/**
- * The floor slab a bin is built with before any raised floor: the spec floor,
- * a flat base's wall, or the wall plus a divider groove. Detachable-feet pins
- * are sized off this one; they seat in the slab, not in the fill above it.
- */
-export function resolveBaseFloorMm(params: FloorParams): number {
+export function resolveBinFloorMm(
+  params: Pick<BinParams, 'wallThickness' | 'style' | 'dividerPieces' | 'base' | 'slotConfig'> &
+    DetachableFeetParams
+): number {
   return binFloorMm(params.wallThickness, params.base.style, dividerGrooveDepth(params));
-}
-
-/**
- * How far a raised floor fills the cavity above the base slab, in mm.
- *
- * Zero where there is no closed cavity floor to fill: a slotted, solid,
- * floorless (spacer, base-only) or Nesting body, and an open lightweight floor.
- * The constraint engine clears `floorRaiseMm` on all of them; this is the guard
- * for a design that never went through it. Clamped so
- * {@link MIN_RAISED_CAVITY_MM} of pocket survives, against the same interior
- * height `deriveDimensions` measures.
- */
-export function resolveFloorRaiseMm(params: FloorParams): number {
-  const raise = params.floorRaiseMm;
-  if (raise === undefined || !Number.isFinite(raise) || raise <= 0) return 0;
-  const { base } = params;
-  if (params.style !== 'standard' || base.solid || base.spacer || base.tile === true) return 0;
-  if (isNestingBase(base) || isLiteFloorOpen(params)) return 0;
-  let ceiling = MAX_COMPARTMENT_FLOOR_RAISE_MM;
-  if (params.height !== undefined && params.heightUnitMm !== undefined) {
-    const totalHeight = params.height * params.heightUnitMm;
-    const socketless = base.style === 'flat' || base.style === 'lid';
-    const wallHeight = socketless
-      ? totalHeight
-      : Math.max(totalHeight - socketHeightMm(base.lowProfile), MIN_BODY_WALL_MM);
-    const interiorHeight = base.stackingLip ? wallHeight - LIP_SMALL_TAPER : wallHeight;
-    ceiling = Math.min(ceiling, interiorHeight - resolveBaseFloorMm(params) - MIN_RAISED_CAVITY_MM);
-  }
-  return ceiling > 0 ? Math.min(raise, ceiling) : 0;
-}
-
-/**
- * Interior floor top above the body bottom, in mm: the base slab plus any
- * raised floor. Everything that stands on, cuts into or measures from the
- * cavity floor reads this one value, so a raised floor moves them together.
- */
-export function resolveBinFloorMm(params: FloorParams): number {
-  return resolveBaseFloorMm(params) + resolveFloorRaiseMm(params);
 }
 
 /**

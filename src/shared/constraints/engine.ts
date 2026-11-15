@@ -22,7 +22,6 @@ import { CONSTRAINT_RULES, IMPLICATION_RULES } from './rules';
  */
 const ABSENT_WHEN_OFF: ReadonlySet<keyof BinParams> = new Set<keyof BinParams>([
   'interiorFilletMm',
-  'floorRaiseMm',
 ]);
 
 function mergeParams(base: BinParams, partial: Partial<BinParams>): BinParams {

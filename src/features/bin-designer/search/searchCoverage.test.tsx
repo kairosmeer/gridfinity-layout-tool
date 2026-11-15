@@ -23,7 +23,6 @@ const GOLDEN: { query: string; expect: string[] }[] = [
   { query: 'floor', expect: ['Floor', 'Floor pattern', 'Floor text'] },
   { query: 'lightweight', expect: ['Follows feet'] },
   { query: 'honeycomb', expect: ['Follows feet'] },
-  { query: 'raised floor', expect: ['Raised'] },
   { query: 'magnet', expect: ['Magnet holes'] },
   { query: 'screw', expect: ['Screw holes'] },
   { query: 'scan', expect: ['Scan a tool'] },

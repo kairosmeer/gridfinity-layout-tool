@@ -13,7 +13,7 @@ import { computeInteriorHeight } from '@/shared/utils/scoopCalculations';
 import { resolveCompartmentDividerHeight } from '@/shared/utils/slotMath';
 import { countFilled, isPartialMask } from '@/shared/utils/cellMask';
 import { resolveWallPatternSides } from '@/shared/utils/wallPatternSides';
-import { floorSeamRiseMm, interiorFilletCornerMm } from '@/shared/utils/interiorFillet';
+import { interiorFilletCornerMm, interiorFilletRiseMm } from '@/shared/utils/interiorFillet';
 import {
   BOTTOM_SOLID_SKIRT,
   CUTOUT_BORDER_WIDTH,
@@ -86,7 +86,7 @@ export function computeWallPatternReduction(
   const wallHeight = totalH - bottomH;
   // wallThickness clears the floor slab; the skirt is the solid band above it
   // that anchors the lowest element row. Mirrors wallPatterns.ts.
-  const bottomKeepOut = wallThickness + BOTTOM_SOLID_SKIRT + floorSeamRiseMm(params);
+  const bottomKeepOut = wallThickness + BOTTOM_SOLID_SKIRT + interiorFilletRiseMm(params);
   const patternHeight = wallHeight - TOP_KEEP_OUT - bottomKeepOut;
   const minPatternH = Math.sqrt(3) * HEX_RADIUS + WEB_THICKNESS;
   const fractionFits = patternHeight >= minPatternH;
@@ -131,7 +131,7 @@ function stampedWallOpenArea(
     hasLip,
     GRIDFINITY.LIP_SMALL_TAPER
   );
-  const bottomKeepOut = wallThickness + BOTTOM_SOLID_SKIRT + floorSeamRiseMm(params);
+  const bottomKeepOut = wallThickness + BOTTOM_SOLID_SKIRT + interiorFilletRiseMm(params);
   const bandHeight = bandTop - TOP_KEEP_OUT - bottomKeepOut;
 
   const { pattern, webThickness } = params.wallPattern;
@@ -228,7 +228,7 @@ function dividerPatternReduction(
   const bandHeight =
     dividerHeight -
     TOP_KEEP_OUT -
-    (params.wallThickness + BOTTOM_SOLID_SKIRT + floorSeamRiseMm(params));
+    (params.wallThickness + BOTTOM_SOLID_SKIRT + interiorFilletRiseMm(params));
   if (bandHeight <= 0) return 0;
 
   const length = totalDividerLength(params, innerW, innerD);

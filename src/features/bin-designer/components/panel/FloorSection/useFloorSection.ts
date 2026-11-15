@@ -4,11 +4,8 @@ import { useDesignerStore } from '@/features/bin-designer/store';
 import { useTranslation } from '@/i18n';
 import { trackEvent } from '@/shared/analytics/posthog';
 import type { BinParams } from '@/features/bin-designer/types';
-import { FLOOR_RAISE_STEP_MM } from '@/features/bin-designer/types';
 import { hasDetachableFeet } from '@/features/bin-designer/types/base';
-import { resolveFloorRaiseMm } from '@/shared/utils/slotMath';
 import { estimatePrint } from '@/features/bin-designer/utils/printEstimates';
-import { maxFloorRaiseMm } from '@/features/bin-designer/utils/compartmentFloorRaise';
 import { finalizeBaseParams } from '../BaseSection/finalizeBaseParams';
 import {
   FLOOR_TYPES,
@@ -22,7 +19,7 @@ import {
 import type { FloorType } from './floorType';
 
 /**
- * Grams each floor type adds (+) or saves (-) against a flat floor on solid
+ * Grams each floor type saves (-) against a flat floor on solid
  * feet, for the same bin otherwise. Rounded to whole grams; 0 means no change.
  */
 function gramsAgainstFlat(params: BinParams): Record<FloorType, number> {
@@ -33,13 +30,13 @@ function gramsAgainstFlat(params: BinParams): Record<FloorType, number> {
     if (deriveFloorType(typed) !== type) return 0;
     return Math.round(estimatePrint(typed).gramsFilament - flatGrams);
   };
-  return { flat: delta('flat'), followsFeet: delta('followsFeet'), raised: delta('raised') };
+  return { flat: delta('flat'), followsFeet: delta('followsFeet') };
 }
 
 export function useFloorSection() {
   const t = useTranslation();
-  const { params, setParams, setParam } = useDesignerStore(
-    useShallow((s) => ({ params: s.params, setParams: s.setParams, setParam: s.setParam }))
+  const { params, setParams } = useDesignerStore(
+    useShallow((s) => ({ params: s.params, setParams: s.setParams }))
   );
 
   const floorType = deriveFloorType(params);
@@ -85,12 +82,6 @@ export function useFloorSection() {
     commit(applyHollowBelow(params, !hollow));
   };
 
-  const raiseMax = maxFloorRaiseMm(params);
-  const setRaise = (mm: number): void => {
-    const next = Math.min(raiseMax, Math.max(FLOOR_RAISE_STEP_MM, mm));
-    if (next !== params.floorRaiseMm) setParam('floorRaiseMm', next);
-  };
-
   return {
     t,
     state: {
@@ -101,10 +92,7 @@ export function useFloorSection() {
       grams,
       hollow,
       hollowReason,
-      raiseMm: resolveFloorRaiseMm(params),
-      raiseMax,
-      raiseStep: FLOOR_RAISE_STEP_MM,
     },
-    handlers: { setFloorType, toggleHollowBelow, setRaise },
+    handlers: { setFloorType, toggleHollowBelow },
   };
 }

@@ -32,14 +32,7 @@ export const CONSTRAINT_RULES: readonly ConstraintRule[] = [
     description: 'Nesting floor has a different floor plane from floor-mounted features',
     source: 'base.lid',
     when: (p) => isNestingBase(p.base),
-    disables: [
-      'scoop',
-      'interiorFillet',
-      'inserts',
-      'style.slotted',
-      'floorRaise',
-      'compartmentFloorRaises',
-    ],
+    disables: ['scoop', 'interiorFillet', 'inserts', 'style.slotted', 'compartmentFloorRaises'],
     reason: 'binDesigner.base.nesting.floorFeaturesUnavailable',
   },
   // ── Base: flat ↔ everything else ─────────────────────────────────────────
@@ -189,24 +182,9 @@ export const CONSTRAINT_RULES: readonly ConstraintRule[] = [
     disables: ['base.lightweight'],
     reason: 'binDesigner.interiorFilletDisablesLightweight',
   },
-  // A raised floor fills the cavity floor, and Bento raises stand on it; the
-  // interior lite floor opens that floor into the cups, so neither has
-  // anything to stand on. Mode-split like the pairs above: the underside
-  // relief keeps the floor whole.
-  {
-    description: 'Interior lightweight floor disables the raised floor (no floor to fill)',
-    source: 'base.lightweight',
-    when: (p) => p.base.lightweight && !isUndersideRelief(p.base),
-    disables: ['floorRaise'],
-    reason: 'binDesigner.lightweightDisablesFloorRaise',
-  },
-  {
-    description: 'Raised floor incompatible with an interior lightweight floor',
-    source: 'floorRaise',
-    when: (p) => (p.floorRaiseMm ?? 0) > 0 && !undersideReliefSelected(p.base),
-    disables: ['base.lightweight'],
-    reason: 'binDesigner.floorRaiseDisablesLightweight',
-  },
+  // Bento raises stand on the cavity floor; the interior lite floor opens that
+  // floor into the cups, so they have nothing to stand on. Mode-split like the
+  // pairs above: the underside relief keeps the floor whole.
   {
     description: 'Interior lightweight floor disables compartment floor raises',
     source: 'base.lightweight',
@@ -312,13 +290,6 @@ export const CONSTRAINT_RULES: readonly ConstraintRule[] = [
     disables: ['interiorFillet'],
     reason: 'binDesigner.interiorFilletUnavailableSlotted',
   },
-  {
-    description: 'Slotted style disables the raised floor (the dividers seat in the floor)',
-    source: 'style.slotted',
-    when: (p) => p.style === 'slotted',
-    disables: ['floorRaise'],
-    reason: 'binDesigner.floorRaiseUnavailableSlotted',
-  },
 
   // ── Base: spacer ─────────────────────────────────────────────────
   // A spacer is a floorless riser: the floor is punched through every cell so
@@ -333,7 +304,6 @@ export const CONSTRAINT_RULES: readonly ConstraintRule[] = [
       'label',
       'scoop',
       'interiorFillet',
-      'floorRaise',
       'compartmentFloorRaises',
       'floorPattern',
       'inserts',
@@ -415,7 +385,6 @@ export const CONSTRAINT_RULES: readonly ConstraintRule[] = [
       'label',
       'scoop',
       'interiorFillet',
-      'floorRaise',
       'compartmentFloorRaises',
       'floorPattern',
       'inserts',
@@ -496,7 +465,6 @@ export const CONSTRAINT_RULES: readonly ConstraintRule[] = [
       'label',
       'scoop',
       'interiorFillet',
-      'floorRaise',
       'wallPattern',
       'floorPattern',
       'inserts',

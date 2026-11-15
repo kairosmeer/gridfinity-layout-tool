@@ -16,27 +16,24 @@ describe('FloorSection', () => {
     vi.mocked(trackEvent).mockClear();
   });
 
-  it('offers the three floor types with the flat one chosen', () => {
+  it('offers both floor types with the flat one chosen', () => {
     render(<FloorSection />);
     expect(tile(en['binDesigner.floor.type.flat'])).toHaveAttribute('aria-checked', 'true');
     expect(tile(en['binDesigner.floor.type.followsFeet'])).toHaveAttribute('aria-checked', 'false');
-    expect(tile(en['binDesigner.floor.type.raised'])).toHaveAttribute('aria-checked', 'false');
   });
 
-  it('shows what each other type saves or adds against the flat floor', () => {
+  it('shows what the floor that follows the feet saves against the flat floor', () => {
     render(<FloorSection />);
     expect(tile(en['binDesigner.floor.type.followsFeet']).textContent).toMatch(/−\d+ g/);
-    expect(tile(en['binDesigner.floor.type.raised']).textContent).toMatch(/\+\d+ g/);
   });
 
-  it('raises the floor and offers its height', () => {
+  it('lets the floor follow the feet and records the switch', () => {
     render(<FloorSection />);
-    fireEvent.click(tile(en['binDesigner.floor.type.raised']));
-    expect(useDesignerStore.getState().params.floorRaiseMm).toBe(5);
-    expect(screen.getByRole('slider', { name: en['binDesigner.floor.raiseHeight'] })).toBeVisible();
+    fireEvent.click(tile(en['binDesigner.floor.type.followsFeet']));
+    expect(useDesignerStore.getState().params.base.lightweight).toBe(true);
     expect(trackEvent).toHaveBeenCalledWith('designer_floor_type_changed', {
       from: 'flat',
-      to: 'raised',
+      to: 'followsFeet',
     });
   });
 

@@ -17,7 +17,7 @@ import { DEFAULT_PATTERN_SCALE } from '@/shared/types/bin';
 import type { CellMask } from '@/shared/utils/cellMask';
 import { MASK_CELL_SIZE, isPartialMask, maskToPolygon } from '@/shared/utils/cellMask';
 import { resolveWallPatternSides } from '@/shared/utils/wallPatternSides';
-import { floorSeamRiseMm, interiorFilletCornerMm } from '@/shared/utils/interiorFillet';
+import { interiorFilletCornerMm, interiorFilletRiseMm } from '@/shared/utils/interiorFillet';
 import { BOX_CORNER_RADIUS, CLEARANCE } from './generatorConstants';
 import { findPolygonEdgeForSide } from './maskPolygonEdges';
 import type { PatternCenter, StampPatternCalculator } from './patterns';
@@ -108,8 +108,8 @@ function getWallPatternDescriptors(
 
   // Clear the floor slab (one wallThickness) AND leave a solid skirt above it
   // so the lowest hex row anchors to solid wall, not the floor seam — which an
-  // interior fillet or a raised floor lifts.
-  const bottomKeepOut = params.wallThickness + BOTTOM_SOLID_SKIRT + floorSeamRiseMm(params);
+  // interior fillet lifts by its own rise.
+  const bottomKeepOut = params.wallThickness + BOTTOM_SOLID_SKIRT + interiorFilletRiseMm(params);
 
   const patternHeight = wallHeight - TOP_KEEP_OUT - bottomKeepOut;
   const minHeight = calculator.getMinPatternHeight();

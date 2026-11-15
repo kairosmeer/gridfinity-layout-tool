@@ -31,7 +31,6 @@ const GROUP_OF: Partial<Record<keyof BinParams, PanelGroup>> = {
   compartments: 'interior',
   scoop: 'interior',
   interiorFilletMm: 'interior',
-  floorRaiseMm: 'interior',
   label: 'interior',
   slotConfig: 'interior',
   dividerPieces: 'interior',

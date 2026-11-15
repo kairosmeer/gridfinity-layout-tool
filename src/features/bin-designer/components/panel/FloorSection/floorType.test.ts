@@ -24,24 +24,18 @@ describe('floor type', () => {
     expect(deriveFloorType(bin({}, { lightweight: true, lightweightMode: 'underside' }))).toBe(
       'flat'
     );
-    expect(deriveFloorType(bin({ floorRaiseMm: 4 }))).toBe('raised');
   });
 
-  it('switches between all three types and leaves no residue on the way back', () => {
+  it('switches between both types and leaves no residue on the way back', () => {
     const start = bin();
     const follows = finalizeBaseParams(applyFloorType(start, 'followsFeet'));
     expect(follows.base.lightweight).toBe(true);
     // Absent is the default mode, so nothing is written for it.
     expect('lightweightMode' in follows.base).toBe(false);
 
-    const raised = applyFloorType(follows, 'raised');
-    expect(deriveFloorType(raised)).toBe('raised');
-    expect(raised.base.lightweight).toBe(false);
-    expect(raised.floorRaiseMm).toBe(5);
-
-    const back = applyFloorType(raised, 'flat');
+    const back = finalizeBaseParams(applyFloorType(follows, 'flat'));
     expect(deriveFloorType(back)).toBe('flat');
-    expect(back.floorRaiseMm).toBeUndefined();
+    expect(back.base.lightweight).toBe(false);
   });
 
   it('blocks Follows feet while a scoop is on, with the reason', () => {
@@ -67,12 +61,6 @@ describe('floor type', () => {
     expect('lightweightMode' in off.base).toBe(false);
   });
 
-  it('keeps a hollow underside through a switch to Raised', () => {
-    const raised = applyFloorType(applyHollowBelow(bin(), true), 'raised');
-    expect(deriveFloorType(raised)).toBe('raised');
-    expect(hollowBelow(raised)).toBe(true);
-  });
-
   it('lets leftover cutouts stand after leaving solid mode, and clears them', () => {
     const leftover = bin({ cutouts: [{ id: 'c1' } as never] });
     expect(floorTypeStatus(leftover, 'followsFeet')?.available).toBe(true);
@@ -85,13 +73,6 @@ describe('floor type', () => {
     expect(hollowBelowStatus(flat).available).toBe(false);
   });
 
-  it('refuses Raised on a slotted bin and on a Nesting floor', () => {
-    expect(floorTypeStatus(bin({ style: 'slotted' }), 'raised')?.reason).toBe(
-      'binDesigner.floorRaiseUnavailableSlotted'
-    );
-    expect(floorTypeStatus(bin({ style: 'solid' }), 'raised')?.available).toBe(false);
-  });
-
   it('blocks Follows feet under raised Bento compartments', () => {
     const raisedCompartment = bin({
       compartments: { ...DEFAULT_BIN_PARAMS.compartments, floorRaises: [6] },
@@ -99,11 +80,5 @@ describe('floor type', () => {
     expect(floorTypeStatus(raisedCompartment, 'followsFeet')?.reason).toBe(
       'binDesigner.compartmentFloorRaisesDisableLightweight'
     );
-  });
-
-  it('keeps a stored height when Raised is picked again', () => {
-    const raised = applyFloorType(bin({ floorRaiseMm: 12 }), 'flat');
-    expect(raised.floorRaiseMm).toBeUndefined();
-    expect(applyFloorType(bin({ floorRaiseMm: 12 }), 'raised').floorRaiseMm).toBe(12);
   });
 });

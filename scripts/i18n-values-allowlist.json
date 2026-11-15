@@ -2,7 +2,6 @@
   "maxShortValueLength": 3,
   "keys": [
     "binDesigner.floor.gramsSaved",
-    "binDesigner.floor.gramsAdded",
     "settings.spacemouse",
     "account.identity.heading",
     "assembledHeight.segmentLabel",

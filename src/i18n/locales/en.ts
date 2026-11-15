@@ -3149,16 +3149,10 @@ const en: Record<string, string> = {
     'An interior lightweight floor is already open: there is no slab to perforate',
   'binDesigner.floorPatternDisablesLightweight':
     'Drainage holes need a flat floor: hollow the feet from below to keep both',
-  'binDesigner.lightweightDisablesFloorRaise':
-    'A floor that follows the feet has no flat floor to raise',
-  'binDesigner.floorRaiseDisablesLightweight':
-    'A raised floor fills the floor the feet would open into',
   'binDesigner.lightweightDisablesCompartmentFloorRaises':
     'A floor that follows the feet cannot raise a compartment',
   'binDesigner.compartmentFloorRaisesDisableLightweight':
     'Raised compartments need a flat floor under them',
-  'binDesigner.floorRaiseUnavailableSlotted':
-    'Removable dividers seat in the floor, so it cannot be raised',
   'binDesigner.tileDisablesLightweight':
     'A base-only bin is just the floor: hollow its feet from below to lighten it',
   'binDesigner.spacerDisablesInterior': 'A spacer has no floor to hold interior features',
@@ -4194,23 +4188,17 @@ const en: Record<string, string> = {
   'binDesigner.floor.type': 'Floor type',
   'binDesigner.floor.type.flat': 'Flat',
   'binDesigner.floor.type.followsFeet': 'Follows feet',
-  'binDesigner.floor.type.raised': 'Raised',
   'binDesigner.floor.type.flat.caption': 'A flat floor over the feet.',
   'binDesigner.floor.type.followsFeet.caption':
     'The floor dips into each foot. Saves the most filament.',
-  'binDesigner.floor.type.raised.caption': 'Solid fill lifts the floor nearer the rim.',
   'binDesigner.floor.type.flat.note':
     'The standard floor. Scoops, fillets, drainage holes and floor text all work on it.',
   'binDesigner.floor.type.followsFeet.note':
     'Each foot is hollowed from inside, so the grid shape shows through the floor. Saves the most filament, but small items can settle into the dips, and scoops, fillets and drainage holes are off.',
-  'binDesigner.floor.type.raised.note':
-    'Fills the floor up by the height you set, so short items are easy to reach. Scoops, fillets, drainage holes and floor text move up with it; Bento compartment raises add on top.',
   'binDesigner.floor.hollowBelow': 'Hollow feet from below',
   'binDesigner.floor.hollowBelowDetail':
     'Hollows each foot from underneath and keeps the floor whole, so nothing falls into it. Saves filament without giving up scoops or drainage holes.',
-  'binDesigner.floor.raiseHeight': 'Raise by',
   'binDesigner.floor.gramsSaved': '−{grams} g',
-  'binDesigner.floor.gramsAdded': '+{grams} g',
   'binDesigner.floor.noFloor': 'This body has no inside floor.',
   'binDesigner.walls.text.heading': 'Wall text',
   'binDesigner.walls.text.placeholder': 'e.g. Cables',

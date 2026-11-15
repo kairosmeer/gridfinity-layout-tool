@@ -205,12 +205,6 @@ export const DESIGNER_OPTION_RECORDS: readonly DesignerOptionRecord[] = [
     // prettier-ignore
     keywords: ['lightweight', 'lightweight floor', 'weight savings', 'honeycomb', 'infill', 'hollow', 'gyroid', 'follows feet'],
   },
-  {
-    id: 'opt-raised-floor',
-    labelKey: 'binDesigner.floor.type.raised',
-    section: 'bd-floor',
-    keywords: ['raised floor', 'false floor', 'shallow', 'fill', 'lift', 'higher floor'],
-  },
   // Base
   {
     id: 'opt-stacking-lip',

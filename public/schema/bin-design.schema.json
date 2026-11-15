@@ -491,15 +491,6 @@
             "maximum": "DESIGNER_CONSTRAINTS.MAX_INTERIOR_FILLET"
           },
           "description": "Radius in mm rounding each compartment's wall-to-floor edges; its vertical corners round to at least the same. Omit for sharp junctions. Standard style only. Each compartment is clamped to half its narrowest span and to its height, so a large value turns a small compartment into a bowl."
-        },
-        "floorRaiseMm": {
-          "type": "number",
-          "exclusiveMinimum": 0,
-          "maximum": 100,
-          "x-constant": {
-            "maximum": "MAX_COMPARTMENT_FLOOR_RAISE_MM"
-          },
-          "description": "Raised floor: solid fill in mm on top of the floor slab across the whole cavity, so short items sit nearer the rim. Omit for the standard floor. Standard style only; ignored on slotted, solid, spacer, base-only and Nesting bodies and on a lightweight floor that follows the feet. Clamped so 3 mm of cavity remains. Per-compartment floorRaises add on top."
         }
       }
     },

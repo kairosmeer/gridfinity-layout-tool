@@ -152,7 +152,6 @@ export const ALLOWED_PARAM_KEYS: ReadonlySet<string> = new Set<string>([
   'wallThickness',
   'extraWallHeightMm',
   'interiorFilletMm',
-  'floorRaiseMm',
   'style',
   'overhang',
   'slant',
@@ -472,19 +471,6 @@ export function validateDesignerShare(
     return validationError(
       'INVALID_PARAMS',
       `interiorFilletMm must be ${CONSTRAINTS.MIN_INTERIOR_FILLET}-${CONSTRAINTS.MAX_INTERIOR_FILLET}`
-    );
-  }
-
-  // Raised floor: absent when off, so a present value must be a real height.
-  if (
-    params.floorRaiseMm !== undefined &&
-    (!isNumber(params.floorRaiseMm) ||
-      params.floorRaiseMm <= 0 ||
-      params.floorRaiseMm > CONSTRAINTS.MAX_COMPARTMENT_FLOOR_RAISE_MM)
-  ) {
-    return validationError(
-      'INVALID_PARAMS',
-      `floorRaiseMm must be above 0 and at most ${CONSTRAINTS.MAX_COMPARTMENT_FLOOR_RAISE_MM}`
     );
   }
 
