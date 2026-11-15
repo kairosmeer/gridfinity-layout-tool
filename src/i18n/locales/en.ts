@@ -2102,6 +2102,24 @@ const en: Record<string, string> = {
   'binDesigner.interiorDimensions': 'Inside',
   'binDesigner.interiorDimensionsHint':
     'Floor to wall top, before dividers, scoops and label tabs. The stacking lip rises above it.',
+  'sidebar.fitContents': 'Fit contents',
+  'sidebar.fitContentsHint':
+    'Enter the item, and the bin grows to the smallest size that holds it.',
+  'sidebar.fitContents.length': 'Item length (mm)',
+  'sidebar.fitContents.width': 'Item width (mm)',
+  'sidebar.fitContents.height': 'Item height (mm)',
+  'sidebar.fitContents.heightDetail': 'Leave at 0 to keep the current height.',
+  'sidebar.fitContents.result': 'Smallest bin {width} × {depth} × {height}u',
+  'sidebar.fitContents.inside': 'Inside {width} × {depth} × {height} mm',
+  'sidebar.fitContents.turned': 'Turns the item 90° to fit.',
+  'sidebar.fitContents.apply': 'Apply size',
+  'sidebar.fitContentsAddToStash': 'Add to stash',
+  'sidebar.wallThickness': 'Wall thickness',
+  'sidebar.wallThicknessTooltip':
+    "Assumed wall thickness for the inside size of bins without a linked design. The bin designer uses each design's own value.",
+  'inspector.insideEstimatedHint':
+    'Approximate: assumes a {wall} mm wall. Change it under Tools → Physical units.',
+  'sidebar.fitContents.tooLarge': 'Too big for the largest bin. Try smaller contents.',
   'binDesigner.downloadJSON': 'Download JSON',
   'binDesigner.downloadDesignJson': 'Download design JSON',
   'binDesigner.export.jsonHint':

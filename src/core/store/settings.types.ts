@@ -160,6 +160,14 @@ export interface UserSettings {
   defaultGridUnitMm: number;
   defaultHeightUnitMm: number;
 
+  /**
+   * Wall thickness (mm) assumed when the layout shows the inside size of a bin
+   * that has no linked design to measure. A display assumption only: the bin
+   * designer always generates with the design's own value, so changing this
+   * never repaints or regenerates anything.
+   */
+  wallThicknessMm: number;
+
   // UI preferences
   defaultZoom: number;
   rememberPanelState: boolean; // Whether to remember panel collapse state
@@ -357,6 +365,9 @@ export const DEFAULT_SETTINGS: UserSettings = {
   defaultPrintBedSize: 256,
   defaultGridUnitMm: 42,
   defaultHeightUnitMm: 7,
+  // Literal, not CONSTRAINTS.WALL_THICKNESS_MM_DEFAULT: same init-time read
+  // hazard as defaultPrintBedSize above.
+  wallThicknessMm: 1.2,
 
   // UI preferences
   defaultZoom: 1.0,

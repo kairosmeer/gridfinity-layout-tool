@@ -64,6 +64,7 @@ export function MobileSettingsPanel() {
     heightUnitMm,
     printBedSize,
     printBedDepth,
+    wallThicknessMm,
     halfGridMode,
     activeLayerHeight,
     handleDrawerWidthChange,
@@ -78,6 +79,7 @@ export function MobileSettingsPanel() {
     handleGridUnitChange,
     setHeightUnitMm,
     setPrintBedSize,
+    setWallThicknessMm,
     resetGridfinityStandard,
     showSaveDefaultsConfirm,
     setShowSaveDefaultsConfirm,
@@ -234,6 +236,23 @@ export function MobileSettingsPanel() {
               {t('settings.gridfinityStandardMm', {
                 value: CONSTRAINTS.HEIGHT_UNIT_MM_DEFAULT,
               })}
+            </p>
+          </div>
+
+          <div>
+            <SettingsRow label={t('sidebar.wallThickness')} unit="mm" variant="mobile">
+              <DeferredNumberInput
+                value={wallThicknessMm}
+                onChange={setWallThicknessMm}
+                className="input w-20 h-10 text-center"
+                min={CONSTRAINTS.WALL_THICKNESS_MM_MIN}
+                max={CONSTRAINTS.WALL_THICKNESS_MM_MAX}
+                step={0.1}
+                decimals={2}
+              />
+            </SettingsRow>
+            <p className="text-xs text-content-tertiary mt-1">
+              {t('sidebar.wallThicknessTooltip')}
             </p>
           </div>
 

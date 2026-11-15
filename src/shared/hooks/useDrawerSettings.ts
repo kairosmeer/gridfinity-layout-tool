@@ -76,6 +76,8 @@ export interface UseDrawerSettingsReturn {
   heightUnitMm: number;
   printBedSize: number;
   printBedDepth: number;
+  /** Assumed wall thickness (mm) used for the inside size of unlinked bins. */
+  wallThicknessMm: number;
 
   // Half-bin mode
   halfGridMode: boolean;
@@ -108,6 +110,7 @@ export interface UseDrawerSettingsReturn {
   handleGridUnitChange: (x: number, y?: number) => void;
   setHeightUnitMm: (value: number) => void;
   setPrintBedSize: (value: number, depth?: number) => void;
+  setWallThicknessMm: (value: number) => void;
   resetGridfinityStandard: () => void;
 
   // STL site toggle
@@ -406,6 +409,21 @@ export function useDrawerSettings(): UseDrawerSettingsReturn {
 
   const handleGridUnitChange = useGridUnitChange();
 
+  // A user preference rather than a layout field: it only feeds the inside
+  // readout for bins without a linked design, so it need not travel with a
+  // layout or change what any export generates.
+  const setWallThicknessMm = useCallback(
+    (value: number) => {
+      if (!Number.isFinite(value)) return;
+      const clamped = Math.max(
+        CONSTRAINTS.WALL_THICKNESS_MM_MIN,
+        Math.min(CONSTRAINTS.WALL_THICKNESS_MM_MAX, value)
+      );
+      updateSetting('wallThicknessMm', clamped);
+    },
+    [updateSetting]
+  );
+
   const handleSaveCategoriesAsDefaults = useCallback(() => {
     saveCategoriesAsDefaults(currentCategories);
     setShowSaveCategoriesConfirm(false);
@@ -462,6 +480,7 @@ export function useDrawerSettings(): UseDrawerSettingsReturn {
     heightUnitMm,
     printBedSize,
     printBedDepth,
+    wallThicknessMm: settings.wallThicknessMm,
 
     // Half-bin mode
     halfGridMode,
@@ -482,6 +501,7 @@ export function useDrawerSettings(): UseDrawerSettingsReturn {
     handleGridUnitChange,
     setHeightUnitMm,
     setPrintBedSize,
+    setWallThicknessMm,
     resetGridfinityStandard,
     toggleSTLSite,
 

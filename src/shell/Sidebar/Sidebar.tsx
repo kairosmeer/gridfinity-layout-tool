@@ -33,6 +33,7 @@ import { DOCS_URL } from '@/shared/constants/links';
 import { helpJumpEventName } from '@/shared/help/helpJumpDispatcher';
 import { PanelSection } from '@/shared/components/PanelSection';
 import { StickyGroupHeader } from '@/shared/components/StickyGroupHeader';
+import { FitContentsSection } from './FitContentsSection';
 
 // Lazy load modals/galleries - only loaded when opened (using lazyWithRetry for PWA resilience)
 const InspirationGallery = lazyWithRetry(() =>
@@ -83,6 +84,7 @@ export function Sidebar() {
     gridUnitMm,
     gridUnitMmY,
     heightUnitMm,
+    wallThicknessMm,
     printBedSize,
     printBedDepth,
     maxGridUnits,
@@ -99,6 +101,7 @@ export function Sidebar() {
     handleGridUnitChange,
     setHeightUnitMm,
     setPrintBedSize,
+    setWallThicknessMm,
     resetGridfinityStandard,
   } = useDrawerSettings();
   const drawerCeiling = useDrawerCeiling();
@@ -272,6 +275,16 @@ export function Sidebar() {
                   ))}
                 </svg>
               </Button>
+            </div>
+
+            <div data-fit-contents-panel>
+              <StickyGroupHeader
+                variant="band"
+                title={t('sidebar.fitContents')}
+                defaultExpanded={false}
+              >
+                <FitContentsSection />
+              </StickyGroupHeader>
             </div>
 
             <div data-grid-size-panel>
@@ -453,6 +466,25 @@ export function Sidebar() {
                         min={CONSTRAINTS.HEIGHT_UNIT_MM_MIN}
                         max={CONSTRAINTS.HEIGHT_UNIT_MM_MAX}
                         step={0.01}
+                        decimals={2}
+                        className="input w-14 py-0.5 px-1 text-xs text-right"
+                      />
+                    </SettingsRow>
+                  </div>
+                  <div data-help-target="wall-thickness">
+                    <SettingsRow
+                      label={t('sidebar.wallThickness')}
+                      htmlFor="wallThickness"
+                      info={t('sidebar.wallThicknessTooltip')}
+                      unit="mm"
+                    >
+                      <DeferredNumberInput
+                        id="wallThickness"
+                        value={wallThicknessMm}
+                        onChange={setWallThicknessMm}
+                        min={CONSTRAINTS.WALL_THICKNESS_MM_MIN}
+                        max={CONSTRAINTS.WALL_THICKNESS_MM_MAX}
+                        step={0.1}
                         decimals={2}
                         className="input w-14 py-0.5 px-1 text-xs text-right"
                       />

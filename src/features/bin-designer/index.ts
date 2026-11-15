@@ -72,6 +72,19 @@ export { validateBinParams } from './utils/validation';
 // Exposed for shared/hooks/useLabelPlateCounts (print-list plate counts) to
 // feed the same innerW into planLabelPlates that the worker uses.
 export { binDimensions, cutoutInterior } from './utils/binDimensions';
+// Exposed for design-linking's layout inspector, which shows a linked bin's
+// inside size without loading the designer.
+export { binInteriorDimensions } from './utils/interiorDimensions';
+export type { InteriorDimensions } from './utils/interiorDimensions';
+// Exposed for the layout inspector (inside size of an unlinked bin) and the
+// layout's Fit contents tool, which measure a bin that exists only as a
+// rectangle. Both go through the same BinParams the designer generates from.
+export { plainBinInterior, plainBinParams } from './utils/plainBin';
+export type { PlainBinInput, PlainBinSize } from './utils/plainBin';
+// Exposed for the layout's Fit contents tool in the Tools panel.
+export { fitContents } from './utils/fitContents';
+export type { ContentsFit, ContentsFitResult, ContentsSize } from './utils/fitContents';
+export { formatCompactMm } from './utils/compartmentDimensions';
 
 // Exposed for `shared/sync/` to wire into the sync engine without reaching
 // into the feature's internal path.

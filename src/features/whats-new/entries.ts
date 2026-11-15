@@ -14,6 +14,17 @@ import type { WhatsNewEntry } from './types';
  */
 export const WHATS_NEW_ENTRIES: WhatsNewEntry[] = [
   {
+    id: 'fit-contents-and-inside-size',
+    date: '2026-11-14',
+    kind: 'new',
+    featured: true,
+    title: { en: 'Size a bin to what goes in it' },
+    body: {
+      en: "Measure an item and let the tool pick the bin. In the layout's Tools panel, open Fit contents and type the length, width and height in millimeters. The smallest bin that holds the item is applied to the selected bin in one step, and with nothing selected it is added to the stash. It turns the item 90° when that saves a row or column, and leaving the height empty keeps the bin as tall as it is. Click a bin and the inspector now shows its inside size under the outside one: exact for a bin linked to a saved design, approximate for an unlinked bin using the wall thickness under Tools → Physical units.",
+    },
+    action: { kind: 'openTool', tool: 'layout' },
+  },
+  {
     id: 'out-of-labs-workshop-slant-gaps',
     date: '2026-11-06',
     kind: 'improved',

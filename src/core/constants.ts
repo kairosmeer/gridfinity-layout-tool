@@ -40,6 +40,12 @@ export const CONSTRAINTS = {
   HEIGHT_UNIT_MM_MIN: 3,
   HEIGHT_UNIT_MM_MAX: 20,
   HEIGHT_UNIT_MM_DEFAULT: 7,
+  // Wall thickness assumed for a bin with no linked design, used only to show
+  // its inside size in the layout. The designer's own presets span 0.4–2.6 mm;
+  // the wider cap leaves room for a deliberately thick print.
+  WALL_THICKNESS_MM_MIN: 0.4,
+  WALL_THICKNESS_MM_MAX: 5,
+  WALL_THICKNESS_MM_DEFAULT: 1.2,
   // Print-bed dimension bounds (mm). The min doubles as the legacy grid-unit
   // detector in storage migration: a stored printBedSize below it is grid
   // units, not mm. Kept distinct from GRID_UNIT_MM_DEFAULT even though both

@@ -59,6 +59,8 @@ Want one bin to keep its size while its design changes? Turn on <Ui k="inspector
 
 In the layout editor, the 3D preview shows each linked bin with the model of its design. <Ui k="layoutExport.button" /> exports the model of each linked bin.
 
+The inspector shows a bin's inside size under its outside size. A linked bin is measured from its saved design, and the numbers appear only while the bin and its design share a size, so a bin that was resized away from its design shows the outside size alone until the two match again. A bin that matches its design turned 90° shows the inside size the same way round as the bin. A bin with no linked design gets an approximate size from its footprint and the wall thickness under <Ui k="common.physicalUnits" />, marked with ≈.
+
 ## Labels for each bin
 
 One design can carry a different label on every bin. Each bin in a layout has its own <Ui k="inspector.binLabel" />, and a linked bin can print that label on its label tab:

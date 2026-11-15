@@ -38,17 +38,20 @@ The outer walls of a bin are 0.5 mm smaller than its cells, so a 1 × 1 bin meas
 
 ## Where you set the units
 
-In the layout editor, open the <Ui k="common.physicalUnits" /> group in the left panel. It holds three fields:
+In the layout editor, open the <Ui k="common.physicalUnits" /> group in the left panel. It holds four fields:
 
-| Field                         | What it sets                       | Values                                       |
-| ----------------------------- | ---------------------------------- | -------------------------------------------- |
-| <Ui k="sidebar.gridUnit" />   | The size of one grid cell          | 20 mm to 60 mm                               |
-| <Ui k="sidebar.heightUnit" /> | The size of one height unit        | 3 mm to 20 mm                                |
-| <Ui k="sidebar.printBed" />   | The print bed size for this layout | See [Fitting the print bed](./print-bed-fit) |
+| Field                            | What it sets                       | Values                                       |
+| -------------------------------- | ---------------------------------- | -------------------------------------------- |
+| <Ui k="sidebar.gridUnit" />      | The size of one grid cell          | 20 mm to 60 mm                               |
+| <Ui k="sidebar.heightUnit" />    | The size of one height unit        | 3 mm to 20 mm                                |
+| <Ui k="sidebar.printBed" />      | The print bed size for this layout | See [Fitting the print bed](./print-bed-fit) |
+| <Ui k="sidebar.wallThickness" /> | Assumed wall, for inside sizes     | 0.4 mm to 5 mm                               |
 
 Want the standard back? <Ui k="settings.resetGridfinityStandard" /> sets 42 mm and 7 mm again.
 
 The units belong to the layout, and all three tools share them. The bin designer shows the same grid unit and height unit in the <Ui k="binDesigner.group.finishing" /> group, under <Ui k="common.physicalUnits" />. The baseplate generator shows the same grid unit. Change a value in one tool, and the other tools use the changed value.
+
+The wall thickness is an assumption, not a printing setting. It only feeds the inside size that the bin inspector shows for a bin that isn't linked to a saved design. A linked bin uses its design's own wall thickness, and no bin prints differently because of this field.
 
 To pick the grid unit for each new layout, open <Ui k="sidebar.settings" />, then <Ui k="settings.tabs.defaults" />. Change <Ui k="settings.defaultGridUnit" /> there.
 

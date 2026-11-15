@@ -4,6 +4,7 @@ import { mm, mmToHeightUnits, roundHeightUnits } from '@/core/types';
 import { Button, IconButton, Select, Stepper, XIcon } from '@/design-system';
 import { ArrowLeftRightIcon, LockIcon, LockOpenIcon, RulerIcon } from '@/design-system/Icon';
 import { useHalfGridModeStore } from '@/core/store/halfGridMode';
+import { useSettingsStore } from '@/core/store/settings';
 import { getBinLocationContext, isBinLocked } from '@/shared/utils/binLocation';
 import { getUnevenlySupported } from '@/shared/utils/restingStack';
 import { useRestingStack } from '@/shared/hooks/useRestingStack';
@@ -37,6 +38,12 @@ const BinSizeSuggestion = lazyWithRetry(() =>
 const LinkedDesignSection = lazyWithRetry(() =>
   import('@/features/design-linking/components/LinkedDesignSection').then(
     namedExport('LinkedDesignSection')
+  )
+);
+
+const BinInteriorSize = lazyWithRetry(() =>
+  import('@/features/design-linking/components/BinInteriorSize').then(
+    namedExport('BinInteriorSize')
   )
 );
 
@@ -74,6 +81,7 @@ export function SingleBinInspector({ inspector, variant, onClose }: SingleBinIns
   } = inspector;
 
   const halfGridMode = useHalfGridModeStore((state) => state.halfGridMode);
+  const wallThicknessMm = useSettingsStore((state) => state.settings.wallThicknessMm);
   const ceiling = useDrawerCeiling();
   const restingStack = useRestingStack(layout.bins, layout.layers);
   const placesEnabled = useFeatureFlag('places');
@@ -237,6 +245,21 @@ export function SingleBinInspector({ inspector, variant, onClose }: SingleBinIns
             {t('inspector.sizeLockedHint')}
           </p>
         )}
+
+        {/* Inside size. A linked design is measured exactly; an unlinked bin
+            from its footprint and the wall thickness set in Tools. */}
+        <Suspense fallback={null}>
+          <BinInteriorSize
+            linkedDesignId={bin.linkedDesignId}
+            binSize={{ width: bin.width, depth: bin.depth, height: bin.height }}
+            units={{
+              gridUnitMm: layout.gridUnitMm,
+              gridUnitMmY: layout.gridUnitMmY,
+              heightUnitMm: layout.heightUnitMm,
+            }}
+            wallThicknessMm={wallThicknessMm}
+          />
+        </Suspense>
 
         {/* Height and Clearance - compact inline controls */}
         <div className="space-y-1.5">

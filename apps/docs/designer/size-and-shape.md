@@ -42,6 +42,8 @@ Three readouts show what you get:
 
 Some contents stand taller than the bin, like brushes or pens. <Ui k="binDesigner.extraWallHeight" /> raises the outer walls and the stacking lip up to 100 mm above the bin height. The interior doesn't change, so tall contents stay inside the rim.
 
+Know what goes in the bin? The <Ui k="sidebar.fitContents" /> tool in the layout editor's Tools panel sizes a bin to it, and the bin inspector shows the inside size. See [Place and edit bins](../layouts/placing-bins#size-a-bin-to-what-goes-in-it).
+
 <Screenshot id="designer-size-and-shape-dimensions" alt="The Dimensions section with width, depth, height and the size readouts." spec="Bin designer, Shape group open, default 2 x 2 x 3 bin. Show the Dimensions section from its heading to the Half-grid mode toggle. Crop to the panel." />
 
 ::: tip

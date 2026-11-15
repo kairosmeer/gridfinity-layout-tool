@@ -37,6 +37,12 @@ interface InfoDotProps {
   readonly hoverDelayMs?: number;
   /** Replaces the panel's default classes, sizing and padding included. */
   readonly panelClassName?: string;
+  /**
+   * Leaves the dot out of the Tab order, for a dot between fields that are
+   * filled in one after another. The field must then carry the explanation
+   * itself (aria-describedby), or keyboard users lose it.
+   */
+  readonly skipTab?: boolean;
 }
 
 export function InfoDot({
@@ -45,6 +51,7 @@ export function InfoDot({
   icon,
   hoverDelayMs,
   panelClassName = DEFAULT_PANEL,
+  skipTab = false,
 }: InfoDotProps) {
   const buttonRef = useRef<HTMLButtonElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -108,6 +115,7 @@ export function InfoDot({
         variant="ghost"
         size="sm"
         touchTarget={false}
+        tabIndex={skipTab ? -1 : undefined}
         onClick={() => {
           clearHoverTimer();
           if (open && pinned) {

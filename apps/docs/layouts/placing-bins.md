@@ -13,6 +13,7 @@ sources:
   - src/shared/utils/validation.ts
   - src/core/cqrs/v2/domain/bin/duplicateBin.ts
   - src/shared/hooks/useExpandToFit.ts
+  - src/shell/Sidebar/FitContentsSection.tsx
 ---
 
 # Place and edit bins
@@ -53,6 +54,17 @@ A duplicate goes to the first free spot to the right, below, to the left or abov
 Select one bin, and handles show on its edges and corners. Drag a handle to change the width, the depth or both. Prefer exact numbers? Type a <Ui k="common.width" /> and a <Ui k="common.depth" /> in the inspector on the right.
 
 <Screenshot id="layouts-placing-bins-resize" alt="A click on the Screwdrivers bin shows its handles. The right edge handle makes it one unit wider. Then the top-right corner handle makes it wider and deeper." spec="Clip. Layout editor on desktop. Layout with a 6 by 3 drawer and a 2 by 1 Screwdrivers bin at the front left, with free cells to its right and behind it. Click the bin, drag the right edge handle out by one cell, then drag the top-right corner handle out by one cell each way. Crop to the grid." />
+
+## Size a bin to what goes in it
+
+Know what goes in the bin? Measure it with a ruler and let the Layout Tool pick the size.
+
+1. In the left panel, open <Ui k="sidebar.fitContents" />.
+2. Type the item's length, width and height in millimeters. The height is optional.
+3. Read the smallest bin and the room inside it. When that saves a row or column, the item is turned 90°.
+4. Click <Ui k="sidebar.fitContents.apply" /> to resize the selected bin, or <Ui k="sidebar.fitContentsAddToStash" /> to make a new bin in the stash.
+
+Leaving the height empty keeps the selected bin's height, or uses the active layer's height for a new bin. The inside size here is an estimate: it assumes a plain bin with the wall thickness from <Ui k="common.physicalUnits" />. A bin linked to a saved design is measured exactly in the inspector.
 
 ## Rotate a bin
 
