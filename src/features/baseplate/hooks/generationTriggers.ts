@@ -181,6 +181,8 @@ export function selectGenerationTriggers(state: LayoutState) {
     // (stacking strips both, so it folds out there too).
     lightweight: lightweightRelevant ? bp.lightweight !== false : true,
     ecoPlate: (!stackingOn || bp.stackPrint.mixedSizes === true) && bp.ecoPlate === true,
+    // Over-tile turns the margin into grid, so the fill folds out there.
+    marginInfill: bp.overTile === true ? undefined : bp.marginInfill,
     paddingLeft: bp.paddingLeft,
     paddingRight: bp.paddingRight,
     paddingFront: bp.paddingFront,
@@ -209,6 +211,8 @@ export function selectGenerationTriggers(state: LayoutState) {
     cornerRadii: bp.cornerRadii,
     invertDovetails: bp.invertDovetails,
     preferIdenticalPieces: bp.preferIdenticalPieces,
+    // Changes which pieces exist, so the split must be recomputed.
+    splitStrategy: bp.splitStrategy,
     // Toggling stacking strips magnets, screws, the solid floor and snap clips
     // in `buildFullParams`, so it must re-run generation — otherwise the preview
     // keeps the pre-strip mesh (magnet holes that the export no longer has).

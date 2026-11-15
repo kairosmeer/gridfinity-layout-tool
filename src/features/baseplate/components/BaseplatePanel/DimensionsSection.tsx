@@ -31,6 +31,7 @@ import { isMarginSeamStyle } from '@/shared/types/bin';
 import { cornerCutsMatchVertices } from '@/shared/utils/cornerCutOutline';
 import { fitAxisUnits, halfUnitUpgrade } from '@/shared/utils/drawerFit';
 import { padOutline } from '@/shared/utils/padOutline';
+import { MarginInfillControl } from './MarginInfillControl';
 import {
   updateBaseplateParam as updateParam,
   updateBaseplateParams as updateParams,
@@ -540,6 +541,11 @@ export function DimensionsSection() {
                   </div>
                 }
               />
+            </div>
+          )}
+          {hasPadding && !outlineActive && (
+            <div className="border-t border-stroke-subtle pt-3">
+              <MarginInfillControl baseplateParams={baseplateParams} />
             </div>
           )}
           {/* Detached rails have no outline awareness (buildFullParams

@@ -10,6 +10,7 @@
 
 import * as z from 'zod';
 import { CONSTRAINTS } from '@/core/constants';
+import { MARGIN_INFILLS, SPLIT_STRATEGIES } from '@/core/types';
 import { binItemsSchema } from './binItems';
 import {
   SOLID_FLOOR_MIN_MM,
@@ -335,6 +336,8 @@ const baseplateParamsSchema = z.object({
   paddingFront: z.number().min(0).max(100),
   paddingBack: z.number().min(0).max(100),
   paddingAnchor: z.enum(['tl', 'tc', 'tr', 'ml', 'c', 'mr', 'bl', 'bc', 'br', 'custom']).optional(),
+  marginInfill: z.enum(MARGIN_INFILLS).optional(),
+  splitStrategy: z.enum(SPLIT_STRATEGIES).optional(),
   wholeCellsOnly: z.boolean().optional(),
   connectorNubs: z.boolean().optional(),
   invertDovetails: z.boolean().optional(),

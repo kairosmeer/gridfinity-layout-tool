@@ -93,6 +93,8 @@ import {
 } from './baseplateConnectors';
 import { snapClipLevels } from '@/shared/constants/connectors';
 import { creaseEdges } from './utils';
+import { marginInfillCells } from '@/shared/generation/marginInfill';
+import { buildMarginInfillCutters } from './baseplateMarginInfill';
 import { buildBaseplateSTL } from './baseplateSTL';
 import { buildOutlineDrawing } from './baseplateOutline';
 import type { DrawerOutline } from '@/core/types';
@@ -647,6 +649,18 @@ export function buildBaseplateSolid(
     });
     baseplate = cutInBatches(baseplate, cutters);
     probe?.('ecoJointsCut', baseplate);
+  }
+
+  if (params.marginInfill !== undefined) {
+    // A margin screw keeps a solid boss: the same ring eco leaves round it.
+    const cells = marginInfillCells(params, {
+      keepOuts: screwParams === undefined ? [] : ecoScrewKeepOuts(screwHoles, screwParams),
+      pads: params.marginInfill === 'pads',
+    });
+    if (cells.length > 0) {
+      baseplate = cutInBatches(baseplate, buildMarginInfillCutters(cells, totalHeight));
+      probe?.('marginInfillCut', baseplate);
+    }
   }
 
   // Magnet hole cutters — built and cut in batches to limit WASM memory.

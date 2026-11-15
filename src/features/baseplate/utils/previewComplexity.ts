@@ -109,12 +109,20 @@ export function shouldDeferBrepPreview(
 }
 
 /**
+ * The procedural mesh draws neither eco reliefs nor ribbed margins, so such a
+ * plate is shown from the Manifold draft, which runs the real generator.
+ */
+function directMeshOmitsDetail(params: ResolvedBaseplateParams): boolean {
+  return params.ecoPlate === true || params.marginInfill !== undefined;
+}
+
+/**
  * The draft a deferred plate keeps as its final preview. The procedural mesh
- * draws no eco reliefs, so an eco plate finishes on the Manifold draft, which
- * runs the real generator.
+ * draws no eco reliefs or margin ribs, so such a plate finishes on the Manifold
+ * draft, which runs the real generator.
  */
 export function deferredPreviewSource(params: ResolvedBaseplateParams): 'direct' | 'manifold' {
-  return params.ecoPlate === true ? 'manifold' : 'direct';
+  return directMeshOmitsDetail(params) ? 'manifold' : 'direct';
 }
 
 /**
@@ -195,7 +203,7 @@ export function planPreviewDrafts(options: {
   // is just an intermediate jump.
   if (lastBrepMs !== null && lastBrepMs < skipBelowMs) return 'none';
 
-  // The procedural mesh draws no eco reliefs: painting it first would flash the
-  // joints solid on every edit before the Manifold draft relieves them again.
-  return params.ecoPlate === true ? 'manifold' : 'direct-then-manifold';
+  // The procedural mesh draws no eco reliefs or margin ribs: painting it first
+  // would flash them solid on every edit before the Manifold draft cuts them.
+  return directMeshOmitsDetail(params) ? 'manifold' : 'direct-then-manifold';
 }

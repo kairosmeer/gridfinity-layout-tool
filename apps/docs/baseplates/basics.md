@@ -12,6 +12,7 @@ sources:
   - src/features/baseplate/components/BaseplatePanel/MeasuredDrawerOverflow.tsx
   - src/features/baseplate/utils/fitPaddingToDrawer.ts
   - src/features/baseplate/components/BaseplatePreview/BaseplatePreview.tsx
+  - src/shared/generation/marginInfill.ts
 ---
 
 # Baseplate basics
@@ -65,10 +66,17 @@ Did you enter the drawer size in millimeters in the layout editor? Then the pane
 
 <Screenshot id="baseplates-basics-fit-drawer" alt="Under the plate size, a warning says that the plate is 8 by 4 mm over the 218 by 176 mm drawer. A click on Fit padding to drawer removes the warning, and each padding stepper then shows 4 mm." spec="Baseplate generator, layout with a 5 by 4 drawer and a measured size of 218 by 176 mm, padding 8 mm left and right and 6 mm back and front. Close-up of the plate size, the warning and the button: click Fit padding to drawer. Cut to a close-up of the padding steppers." />
 
-Once at least one edge has a margin, two more options appear:
+Once at least one edge has a margin, three more options appear:
 
 - <Ui k="baseplate.overTile" /> swaps the solid margin for clipped grid cells, edge by edge. An edge needs at least 8 mm of margin to get a cell. <Ui k="baseplate.preferHalfGrid" /> fills the margin with 21 mm half cells first.
-- <Ui k="baseplate.detachMargins" /> prints the margins as separate strips. See [Split for your print bed](./splitting#detach-the-margins).
+- <Ui k="baseplate.marginFill" /> sets how the margin itself is printed:
+  - <Ui k="baseplate.marginFill.solid" /> fills it with plastic.
+  - <Ui k="baseplate.marginFill.ribbed" /> keeps a thin outer rim and cross ribs every half grid unit, open between them. A bin that grows into the margin still rests on the rim and ribs. An edge needs at least 3.2 mm of margin for ribs; a narrower one stays solid.
+  - <Ui k="baseplate.marginFill.pads" /> keeps only ribbed pieces one grid unit long at the ends of each edge, with more in the middle so no stretch is longer than three units, and nothing in between. They are enough to hold the grid in place in the drawer, and they save the most filament, but a bin that grows into the margin has no support between them. Screws placed in the margin get a pad of their own.
+
+  On a 3 by 3 plate with 20 mm of margin on every side, <Ui k="baseplate.marginFill.ribbed" /> cuts the plate from about 82 g to about 26 g of PLA. A screw placed in the margin keeps a solid ring round its hole. Neither choice does anything with <Ui k="baseplate.overTile" /> on, or on a plate with a custom outline.
+
+- <Ui k="baseplate.detachMargins" /> prints the margins as separate strips. See [Split for your print bed](./splitting#detach-the-margins). With a ribbed fill or pads, the strips are ribbed along their whole length and keep a solid band on the side that joins the plate, for the connector.
 
 A bin at the edge of the grid can also grow its walls into the margin, so that it fills the drawer. See [Set up the drawer](../layouts/drawer-setup#extend-edge-bins-into-the-margin).
 

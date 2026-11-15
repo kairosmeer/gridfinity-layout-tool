@@ -4871,6 +4871,18 @@ const en: Record<string, string> = {
   'baseplate.leftoverSolid': 'Solid',
   'baseplate.detachMargins': 'Detach margins as separate pieces',
   'baseplate.detachMarginsTooSmall': 'Padding is too small on every edge to detach.',
+  'baseplate.marginFill': 'Margin fill',
+  'baseplate.marginFill.detail':
+    'How the drawer-fit margin is printed. Ribbed keeps an outer rim with cross ribs. Pads keeps only short ribbed pieces at the ends and middle of each edge, which still hold the grid in place in the drawer.',
+  'baseplate.marginFill.solid': 'Solid',
+  'baseplate.marginFill.ribbed': 'Ribbed',
+  'baseplate.marginFill.pads': 'Pads',
+  'baseplate.marginFill.ribbedHint':
+    'Bins reaching into the margin still rest on the rim and ribs.',
+  'baseplate.marginFill.padsHint':
+    'Saves the most filament. Bins reaching into the margin have no support between the pads.',
+  'baseplate.marginFill.overTile': 'Over-tile already fills the margin with grid.',
+  'baseplate.marginFill.tooNarrow': 'Ribs need at least 3.2 mm of margin on an edge.',
   'baseplate.detachMarginConnector': 'Add connector',
   'baseplate.detachMarginConnectorDetail':
     'Joins each rail to the plate with the same connector the seams use, instead of relying on friction.',
@@ -4883,6 +4895,13 @@ const en: Record<string, string> = {
   'baseplate.splitReason': 'Split to fit {printBed}mm print bed',
   'baseplate.bedLoads_one': 'Prints in {count} build-plate load',
   'baseplate.bedLoads_other': 'Prints in {count} build-plate loads',
+  'baseplate.splitStrategy': 'Split',
+  'baseplate.splitStrategy.even': 'Even pieces',
+  'baseplate.splitStrategy.fewestPrints': 'Fewest prints',
+  'baseplate.splitStrategy.evenHint':
+    'Pieces as equal as the print bed allows. More even seams, sometimes more pieces and print runs.',
+  'baseplate.splitStrategy.fewestPrintsHint':
+    'Fills the print bed first and leaves the rest as a strip, so the plate prints in as few runs as possible.',
   'baseplate.paddingHint_one': 'Reducing {axis} padding by {mm}mm would save {count} piece',
   'baseplate.paddingHint_other': 'Reducing {axis} padding by {mm}mm would save {count} pieces',
   'baseplate.paddingHintAxisX': 'left/right',

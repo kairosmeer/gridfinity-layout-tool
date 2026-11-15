@@ -31,7 +31,7 @@ import { StackPrintSection } from './StackPrintSection';
 import { DimensionsSection } from './DimensionsSection';
 import { BaseSection } from './BaseSection';
 import { PhysicalUnitsSection } from './PhysicalUnitsSection';
-import type { SplitOverride, StackPrintParams } from '@/core/types';
+import type { SplitOverride, SplitStrategy, StackPrintParams } from '@/core/types';
 import { updateBaseplateParams, useBaseplatePanelDerived } from './panelState';
 
 export function BaseplatePanel() {
@@ -39,6 +39,9 @@ export function BaseplatePanel() {
 
   const stackPrint = useLayoutStore(
     (state) => (state.layout.baseplateParams ?? DEFAULT_BASEPLATE_PARAMS).stackPrint
+  );
+  const splitStrategy = useLayoutStore(
+    (state) => (state.layout.baseplateParams ?? DEFAULT_BASEPLATE_PARAMS).splitStrategy ?? 'even'
   );
   const printBedSize = useLayoutStore((state) => state.layout.printBedSize);
   const { effectiveFractionalEdgeX, effectiveFractionalEdgeY, gridUnitMm, gridUnitMmY } =
@@ -75,6 +78,11 @@ export function BaseplatePanel() {
     (next: SplitOverride | undefined) => updateBaseplateParams({ splitOverride: next }),
     []
   );
+  const setSplitStrategy = useCallback(
+    (next: SplitStrategy) =>
+      updateBaseplateParams({ splitStrategy: next === 'even' ? undefined : next }),
+    []
+  );
 
   return (
     <div className="flex h-full flex-col">
@@ -100,6 +108,8 @@ export function BaseplatePanel() {
             fractionalEdgeX={effectiveFractionalEdgeX}
             fractionalEdgeY={effectiveFractionalEdgeY}
             onChangeSplit={setSplitOverride}
+            splitStrategy={splitStrategy}
+            onChangeStrategy={setSplitStrategy}
           />
         )}
 

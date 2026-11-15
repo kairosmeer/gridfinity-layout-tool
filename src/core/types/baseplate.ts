@@ -5,6 +5,30 @@ import type { FractionalEdge } from './drawerOutline';
 export type PaddingAnchor = 'tl' | 'tc' | 'tr' | 'ml' | 'c' | 'mr' | 'bl' | 'bc' | 'br' | 'custom';
 
 /**
+ * How the drawer-fit padding is filled: solid plastic, a rim with cross ribs,
+ * or ribbed pads at the ends (and middle) of each edge with nothing between.
+ */
+export const MARGIN_INFILLS = ['solid', 'ribbed', 'pads'] as const;
+export type MarginInfill = (typeof MARGIN_INFILLS)[number];
+
+export function isMarginInfill(value: unknown): value is MarginInfill {
+  return typeof value === 'string' && (MARGIN_INFILLS as readonly string[]).includes(value);
+}
+
+/**
+ * How the planner splits a plate too big for the bed. 'even' keeps the pieces
+ * as equal as the bed allows, which prints evenly and joins stiffly.
+ * 'fewestPrints' also tries uneven splits (fill the bed first, leave the rest
+ * as a strip) and keeps the one with the fewest build-plate loads.
+ */
+export const SPLIT_STRATEGIES = ['even', 'fewestPrints'] as const;
+export type SplitStrategy = (typeof SPLIT_STRATEGIES)[number];
+
+export function isSplitStrategy(value: unknown): value is SplitStrategy {
+  return typeof value === 'string' && (SPLIT_STRATEGIES as readonly string[]).includes(value);
+}
+
+/**
  * Vertical stack-print configuration (experimental). By default, each group
  * of identical baseplate pieces is duplicated along Z. With mixedSizes enabled,
  * compatible tiles of one split plate can share a tower. The bottom prints upright (bed adhesion,
@@ -195,6 +219,13 @@ export interface StoredBaseplateParams {
    */
   readonly overTile?: boolean;
   /**
+   * Fill of the drawer-fit padding. 'ribbed' leaves an outer rim and cross ribs
+   * at full height, open between them; 'pads' keeps only ribbed pieces at the
+   * ends and middle of each edge, to save filament. Inert under
+   * {@link overTile} and with an outline. Absent means 'solid'.
+   */
+  readonly marginInfill?: MarginInfill;
+  /**
    * Half-grid variant of over-tile: when over-tile is on, fill each margin with
    * true 21mm (0.5-unit) functional Gridfinity half-sockets first, then let the
    * sub-half-unit leftover fall back to the standard clipped tile. Only
@@ -255,6 +286,12 @@ export interface StoredBaseplateParams {
    * and may add 1–2 pieces compared to the piece-minimizing default.
    */
   readonly preferIdenticalPieces?: boolean;
+  /**
+   * How the automatic split sizes its pieces; see {@link SplitStrategy}.
+   * Absent means 'even', so plates saved before it split as they always did.
+   * Ignored while a {@link splitOverride} is drawn.
+   */
+  readonly splitStrategy?: SplitStrategy;
   /**
    * Connector geometry on join edges when `connectorNubs` is enabled
    * (default 'dovetail'). 'puzzle' is a stronger integral connector — a jigsaw tab

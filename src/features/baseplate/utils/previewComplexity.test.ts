@@ -171,6 +171,10 @@ describe('deferredPreviewSource', () => {
     expect(deferredPreviewSource(makeParams({ ecoPlate: true }))).toBe('manifold');
     expect(deferredPreviewSource(makeParams())).toBe('direct');
   });
+
+  it('settles a ribbed margin on the Manifold draft, which cuts its cells', () => {
+    expect(deferredPreviewSource(makeParams({ marginInfill: 'ribbed' }))).toBe('manifold');
+  });
 });
 
 describe('shouldAwaitPreviewBridge', () => {
@@ -258,6 +262,10 @@ describe('planPreviewDrafts', () => {
 
   it('drafts an eco plate on Manifold alone, so its reliefs never flash solid', () => {
     expect(plan({ params: makeParams({ ecoPlate: true }) })).toBe('manifold');
+  });
+
+  it('drafts a ribbed margin on Manifold alone, so the cells never flash solid', () => {
+    expect(plan({ params: makeParams({ marginInfill: 'ribbed' }) })).toBe('manifold');
   });
 
   it('paints the procedural mesh for an eco plate only until a draft kernel is up', () => {

@@ -1137,6 +1137,7 @@ describe('pieceToBaseplateParams', () => {
       'detachMarginConnector',
       'stackPrint',
       'splitOverride',
+      'splitStrategy',
     ]);
     const parent: Required<ResolvedBaseplateParams> = {
       width: 10,
@@ -1176,12 +1177,14 @@ describe('pieceToBaseplateParams', () => {
       connectorNubs: true,
       invertDovetails: true,
       preferIdenticalPieces: true,
+      splitStrategy: 'fewestPrints',
       connectorStyle: 'puzzle',
       connectorSlotsAllEdges: true,
       connectorFitOffset: 0.1,
       nozzleSizeMm: 0.6,
       lightweight: true,
       ecoPlate: true,
+      marginInfill: 'ribbed',
       solidFloor: true,
       solidFloorThickness: 1.2,
       screwHoles: { enabled: true, diameter: mm(3.4), headStyle: 'countersink' },
@@ -2500,5 +2503,96 @@ describe('computeBaseplateTiling — bed overages', () => {
       256
     );
     expect(tiling.bedOverages).toEqual([{ label: 'A1', overWidthMm: 0, overDepthMm: 336 - 256 }]);
+  });
+});
+
+// --- splitStrategy: fewest prints ---------------------------------------------
+
+describe('fewest-prints split strategy', () => {
+  // A 264 x 385 mm drawer on a 260 mm bed: 6 x 9 units with 7/5/3.5/3.5 mm of
+  // margin. The even split makes 6 equal pieces in 3 loads; filling the bed
+  // first (5 + 1 by 6 + 3, as TUDC does) makes 4 pieces in 2 loads.
+  const drawer = makeParams({
+    width: 6,
+    depth: 9,
+    paddingLeft: 7,
+    paddingRight: 5,
+    paddingFront: 3.5,
+    paddingBack: 3.5,
+  });
+
+  it('keeps the even split by default', () => {
+    const tiling = computeBaseplateTiling(drawer, 260);
+    expect(tiling.pieces).toHaveLength(6);
+    expect(tiling.bedLoads).toBe(3);
+  });
+
+  it('fills the bed first when that saves prints', () => {
+    const tiling = computeBaseplateTiling({ ...drawer, splitStrategy: 'fewestPrints' }, 260);
+    expect(tiling.colSizes).toEqual([5, 1]);
+    expect(tiling.rowSizes).toEqual([6, 3]);
+    expect(tiling.pieces).toHaveLength(4);
+    expect(tiling.bedLoads).toBe(2);
+    expect(tiling.bedOverages).toEqual([]);
+    // The padding hint counts pieces for the even split; here it would mislead.
+    expect(tiling.paddingReductionHint).toBeNull();
+  });
+
+  it('never needs more loads than the even split, nor more pieces for the same loads', () => {
+    for (const bed of [180, 220, 256]) {
+      for (let width = 2; width <= 12; width++) {
+        for (const depth of [3, 5.5, 8, 11]) {
+          for (const connectorNubs of [false, true]) {
+            const params = makeParams({
+              width,
+              depth,
+              paddingLeft: 6,
+              paddingRight: 2,
+              paddingFront: 9,
+              paddingBack: 0,
+              connectorNubs,
+            });
+            const even = computeBaseplateTiling(params, bed);
+            const fewest = computeBaseplateTiling(
+              { ...params, splitStrategy: 'fewestPrints' },
+              bed
+            );
+            const label = `${width}x${depth} on ${bed} (connectors ${connectorNubs})`;
+            expect(fewest.bedOverages, label).toEqual([]);
+            expect(fewest.bedLoads, label).toBeLessThanOrEqual(even.bedLoads);
+            if (fewest.bedLoads === even.bedLoads) {
+              expect(fewest.pieces.length, label).toBeLessThanOrEqual(even.pieces.length);
+            }
+            const units = (sizes: readonly number[]) => sizes.reduce((a, b) => a + b, 0);
+            expect(units(fewest.colSizes), label).toBeCloseTo(width, 6);
+            expect(units(fewest.rowSizes), label).toBeCloseTo(depth, 6);
+          }
+        }
+      }
+    }
+  });
+
+  it('keeps the half unit on the requested edge', () => {
+    const tiling = computeBaseplateTiling(
+      makeParams({ width: 9.5, depth: 2, fractionalEdgeX: 'start', splitStrategy: 'fewestPrints' }),
+      256
+    );
+    expect(tiling.colSizes[0] % 1).toBeCloseTo(0.5, 6);
+  });
+
+  it('leaves a hand-drawn plan alone', () => {
+    const tiling = computeBaseplateTiling(
+      {
+        ...drawer,
+        splitStrategy: 'fewestPrints',
+        splitOverride: {
+          cols: [gridUnits(3), gridUnits(3)],
+          rows: [gridUnits(3), gridUnits(3), gridUnits(3)],
+        },
+      },
+      260
+    );
+    expect(tiling.colSizes).toEqual([3, 3]);
+    expect(tiling.rowSizes).toEqual([3, 3, 3]);
   });
 });

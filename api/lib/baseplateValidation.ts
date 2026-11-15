@@ -108,6 +108,7 @@ const ALLOWED_PARAM_KEYS = new Set<string>([
   'paddingFront',
   'paddingBack',
   'paddingAnchor',
+  'marginInfill',
   'overTile',
   'overTileHalfGrid',
   'overTileHalfGridSolidLeftover',
@@ -122,6 +123,7 @@ const ALLOWED_PARAM_KEYS = new Set<string>([
   'baseplateDepth',
   'invertDovetails',
   'preferIdenticalPieces',
+  'splitStrategy',
   'connectorStyle',
   'connectorSlotsAllEdges',
   'connectorFitOffset',
@@ -157,9 +159,13 @@ const BOOLEAN_PARAM_KEYS = new Set<string>([
 export const PADDING_ANCHORS = ['tl', 'tc', 'tr', 'ml', 'c', 'mr', 'bl', 'bc', 'br', 'custom'];
 export const CONNECTOR_STYLES = ['dovetail', 'puzzle', 'dovetailKey', 'snapClip'];
 export const FRACTIONAL_EDGES = ['start', 'end'];
+export const MARGIN_INFILLS = ['solid', 'ribbed', 'pads'];
+export const SPLIT_STRATEGIES = ['even', 'fewestPrints'];
 
 const ENUM_PARAM_VALUES = new Map<string, ReadonlySet<string>>([
   ['paddingAnchor', new Set(PADDING_ANCHORS)],
+  ['marginInfill', new Set(MARGIN_INFILLS)],
+  ['splitStrategy', new Set(SPLIT_STRATEGIES)],
   ['connectorStyle', new Set(CONNECTOR_STYLES)],
   ['fractionalEdgeX', new Set(FRACTIONAL_EDGES)],
   ['fractionalEdgeY', new Set(FRACTIONAL_EDGES)],

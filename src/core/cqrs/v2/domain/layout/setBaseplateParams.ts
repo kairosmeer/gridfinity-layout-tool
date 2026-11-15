@@ -11,7 +11,7 @@ import { clamp } from '@/shared/utils/math';
 import { CONSTRAINTS, STAGING_ID } from '@/core/constants';
 import { SOLID_FLOOR_MIN_MM, SOLID_FLOOR_MAX_MM } from '@/core/baseplateDefaults';
 import type { StoredBaseplateParams, GridUnits, Mm } from '@/core/types';
-import { effectiveGridUnitMmY } from '@/core/types';
+import { effectiveGridUnitMmY, MARGIN_INFILLS, SPLIT_STRATEGIES } from '@/core/types';
 import { BASEPLATE_CONNECTOR_STYLES } from '@/shared/types/bin';
 import { defineCommand } from '../../defineCommand';
 import { computeDisplacedBins } from '../drawer/displacement';
@@ -42,6 +42,8 @@ const payloadSchema = z.object({
     paddingAnchor: z
       .enum(['tl', 'tc', 'tr', 'ml', 'c', 'mr', 'bl', 'bc', 'br', 'custom'])
       .optional(),
+    marginInfill: z.enum(MARGIN_INFILLS).optional(),
+    splitStrategy: z.enum(SPLIT_STRATEGIES).optional(),
     wholeCellsOnly: z.boolean().optional(),
     connectorNubs: z.boolean().optional(),
     connectorStyle: z.enum(BASEPLATE_CONNECTOR_STYLES).optional(),

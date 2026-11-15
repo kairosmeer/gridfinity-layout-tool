@@ -9,7 +9,7 @@ import { TONGUE_PROTRUSION } from '@/shared/constants/connectors';
 import { MARGIN_MIN_DETACH_MM } from '@/core/baseplateDefaults';
 import type { BaseplatePiece, PaddingReductionHint, PieceBedOverage } from '../types/tiling';
 import { estimateBedLoads, type Footprint } from './bedPacking';
-import { FRACTIONAL_THRESHOLD } from './splitReorder';
+import { FRACTIONAL_THRESHOLD, reorderForDisplay } from './splitReorder';
 
 /** Float slack for bed-fit comparisons — a chunk within this of the bed fits. */
 const TOLERANCE_MM = 0.001;
@@ -447,6 +447,159 @@ export function findOptimalTiling(
   }
 
   return { colSizes: best.colSizes, rowSizes: best.rowSizes };
+}
+
+/**
+ * Split strategy `fewestPrints` (see `SplitStrategy`): besides the even split,
+ * try uneven ones — fill the bed first and leave the rest as a strip, as TUDC
+ * does — and keep whichever needs the fewest build-plate loads, then the fewest
+ * pieces, then the most even.
+ */
+
+/** Uneven splits tried per axis; the first generated is the fill-first one. */
+const FEWEST_PRINTS_CANDIDATES_PER_AXIS = 80;
+/** Piece counts tried per axis beyond the fewest that fit. */
+const FEWEST_PRINTS_EXTRA_CHUNKS = 2;
+/** Column x row splits packed at most; beyond it each axis keeps its head. */
+const FEWEST_PRINTS_MAX_PAIRS = 1600;
+/** Pieces packed across all splits tried, which is what the search costs. */
+const FEWEST_PRINTS_PACKED_PIECES = 12000;
+
+export interface DisplayOrder {
+  readonly fractionAtStartX: boolean;
+  readonly fractionAtStartY: boolean;
+  readonly palindromic: boolean;
+}
+
+/**
+ * The split with the fewest build-plate loads among even and uneven ones. Each
+ * axis offers its splits already in display order, so the loads counted here
+ * are the ones the tiling will show.
+ */
+export function findFewestPrintsTiling(
+  totalWidth: number,
+  totalDepth: number,
+  xAxis: AxisConfig,
+  yAxis: AxisConfig,
+  order: DisplayOrder
+): { colSizes: number[]; rowSizes: number[] } {
+  const even = findOptimalTiling(totalWidth, totalDepth, xAxis, yAxis);
+  // The tiling runs on the main thread on every edit; on a large plate keep the
+  // fill-first splits at the head of each list and drop the long tail, so the
+  // pieces packed in total stay within budget.
+  const allCols = axisSplits(totalWidth, xAxis, order.fractionAtStartX, order.palindromic);
+  const allRows = axisSplits(totalDepth, yAxis, order.fractionAtStartY, order.palindromic);
+  const piecesEach = Math.max(1, (allCols[0]?.length ?? 1) * (allRows[0]?.length ?? 1));
+  const maxPairs = Math.min(
+    FEWEST_PRINTS_MAX_PAIRS,
+    Math.max(1, Math.floor(FEWEST_PRINTS_PACKED_PIECES / piecesEach))
+  );
+  const tooMany = allCols.length * allRows.length > maxPairs;
+  const perAxis = Math.max(1, Math.floor(Math.sqrt(maxPairs)));
+  const cols = tooMany ? allCols.slice(0, perAxis) : allCols;
+  const rows = tooMany ? allRows.slice(0, perAxis) : allRows;
+  const evenCols = reorderForDisplay(
+    even.colSizes,
+    axisCapacity(xAxis),
+    order.fractionAtStartX,
+    order.palindromic
+  );
+  const evenRows = reorderForDisplay(
+    even.rowSizes,
+    axisCapacity(yAxis),
+    order.fractionAtStartY,
+    order.palindromic
+  );
+  let best = {
+    colSizes: even.colSizes,
+    rowSizes: even.rowSizes,
+    loads: tilingBedLoads(evenCols, evenRows, xAxis, yAxis),
+    pieces: even.colSizes.length * even.rowSizes.length,
+    variance: symmetryScore(even.colSizes) + symmetryScore(even.rowSizes),
+  };
+  for (const colSizes of cols) {
+    for (const rowSizes of rows) {
+      const pieces = colSizes.length * rowSizes.length;
+      // A split can't print in fewer loads than one, and no load holds more
+      // pieces than this one does — skip what cannot win before packing it.
+      if (best.loads === 1 && pieces >= best.pieces) continue;
+      const loads = tilingBedLoads(colSizes, rowSizes, xAxis, yAxis);
+      const variance = symmetryScore(colSizes) + symmetryScore(rowSizes);
+      if (
+        loads < best.loads ||
+        (loads === best.loads && pieces < best.pieces) ||
+        (loads === best.loads && pieces === best.pieces && variance < best.variance)
+      ) {
+        best = { colSizes, rowSizes, loads, pieces, variance };
+      }
+    }
+  }
+  return { colSizes: best.colSizes, rowSizes: best.rowSizes };
+}
+
+/**
+ * Splits of one axis into the fewest chunks that fit, and a couple more, each
+ * in display order and checked against the bed. Chunks are enumerated largest
+ * first, so the fill-the-bed split leads and survives the candidate cap.
+ */
+function axisSplits(
+  total: number,
+  axis: AxisConfig,
+  fractionAtStart: boolean,
+  palindromic: boolean
+): number[][] {
+  const intPart = Math.floor(total);
+  const hasFrac = total - intPart >= FRACTIONAL_THRESHOLD;
+  const caps = axisCapacity(axis);
+  const capMax = Math.max(caps.maxFirst, caps.maxLast, caps.maxMiddle, 1);
+  let fewest = 0;
+  for (let n = 1; n <= Math.ceil(total); n++) {
+    if (partitionAxis(total, n, axis) !== null) {
+      fewest = n;
+      break;
+    }
+  }
+  if (fewest === 0) return [];
+
+  const out: number[][] = [];
+  const seen = new Set<string>();
+  const offer = (parts: readonly number[]): void => {
+    const variants = hasFrac
+      ? [...new Set(parts)].map((value) => {
+          const i = parts.indexOf(value);
+          return parts.map((p, j) => (j === i ? p + 0.5 : p));
+        })
+      : [[...parts]];
+    for (const sizes of variants) {
+      const ordered = reorderForDisplay(sizes, caps, fractionAtStart, palindromic);
+      const key = ordered.join(',');
+      if (seen.has(key) || !chunkSizesFit(ordered, axis)) continue;
+      seen.add(key);
+      out.push(ordered);
+    }
+  };
+  const lastN = Math.min(fewest + FEWEST_PRINTS_EXTRA_CHUNKS, Math.max(intPart, 1));
+  for (let n = fewest; n <= lastN && out.length < FEWEST_PRINTS_CANDIDATES_PER_AXIS; n++) {
+    // Non-increasing compositions of intPart into n parts of 1..capMax.
+    const parts: number[] = [];
+    const walk = (left: number, slots: number, maxPart: number): void => {
+      if (out.length >= FEWEST_PRINTS_CANDIDATES_PER_AXIS) return;
+      if (slots === 0) {
+        if (left === 0) offer(parts);
+        return;
+      }
+      const hi = Math.min(maxPart, left - (slots - 1));
+      const lo = Math.ceil(left / slots);
+      for (let p = hi; p >= lo; p--) {
+        parts.push(p);
+        walk(left - p, slots - 1, p);
+        parts.pop();
+      }
+    };
+    if (intPart === 0) offer([0]);
+    else walk(intPart, n, capMax);
+  }
+  return out;
 }
 
 /**

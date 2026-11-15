@@ -738,6 +738,23 @@ describe('drawer outline handling', () => {
     ).toBe(true);
   });
 
+  it('passes a ribbed margin through only while the padding is plain solid padding', () => {
+    const stored = { ...storedBase, paddingLeft: mm(20), marginInfill: 'ribbed' as const };
+    expect(buildFullParams(stored, 10, 8, 42, 'end', 'end').marginInfill).toBe('ribbed');
+    expect(
+      buildFullParams({ ...stored, marginInfill: 'pads' }, 10, 8, 42, 'end', 'end').marginInfill
+    ).toBe('pads');
+    expect(
+      buildFullParams({ ...stored, overTile: true }, 10, 8, 42, 'end', 'end')
+    ).not.toHaveProperty('marginInfill');
+    expect(
+      buildFullParams({ ...stored, marginInfill: 'solid' }, 10, 8, 42, 'end', 'end')
+    ).not.toHaveProperty('marginInfill');
+    expect(buildFullParams(stored, 10, 8, 42, 'end', 'end', undefined, outline)).not.toHaveProperty(
+      'marginInfill'
+    );
+  });
+
   it('ignores the outline for unsynced (custom-size) plates', () => {
     const stored = { ...storedBase, syncWithLayout: false, paddingLeft: mm(5) };
     const result = buildFullParams(stored, 10, 8, 42, 'end', 'end', undefined, outline);

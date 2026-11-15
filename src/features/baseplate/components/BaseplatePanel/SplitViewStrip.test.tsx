@@ -77,12 +77,27 @@ describe('SplitViewStrip', () => {
     fractionalEdgeX: 'end' as const,
     fractionalEdgeY: 'end' as const,
     onChangeSplit: vi.fn(),
+    splitStrategy: 'even' as const,
+    onChangeStrategy: vi.fn(),
   };
 
   it('renders split info and reason', () => {
     render(<SplitViewStrip {...defaultProps} />);
     expect(screen.getByText('baseplate.splitInfo_other')).toBeInTheDocument();
     expect(screen.getByText('baseplate.splitReason')).toBeInTheDocument();
+  });
+
+  it('switches the automatic split to fewest prints', () => {
+    const onChangeStrategy = vi.fn();
+    render(<SplitViewStrip {...defaultProps} onChangeStrategy={onChangeStrategy} />);
+    expect(screen.getByRole('radio', { name: 'baseplate.splitStrategy.even' })).toBeChecked();
+    fireEvent.click(screen.getByRole('radio', { name: 'baseplate.splitStrategy.fewestPrints' }));
+    expect(onChangeStrategy).toHaveBeenCalledWith('fewestPrints');
+  });
+
+  it('hides the strategy while a hand-drawn plan replaces the automatic split', () => {
+    render(<SplitViewStrip {...defaultProps} tiling={{ ...baseTiling, isCustomSplit: true }} />);
+    expect(screen.queryByRole('radiogroup', { name: 'baseplate.splitStrategy' })).toBeNull();
   });
 
   // Merging a custom plan back to one piece keeps this strip mounted, a state

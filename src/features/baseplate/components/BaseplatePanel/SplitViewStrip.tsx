@@ -25,9 +25,9 @@
  * answer rather than from a blank plate.
  */
 
-import { Button } from '@/design-system';
+import { Button, SegmentedControl } from '@/design-system';
 import { useTranslation } from '@/i18n';
-import type { FractionalEdge, SplitOverride } from '@/core/types';
+import type { FractionalEdge, SplitOverride, SplitStrategy } from '@/core/types';
 import { colToLetter } from '../../utils/splitPlanner';
 import {
   chunksToSeams,
@@ -70,6 +70,9 @@ interface SplitViewStripProps {
   readonly fractionalEdgeX: FractionalEdge;
   readonly fractionalEdgeY: FractionalEdge;
   readonly onChangeSplit: (override: SplitOverride | undefined) => void;
+  /** How the automatic split sizes pieces; not offered while a plan is drawn. */
+  readonly splitStrategy: SplitStrategy;
+  readonly onChangeStrategy: (next: SplitStrategy) => void;
 }
 
 export function SplitViewStrip({
@@ -84,6 +87,8 @@ export function SplitViewStrip({
   fractionalEdgeX,
   fractionalEdgeY,
   onChangeSplit,
+  splitStrategy,
+  onChangeStrategy,
 }: SplitViewStripProps) {
   const t = useTranslation();
 
@@ -133,6 +138,30 @@ export function SplitViewStrip({
           {t('baseplate.bedLoads', { count: tiling.bedLoads })}
         </span>
       </div>
+
+      {!tiling.isCustomSplit && (
+        <div className="px-4 pb-2">
+          <SegmentedControl
+            aria-label={t('baseplate.splitStrategy')}
+            size="sm"
+            fullWidth
+            options={[
+              {
+                value: 'even',
+                label: t('baseplate.splitStrategy.even'),
+                title: t('baseplate.splitStrategy.evenHint'),
+              },
+              {
+                value: 'fewestPrints',
+                label: t('baseplate.splitStrategy.fewestPrints'),
+                title: t('baseplate.splitStrategy.fewestPrintsHint'),
+              },
+            ]}
+            value={splitStrategy}
+            onChange={onChangeStrategy}
+          />
+        </div>
+      )}
 
       {tiling.paddingReductionHint && (
         <div className="mx-4 mb-2 rounded bg-accent/10 px-2.5 py-1.5 text-label text-accent">

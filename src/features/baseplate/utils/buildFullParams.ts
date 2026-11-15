@@ -458,11 +458,21 @@ export function buildFullParams(
     connectorNubs: stripConnectors ? false : stored.connectorNubs,
     invertDovetails: stored.invertDovetails,
     preferIdenticalPieces: stored.preferIdenticalPieces,
+    // Only the non-default value travels, so an even plate keeps one identity.
+    ...(stored.splitStrategy === 'fewestPrints' ? { splitStrategy: 'fewestPrints' as const } : {}),
     connectorStyle: stripConnectors ? undefined : stored.connectorStyle,
     connectorSlotsAllEdges,
     connectorFitOffset: stored.connectorFitOffset,
     lightweight: stored.lightweight,
     ecoPlate: (!stackingOn || stored.stackPrint?.mixedSizes === true) && stored.ecoPlate === true,
+    // Ribs have nothing to fill when over-tile turns the margin into grid, and
+    // the planner only knows rectangles, so an outline keeps solid padding.
+    ...((stored.marginInfill === 'ribbed' || stored.marginInfill === 'pads') &&
+    paddingOn &&
+    stored.overTile !== true &&
+    outline === undefined
+      ? { marginInfill: stored.marginInfill }
+      : {}),
     // Stack printing nests flipped plates into each other, which needs the
     // pockets through-cut — a solid floor would block the nesting — so strip it
     // while stacking (restored when stacking is off, like magnets above).

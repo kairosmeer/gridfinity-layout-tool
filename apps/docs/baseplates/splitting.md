@@ -3,6 +3,7 @@ title: Split for your print bed
 description: 'Cut a large baseplate into pieces that fit your printer, draw your own splits, and join the pieces.'
 sources:
   - src/features/baseplate/utils/splitPlanner.ts
+  - src/features/baseplate/utils/splitTiling.ts
   - src/features/baseplate/components/BaseplatePanel/SplitViewStrip.tsx
   - src/features/baseplate/components/BaseplatePanel/BaseSection.tsx
   - src/features/baseplate/utils/splitOverride.ts
@@ -31,6 +32,13 @@ Any plate that is bigger than the bed splits automatically. The print bed size b
 When the plate splits, a map of the pieces appears at the bottom of the panel. It shows how many pieces you get, the bed size, and how many build-plate loads they take.
 
 The Layout Tool aims for the fewest build-plate loads, not the fewest pieces. So it can pick more, smaller pieces when they pack onto fewer beds. It also counts the connector tongues in the size of each piece, so a piece with a tongue still fits the bed.
+
+Under the load count, choose how the pieces are sized:
+
+- <Ui k="baseplate.splitStrategy.even" /> keeps the pieces as equal as the bed allows. The seams fall evenly, which suits connectors, but it can take more pieces and more loads.
+- <Ui k="baseplate.splitStrategy.fewestPrints" /> also tries uneven splits: it fills the bed first and leaves the rest as a narrow strip. For a 264 by 385 mm drawer on a 260 mm bed, that is 4 pieces in 2 loads instead of 6 pieces in 3. It only picks an uneven split when it needs fewer loads, or the same loads with fewer pieces.
+
+Both choices are ignored while you draw your own split lines.
 
 Each piece has a label, such as A1 or B2. The letter counts the columns from the left, and the number counts the rows from the front. Hover over a piece in the map to find it in the preview.
 

@@ -430,6 +430,17 @@ describe('migrateBaseplateParams', () => {
     expect(migrateBaseplateParams({ ...base, ecoPlate: 'true' }).ecoPlate).toBeUndefined();
   });
 
+  it('keeps a ribbed margin and drops solid or unknown fills', () => {
+    const base = { ...DEFAULT_BASEPLATE_PARAMS };
+    expect(migrateBaseplateParams({ ...base, marginInfill: 'ribbed' }).marginInfill).toBe('ribbed');
+    expect(migrateBaseplateParams({ ...base, marginInfill: 'solid' })).not.toHaveProperty(
+      'marginInfill'
+    );
+    expect(migrateBaseplateParams({ ...base, marginInfill: 'hollow' })).not.toHaveProperty(
+      'marginInfill'
+    );
+  });
+
   it('keeps crush ribs and the chamfered mouth through a reload', () => {
     const base = { ...DEFAULT_BASEPLATE_PARAMS, magnetHoles: true };
     const result = migrateBaseplateParams({ ...base, magnetCrushRibs: true, magnetChamfer: true });
@@ -461,6 +472,7 @@ describe('migrateBaseplateParams', () => {
       paddingFront: mm(3),
       paddingBack: mm(4),
       paddingAnchor: 'c',
+      marginInfill: 'ribbed',
       overTile: true,
       overTileHalfGrid: true,
       overTileHalfGridSolidLeftover: true,
@@ -475,6 +487,7 @@ describe('migrateBaseplateParams', () => {
       baseplateDepth: gridUnits(4),
       invertDovetails: true,
       preferIdenticalPieces: true,
+      splitStrategy: 'fewestPrints',
       connectorStyle: 'puzzle',
       connectorSlotsAllEdges: true,
       connectorFitOffset: 0.1,

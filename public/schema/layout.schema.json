@@ -803,6 +803,18 @@
           "default": false,
           "description": "Relieve baseplate grid joints while preserving corner posts, connectors and a printable bottom bridge."
         },
+        "marginInfill": {
+          "type": "string",
+          "enum": ["solid", "ribbed", "pads"],
+          "default": "solid",
+          "description": "How the drawer-fit padding is filled: solid plastic; ribbed (an outer rim with full-height cross ribs and open cells between them); or pads (ribbed pieces at the ends and middle of each edge, nothing in between). Ignored with overTile or a custom outline."
+        },
+        "splitStrategy": {
+          "type": "string",
+          "enum": ["even", "fewestPrints"],
+          "default": "even",
+          "description": "How the automatic split sizes the pieces of a plate larger than the print bed: even keeps them as equal as the bed allows; fewestPrints also tries uneven splits (fill the bed first, leave the rest as a strip) and keeps the one that needs the fewest build-plate loads. Ignored while splitOverride is set."
+        },
         "solidFloor": {
           "type": "boolean",
           "default": false,

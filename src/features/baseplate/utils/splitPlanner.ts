@@ -42,6 +42,7 @@ import {
   axisCapacity,
   tilingBedLoads,
   findOptimalTiling,
+  findFewestPrintsTiling,
   computePaddingReductionHint,
   computeBedOverages,
 } from './splitTiling';
@@ -183,12 +184,14 @@ export function computeBaseplateTiling(
     colSizes = [...override.cols];
     rowSizes = [...override.rows];
   } else {
-    const { colSizes: rawColSizes, rowSizes: rawRowSizes } = findOptimalTiling(
-      width,
-      depth,
-      xAxis,
-      yAxis
-    );
+    const { colSizes: rawColSizes, rowSizes: rawRowSizes } =
+      params.splitStrategy === 'fewestPrints'
+        ? findFewestPrintsTiling(width, depth, xAxis, yAxis, {
+            fractionAtStartX: fractionalEdgeX === 'start',
+            fractionAtStartY: fractionalEdgeY === 'start',
+            palindromic,
+          })
+        : findOptimalTiling(width, depth, xAxis, yAxis);
 
     // Reorder for display: largest pieces at front/left, fractional edges pinned.
     // Under preferIdenticalPieces, arrange palindromically so outer positions match.
@@ -280,10 +283,13 @@ export function computeBaseplateTiling(
   const pieceCount = colSizes.length * rowSizes.length;
   // The hint is advice about the automatic plan ("reduce padding and the
   // planner saves you N pieces"), which is meaningless once the user has
-  // overridden that plan — their piece count is their own choice.
-  const paddingReductionHint = isCustomSplit
-    ? null
-    : computePaddingReductionHint(width, depth, xAxis, yAxis, pieceCount);
+  // overridden that plan — their piece count is their own choice. It is worked
+  // out for the even split, so the fewest-prints search, whose piece count it
+  // would misstate, drops it too.
+  const paddingReductionHint =
+    isCustomSplit || params.splitStrategy === 'fewestPrints'
+      ? null
+      : computePaddingReductionHint(width, depth, xAxis, yAxis, pieceCount);
 
   const tiling: BaseplateTiling = {
     isSplit,
@@ -715,6 +721,8 @@ export function pieceToBaseplateParams(
     preferIdenticalPieces: parentParams.preferIdenticalPieces,
     lightweight: parentParams.lightweight,
     ecoPlate: parentParams.ecoPlate,
+    // The ribs follow each piece's own padding, which already rotated above.
+    ...(parentParams.marginInfill !== undefined ? { marginInfill: parentParams.marginInfill } : {}),
     solidFloor: parentParams.solidFloor,
     solidFloorThickness: parentParams.solidFloorThickness,
     screwHoles: parentParams.screwHoles,

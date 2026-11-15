@@ -16,6 +16,8 @@ import type {
 import {
   mm,
   gridUnits,
+  isMarginInfill,
+  isSplitStrategy,
   STACK_PRINT_MIN_GAP_MM,
   STACK_PRINT_MAX_GAP_MM,
   STACK_PRINT_DEFAULT_GAP_MM,
@@ -194,6 +196,9 @@ export function migrateBaseplateParams(stored: unknown): StoredBaseplateParams {
     paddingFront: mm(clampNumber(obj.paddingFront, 0, 100, 0)),
     paddingBack: mm(clampNumber(obj.paddingBack, 0, 100, 0)),
     ...(isPaddingAnchor(obj.paddingAnchor) ? { paddingAnchor: obj.paddingAnchor } : {}),
+    ...(isMarginInfill(obj.marginInfill) && obj.marginInfill !== 'solid'
+      ? { marginInfill: obj.marginInfill }
+      : {}),
     ...(typeof obj.overTile === 'boolean' ? { overTile: obj.overTile } : {}),
     ...(typeof obj.overTileHalfGrid === 'boolean'
       ? { overTileHalfGrid: obj.overTileHalfGrid }
@@ -206,6 +211,9 @@ export function migrateBaseplateParams(stored: unknown): StoredBaseplateParams {
     ...(typeof obj.invertDovetails === 'boolean' ? { invertDovetails: obj.invertDovetails } : {}),
     ...(typeof obj.preferIdenticalPieces === 'boolean'
       ? { preferIdenticalPieces: obj.preferIdenticalPieces }
+      : {}),
+    ...(isSplitStrategy(obj.splitStrategy) && obj.splitStrategy !== 'even'
+      ? { splitStrategy: obj.splitStrategy }
       : {}),
     ...(obj.connectorStyle === 'dovetail' ||
     obj.connectorStyle === 'puzzle' ||

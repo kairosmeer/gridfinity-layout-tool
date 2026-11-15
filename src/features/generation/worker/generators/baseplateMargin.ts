@@ -14,7 +14,8 @@
  * grid-aligned tiles line up exactly with the body. Owned corners (see
  * `MarginPiece.ownedCorners`) are rounded with the body-scale radius so the
  * assembled plate's outer corner matches the integral plate; the seam edges
- * stay square. Rails carry no magnet holes or lightweight floor.
+ * stay square. Rails carry no magnet holes or lightweight floor. A ribbed
+ * margin opens the rail into cells like the integral margin.
  */
 
 import { mesh, meshEdges, translate, getKernelCapabilities, exportSTEP, unwrap } from 'brepjs';
@@ -38,6 +39,9 @@ import { cutInBatches } from './baseplateBatchOps';
 import { getPocketTemplate } from './baseplatePockets';
 import { buildBaseplateSTL } from './baseplateSTL';
 import { creaseEdges } from './utils';
+import { buildMarginInfillCutters } from './baseplateMarginInfill';
+import { railInfillCells } from '@/shared/generation/marginInfill';
+import { TONGUE_PROTRUSION } from '@/shared/constants/connectors';
 import { EDGE_ANGULAR_TOLERANCE_RAD } from '@/shared/constants/tessellation';
 import { EXPORT_ANGULAR_TOLERANCE_RAD } from './utils/tolerances';
 
@@ -150,13 +154,29 @@ function buildMarginSolid(params: ResolvedBaseplateParams, margin: MarginPiece):
     if (pockets.length > 0) rail = cutInBatches(rail, pockets);
   }
 
+  const grooved = params.detachMarginConnector === true && isMarginSeamStyle(params.connectorStyle);
+  // Pads too: a rail cut into pads would fall apart, so it is ribbed whole.
+  if (params.marginInfill !== undefined) {
+    const r = Math.max(cornerRadii.tl, cornerRadii.tr, cornerRadii.bl, cornerRadii.br);
+    const cells = railInfillCells(
+      margin.side,
+      railW,
+      railD,
+      params.gridUnitMm,
+      r,
+      // The seam groove reaches the tongue's length plus its clearance in.
+      grooved ? TONGUE_PROTRUSION + 1 : 0
+    );
+    if (cells.length > 0) rail = cutInBatches(rail, buildMarginInfillCutters(cells, totalHeight));
+  }
+
   // Opt-in connector: carve seam grooves into the rail's inner face to receive
   // the body's tongues — or, under `dovetailKey`, one lobe of the seated key that
   // also engages the body's own groove (splitPlanner marks the matching body edge
   // `marginSeam`). Positions are recomputed from the same `cellUnits`/
   // `fractionalEdge` the body used, then shifted by `centerOffsetMm` onto the
   // corner-extended rail.
-  if (params.detachMarginConnector === true && isMarginSeamStyle(params.connectorStyle)) {
+  if (grooved) {
     const seam = margin.seamConnector;
     // Keyed seams sit on cell BOUNDARIES (a two-cell junction, which is the foot
     // layout the seated key is relieved for); tongued seams sit on cell CENTERS

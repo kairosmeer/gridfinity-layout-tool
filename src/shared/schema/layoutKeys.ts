@@ -138,6 +138,8 @@ export const BASEPLATE_PARAMS_KEYS = [
   'paddingFront',
   'paddingBack',
   'paddingAnchor',
+  'marginInfill',
+  'splitStrategy',
   'overTile',
   'overTileHalfGrid',
   'overTileHalfGridSolidLeftover',
