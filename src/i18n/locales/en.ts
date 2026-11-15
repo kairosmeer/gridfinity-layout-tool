@@ -4932,6 +4932,29 @@ const en: Record<string, string> = {
   'baseplate.ecoPlate': 'Eco plate',
   'baseplate.ecoPlateDetail':
     'Saves up to a third of the filament. Bins are held by the corner posts only.',
+  'baseplate.ecoLevel': 'Eco level',
+  'baseplate.ecoLevel.standard': 'Standard',
+  'baseplate.ecoLevel.ultra': 'Ultra light',
+  'baseplate.ecoLevel.standardHint':
+    'Hollows the straight grid lines down to a thin bottom bridge.',
+  'baseplate.ecoLevel.ultraHint':
+    'Keeps only a thin shell of the socket around each grid corner and a low rib between. About half the filament of the standard eco plate. Print a small test first.',
+  'baseplate.ecoLevel.blocked.stacking':
+    'Ultra light is too thin to stack for printing, so this plate prints as the standard eco plate.',
+  'baseplate.ecoLevel.blocked.magnets':
+    'Ultra light needs a plate without magnet holes, so this plate prints as the standard eco plate.',
+  'baseplate.ecoLevel.blocked.solidFloor':
+    'Ultra light needs a plate without a solid floor, so this plate prints as the standard eco plate.',
+  'baseplate.ecoLevel.blocked.screws':
+    'Ultra light needs a plate without screw holes, so this plate prints as the standard eco plate.',
+  'baseplate.ecoLevel.blocked.mountMagnets':
+    'Ultra light needs a plate without mounting magnets, so this plate prints as the standard eco plate.',
+  'baseplate.ecoLevel.blocked.outline':
+    'Ultra light needs a rectangular drawer, so this shaped plate prints as the standard eco plate.',
+  'baseplate.ecoLevel.blocked.overTile':
+    'Ultra light does not fill padding with grid tiles, so this plate prints as the standard eco plate.',
+  'baseplate.ecoLevel.blocked.connector':
+    'Ultra light does not support the snap clip or the margin connector, so this plate prints as the standard eco plate.',
   'baseplate.solidFloorThickness': 'Floor thickness',
   'baseplate.solidFloorThicknessDetail':
     'Added below the standard grid. Total height of the plate increases by this amount to accommodate.',

@@ -25,6 +25,7 @@ import {
 } from '@/shared/utils/outlineFrame';
 import { screwPadThicknessMm } from '@/shared/generation/screwHolePlan';
 import { pieceScrewsNeedPad } from '@/shared/generation/screwHolePlacement';
+import { ultraLightBlocker } from '@/shared/generation/ecoPlate';
 import { baseplateFloorDepthBeforeScrews } from '@/shared/printSettings/baseplateHeight';
 import { normalizeSplitOverride } from './splitOverride';
 import {
@@ -415,6 +416,21 @@ export function buildFullParams(
       ? true
       : undefined;
 
+  const ecoPlate =
+    (!stackingOn || stored.stackPrint?.mixedSizes === true) && stored.ecoPlate === true;
+  // Only the non-default level travels, and only where the plate can take it.
+  const ultraLight =
+    ecoPlate &&
+    stored.ecoLevel === 'ultra' &&
+    ultraLightBlocker(
+      {
+        ...stored,
+        connectorNubs: stripConnectors ? false : stored.connectorNubs,
+        detachMarginConnector,
+      },
+      { outline: outline !== undefined, stacking: stackingOn }
+    ) === null;
+
   const params: ResolvedBaseplateParams = {
     width,
     depth,
@@ -464,7 +480,8 @@ export function buildFullParams(
     connectorSlotsAllEdges,
     connectorFitOffset: stored.connectorFitOffset,
     lightweight: stored.lightweight,
-    ecoPlate: (!stackingOn || stored.stackPrint?.mixedSizes === true) && stored.ecoPlate === true,
+    ecoPlate,
+    ...(ultraLight ? { ecoLevel: 'ultra' as const } : {}),
     // Ribs have nothing to fill when over-tile turns the margin into grid, and
     // the planner only knows rectangles, so an outline keeps solid padding.
     ...((stored.marginInfill === 'ribbed' || stored.marginInfill === 'pads') &&

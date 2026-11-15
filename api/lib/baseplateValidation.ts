@@ -116,6 +116,7 @@ const ALLOWED_PARAM_KEYS = new Set<string>([
   'connectorNubs',
   'lightweight',
   'ecoPlate',
+  'ecoLevel',
   'solidFloor',
   'solidFloorThickness',
   'syncWithLayout',
@@ -161,11 +162,13 @@ export const CONNECTOR_STYLES = ['dovetail', 'puzzle', 'dovetailKey', 'snapClip'
 export const FRACTIONAL_EDGES = ['start', 'end'];
 export const MARGIN_INFILLS = ['solid', 'ribbed', 'pads'];
 export const SPLIT_STRATEGIES = ['even', 'fewestPrints'];
+export const ECO_LEVELS = ['standard', 'ultra'];
 
 const ENUM_PARAM_VALUES = new Map<string, ReadonlySet<string>>([
   ['paddingAnchor', new Set(PADDING_ANCHORS)],
   ['marginInfill', new Set(MARGIN_INFILLS)],
   ['splitStrategy', new Set(SPLIT_STRATEGIES)],
+  ['ecoLevel', new Set(ECO_LEVELS)],
   ['connectorStyle', new Set(CONNECTOR_STYLES)],
   ['fractionalEdgeX', new Set(FRACTIONAL_EDGES)],
   ['fractionalEdgeY', new Set(FRACTIONAL_EDGES)],

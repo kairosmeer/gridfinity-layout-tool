@@ -45,7 +45,8 @@ import {
   drawRoundedRectangle,
 } from 'brepjs';
 import type { Shape3D, ValidSolid, BooleanPipelineStep } from 'brepjs';
-import type { ResolvedBaseplateParams } from '@/shared/types/bin';
+import type { ResolvedBaseplateParams, BaseplateEdges } from '@/shared/types/bin';
+import { edgeCarriesSlot, hasAllEdgeSlots } from '@/shared/types/bin';
 import type { MeshData, ExportFormat, ConnectorKeyMeshData } from '../../bridge/types';
 import {
   plateProfileHeightMm,
@@ -68,6 +69,7 @@ import { slabPocketsCacheKey } from './baseplateCacheKeys';
 import { sanitizeParams, tagOp, buildSlabProfile, cutAboveZ } from './baseplateSlab';
 import { cutInBatches } from './baseplateBatchOps';
 import { getPocketTemplate } from './baseplatePockets';
+import { placeUltraCellCutter, ULTRA_TOP_CUT_MM } from './baseplateUltraLight';
 import {
   buildMagnetPocketCutters,
   planMagnetPockets,
@@ -105,6 +107,7 @@ import {
   ecoKeepOuts,
   ecoMagnetKeepOuts,
   ecoScrewKeepOuts,
+  ultraLightBlocker,
 } from '@/shared/generation/ecoPlate';
 
 /**
@@ -624,7 +627,63 @@ export function buildBaseplateSolid(
         )
       : [];
 
-  if (params.ecoPlate === true) {
+  const ultra =
+    params.ecoPlate === true &&
+    params.ecoLevel === 'ultra' &&
+    floorDepth === 0 &&
+    ultraLightBlocker(params, { outline: outline !== undefined, stacking: false }) === null;
+  if (ultra) {
+    const halfW = (width * gridUnitMm) / 2;
+    const halfD = (depth * gridUnitMmY) / 2;
+    const near = (a: number, b: number): boolean => Math.abs(a - b) < 1e-6;
+    const allEdgeSlots = hasAllEdgeSlots(params);
+    const carries = (side: keyof BaseplateEdges, paddingMm: number): boolean =>
+      params.connectorNubs === true &&
+      edgeCarriesSlot(params.edges?.[side] ?? 'exterior', allEdgeSlots, paddingMm);
+    const connectorEdges = {
+      left: carries('left', paddingLeft),
+      right: carries('right', paddingRight),
+      front: carries('front', paddingFront),
+      back: carries('back', paddingBack),
+    };
+    const cutters: Shape3D[] = [];
+    forEachCell(
+      width,
+      depth,
+      (cell) => {
+        const cellW = cell.widthUnits * gridUnitMm;
+        const cellD = cell.depthUnits * gridUnitMmY;
+        const outer = {
+          left: near(cell.centerX - cellW / 2, -halfW),
+          right: near(cell.centerX + cellW / 2, halfW),
+          front: near(cell.centerY - cellD / 2, -halfD),
+          back: near(cell.centerY + cellD / 2, halfD),
+        };
+        cutters.push(
+          placeUltraCellCutter(
+            {
+              cellW,
+              cellD,
+              totalHeight,
+              profileHeight,
+              outer,
+              connectorSides: {
+                left: outer.left && connectorEdges.left,
+                right: outer.right && connectorEdges.right,
+                front: outer.front && connectorEdges.front,
+                back: outer.back && connectorEdges.back,
+              },
+            },
+            cell.centerX,
+            cell.centerY
+          )
+        );
+      },
+      cellOpts
+    );
+    baseplate = cutInBatches(baseplate, cutters);
+    probe?.('ecoJointsCut', baseplate);
+  } else if (params.ecoPlate === true) {
     // Keep a bottom band so every corner post remains connected, with no
     // unsupported bridge to print across the relieved straight joints.
     const bridgeHeight = Math.min(1.6, totalHeight / 2);
@@ -783,7 +842,7 @@ export function buildBaseplateSolid(
   onProgress?.(0.4);
 
   // Connector groove cutters (small count — no batching needed)
-  const { nubs, holes: connHoles } = buildConnectors(
+  const { nubs: fullNubs, holes: connHoles } = buildConnectors(
     params,
     totalHeight,
     totalW,
@@ -791,6 +850,14 @@ export function buildBaseplateSolid(
     slabOffsetX,
     slabOffsetY
   );
+  // The ultra light plate is cut down at the top; its tongues follow.
+  const nubs = ultra
+    ? fullNubs.map((nub) => {
+        const trimmed = cutAboveZ(nub, -ULTRA_TOP_CUT_MM);
+        nub.delete();
+        return trimmed;
+      })
+    : fullNubs;
 
   if (nubs.length > 0 || connHoles.length > 0) {
     const steps: BooleanPipelineStep[] = [

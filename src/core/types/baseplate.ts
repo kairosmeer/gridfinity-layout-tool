@@ -29,6 +29,18 @@ export function isSplitStrategy(value: unknown): value is SplitStrategy {
 }
 
 /**
+ * How far the eco plate goes. 'standard' hollows the straight grid joints over
+ * a bottom bridge. 'ultra' (after TUDC's Ultra light grid) keeps only a thin
+ * shell of the socket profile round each grid node and a low rib between.
+ */
+export const ECO_LEVELS = ['standard', 'ultra'] as const;
+export type EcoLevel = (typeof ECO_LEVELS)[number];
+
+export function isEcoLevel(value: unknown): value is EcoLevel {
+  return typeof value === 'string' && (ECO_LEVELS as readonly string[]).includes(value);
+}
+
+/**
  * Vertical stack-print configuration (experimental). By default, each group
  * of identical baseplate pieces is duplicated along Z. With mixedSizes enabled,
  * compatible tiles of one split plate can share a tower. The bottom prints upright (bed adhesion,
@@ -254,6 +266,12 @@ export interface StoredBaseplateParams {
   readonly lightweight?: boolean;
   /** Hollow the straight grid joints while keeping the corner posts and a bottom bridge. */
   readonly ecoPlate?: boolean;
+  /**
+   * How far the eco plate goes; see {@link EcoLevel}. Absent means 'standard'.
+   * 'ultra' applies only where `ultraLightBlocker` (shared/generation/ecoPlate)
+   * finds nothing in the way; otherwise the plate prints as the standard eco plate.
+   */
+  readonly ecoLevel?: EcoLevel;
   /**
    * Leave a solid floor under every socket instead of cutting the pockets
    * through — a rigid/weighted plate (default false). The floor is added below

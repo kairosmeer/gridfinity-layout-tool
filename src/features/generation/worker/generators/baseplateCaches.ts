@@ -34,19 +34,31 @@ export const slabWithPocketsCache = new LRUCache<Shape3D>(
   disposeShape
 );
 
+/**
+ * Ultra light per-cell cutters, keyed by cell size and which sides are outer
+ * edges. Clone+translate for each grid position.
+ */
+export const ultraCellCutterCache = new LRUCache<Shape3D>(
+  'baseplate-ultra-cell-cutter',
+  48,
+  disposeShape
+);
+
 /** Clear all baseplate shape caches, disposing WASM handles. */
 export function clearBaseplateCaches(): void {
   pocketTemplateCache.dispose();
   slabWithPocketsCache.dispose();
+  ultraCellCutterCache.dispose();
 }
 
 /** Collect stats from all baseplate LRU caches. */
 export function getBaseplateCacheStats(): CacheStats[] {
-  return [pocketTemplateCache, slabWithPocketsCache].map((c) => c.getStats());
+  return [pocketTemplateCache, slabWithPocketsCache, ultraCellCutterCache].map((c) => c.getStats());
 }
 
 /** Reset stats counters on all baseplate LRU caches. */
 export function resetBaseplateCacheStats(): void {
   pocketTemplateCache.resetStats();
   slabWithPocketsCache.resetStats();
+  ultraCellCutterCache.resetStats();
 }

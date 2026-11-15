@@ -147,6 +147,7 @@ export const BASEPLATE_PARAMS_KEYS = [
   'connectorNubs',
   'lightweight',
   'ecoPlate',
+  'ecoLevel',
   'solidFloor',
   'solidFloorThickness',
   'syncWithLayout',

@@ -738,6 +738,32 @@ describe('drawer outline handling', () => {
     ).toBe(true);
   });
 
+  it('passes the ultra eco level only where the plate can take it', () => {
+    const stored = {
+      ...storedBase,
+      magnetHoles: false,
+      ecoPlate: true,
+      ecoLevel: 'ultra' as const,
+    };
+    expect(buildFullParams(stored, 3, 2, 42, 'end', 'end').ecoLevel).toBe('ultra');
+    // Not without eco, nor over a floor or with mount-down screws.
+    for (const blocked of [
+      { ecoPlate: false },
+      { magnetHoles: true },
+      { solidFloor: true },
+      { overTile: true },
+      { stackPrint: { enabled: true, gapMm: mm(0.2), mixedSizes: true } },
+    ]) {
+      expect(
+        buildFullParams({ ...stored, ...blocked }, 3, 2, 42, 'end', 'end'),
+        JSON.stringify(blocked)
+      ).not.toHaveProperty('ecoLevel');
+    }
+    expect(buildFullParams(stored, 3, 2, 42, 'end', 'end', undefined, outline)).not.toHaveProperty(
+      'ecoLevel'
+    );
+  });
+
   it('passes a ribbed margin through only while the padding is plain solid padding', () => {
     const stored = { ...storedBase, paddingLeft: mm(20), marginInfill: 'ribbed' as const };
     expect(buildFullParams(stored, 10, 8, 42, 'end', 'end').marginInfill).toBe('ribbed');

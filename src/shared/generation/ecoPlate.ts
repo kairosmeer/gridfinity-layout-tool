@@ -18,6 +18,53 @@ export interface EcoKeepOut {
   readonly radius: number;
 }
 
+/**
+ * Why a plate cannot be ultra light, which then prints as the standard eco
+ * plate. A floor (magnets, solid floor) would be cut away from under its
+ * pockets; screws and mount magnets need solid material where only a rib is
+ * left; an outline or over-tile has cells the per-cell shells don't follow; a
+ * stacked plate is too thin to lift flipped tiles; and the snap clip and the
+ * margin-seam tongues sit where the ultra plate keeps only a rim.
+ */
+export type UltraLightBlocker =
+  | 'magnets'
+  | 'solidFloor'
+  | 'screws'
+  | 'mountMagnets'
+  | 'outline'
+  | 'overTile'
+  | 'stacking'
+  | 'connector';
+
+/** The fields the gate reads, the same on stored and resolved params. */
+export interface UltraLightGateParams {
+  readonly magnetHoles: boolean;
+  readonly solidFloor?: boolean;
+  readonly screwHoles?: { readonly enabled: boolean };
+  readonly mountMagnets?: { readonly enabled: boolean };
+  readonly overTile?: boolean;
+  readonly connectorNubs?: boolean;
+  readonly connectorStyle?: string;
+  readonly detachMargins?: boolean;
+  readonly detachMarginConnector?: boolean;
+}
+
+export function ultraLightBlocker(
+  params: UltraLightGateParams,
+  context: { readonly outline: boolean; readonly stacking: boolean }
+): UltraLightBlocker | null {
+  if (context.stacking) return 'stacking';
+  if (params.magnetHoles) return 'magnets';
+  if (params.solidFloor === true) return 'solidFloor';
+  if (params.screwHoles?.enabled === true) return 'screws';
+  if (params.mountMagnets?.enabled === true) return 'mountMagnets';
+  if (context.outline) return 'outline';
+  if (params.overTile === true) return 'overTile';
+  if (params.connectorNubs === true && params.connectorStyle === 'snapClip') return 'connector';
+  if (params.detachMargins === true && params.detachMarginConnector === true) return 'connector';
+  return null;
+}
+
 const ECO_MIN_FRAME_STRIP_MM = 2;
 /** Shorter reliefs save too little to be worth the cut. */
 const ECO_MIN_SPAN_MM = 8;

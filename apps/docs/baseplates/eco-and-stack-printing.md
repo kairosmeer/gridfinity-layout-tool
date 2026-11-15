@@ -9,6 +9,8 @@ sources:
   - src/features/baseplate/hooks/useStackPrintStatus.ts
   - src/features/baseplate/utils/buildFullParams.ts
   - src/shared/generation/ecoPlate.ts
+  - src/features/generation/worker/generators/baseplateUltraLight.ts
+  - src/features/baseplate/components/BaseplatePanel/EcoLevelControl.tsx
   - src/core/types/baseplate.ts
   - src/shared/printSettings/baseplateHeight.ts
 ---
@@ -26,6 +28,14 @@ The Layout Tool cuts the straight joints between the corner posts down to a thin
 <Screenshot id="baseplates-eco-plate" alt="A 4 by 3 plate in the preview. Eco plate is turned on in the Base section, and the joints between the corner posts then become thin bars." spec="Baseplate generator, 4 by 3 plate, iso view. The plate, then a close-up of the Base section where Eco plate is turned on, then the plate again." />
 
 Split pieces keep the eco plate setting. With <Ui k="baseplate.stackPrint.enable" /> on, the eco plate stays only when <Ui k="baseplate.stackPrint.mixedSizes.label" /> is also on.
+
+### Go further with Ultra light
+
+With the eco plate on, choose <Ui k="baseplate.ecoLevel.ultra" /> instead of <Ui k="baseplate.ecoLevel.standard" />. Only an area of about 20 by 20 mm around each grid corner keeps the shape the bins sit in, as a thin 0.9 mm wall beside each socket. Between the corners, each grid line drops to a low 1.8 mm rib that forks into those walls, and a low X under each inner corner ties the four walls together in the first layers. The top 1.1 mm of the plate is cut off too: the bins never rest there, so they sit exactly as before. A 3 by 3 plate then takes about 4.3 g of PLA, against 9.6 g for the standard eco plate and 14.3 g for a full plate.
+
+The bins are held at the grid corners only, so print a small test plate and try your bins in it before you print a whole drawer.
+
+Ultra light works on plain plates. It doesn't work with magnet holes, a solid floor, screw holes, mounting magnets, a shaped drawer, padding filled with grid tiles, stack printing, the snap clip or the margin connector. If one of these is on, a note under the choice names it, and the plate prints as the standard eco plate. Split pieces with dovetail or puzzle connectors work: the plate stays solid around each connector.
 
 ## Print plates in a stack
 

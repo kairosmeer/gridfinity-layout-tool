@@ -51,6 +51,7 @@ import { LabelInfo } from '@/shared/components/InfoDot';
 import { SegmentedControl, SliderInput } from '@/design-system';
 import { useBaseplatePageStore } from '../../store/baseplatePageStore';
 import { CornerRadiusControl } from './CornerRadiusControl';
+import { EcoLevelControl } from './EcoLevelControl';
 import { ConnectorSampleButton } from './ConnectorSampleButton';
 import { ConnectorPicker } from './ConnectorPicker';
 import type { ConnectorChoice } from './ConnectorPicker';
@@ -304,6 +305,13 @@ export function BaseSection() {
               checked={baseplateParams.ecoPlate === true}
               onChange={() =>
                 updateParam('ecoPlate', baseplateParams.ecoPlate === true ? undefined : true)
+              }
+              primaryControls={
+                <EcoLevelControl
+                  baseplateParams={baseplateParams}
+                  outline={outlineActive}
+                  stacking={stackEnabled}
+                />
               }
             />
           </div>

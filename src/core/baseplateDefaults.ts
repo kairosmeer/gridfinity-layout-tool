@@ -18,6 +18,7 @@ import {
   gridUnits,
   isMarginInfill,
   isSplitStrategy,
+  isEcoLevel,
   STACK_PRINT_MIN_GAP_MM,
   STACK_PRINT_MAX_GAP_MM,
   STACK_PRINT_DEFAULT_GAP_MM,
@@ -236,6 +237,7 @@ export function migrateBaseplateParams(stored: unknown): StoredBaseplateParams {
       : {}),
     ...(typeof obj.lightweight === 'boolean' ? { lightweight: obj.lightweight } : {}),
     ...(typeof obj.ecoPlate === 'boolean' ? { ecoPlate: obj.ecoPlate } : {}),
+    ...(isEcoLevel(obj.ecoLevel) && obj.ecoLevel !== 'standard' ? { ecoLevel: obj.ecoLevel } : {}),
     ...(typeof obj.solidFloor === 'boolean' ? { solidFloor: obj.solidFloor } : {}),
     ...(typeof obj.solidFloorThickness === 'number'
       ? {

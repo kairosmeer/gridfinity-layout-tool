@@ -803,6 +803,12 @@
           "default": false,
           "description": "Relieve baseplate grid joints while preserving corner posts, connectors and a printable bottom bridge."
         },
+        "ecoLevel": {
+          "type": "string",
+          "enum": ["standard", "ultra"],
+          "default": "standard",
+          "description": "How far ecoPlate goes: standard relieves the grid joints; ultra keeps only a thin shell of the socket profile round each grid node and a low rib between nodes. Ultra applies only without magnets, a solid floor, screws, mount magnets, an outline, over-tile, stacking or the snap clip and margin-seam connectors; otherwise the plate prints as standard."
+        },
         "marginInfill": {
           "type": "string",
           "enum": ["solid", "ribbed", "pads"],

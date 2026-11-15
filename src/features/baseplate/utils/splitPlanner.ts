@@ -721,6 +721,7 @@ export function pieceToBaseplateParams(
     preferIdenticalPieces: parentParams.preferIdenticalPieces,
     lightweight: parentParams.lightweight,
     ecoPlate: parentParams.ecoPlate,
+    ...(parentParams.ecoLevel !== undefined ? { ecoLevel: parentParams.ecoLevel } : {}),
     // The ribs follow each piece's own padding, which already rotated above.
     ...(parentParams.marginInfill !== undefined ? { marginInfill: parentParams.marginInfill } : {}),
     solidFloor: parentParams.solidFloor,

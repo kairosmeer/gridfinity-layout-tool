@@ -181,6 +181,7 @@ export function selectGenerationTriggers(state: LayoutState) {
     // (stacking strips both, so it folds out there too).
     lightweight: lightweightRelevant ? bp.lightweight !== false : true,
     ecoPlate: (!stackingOn || bp.stackPrint.mixedSizes === true) && bp.ecoPlate === true,
+    ecoLevel: bp.ecoPlate === true ? bp.ecoLevel : undefined,
     // Over-tile turns the margin into grid, so the fill folds out there.
     marginInfill: bp.overTile === true ? undefined : bp.marginInfill,
     paddingLeft: bp.paddingLeft,

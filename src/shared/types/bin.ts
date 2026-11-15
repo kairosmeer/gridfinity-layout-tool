@@ -14,6 +14,7 @@ import type {
   SplitOverride,
   StackPrintParams,
   SplitStrategy,
+  EcoLevel,
 } from '@/core/types';
 
 export type {
@@ -799,6 +800,8 @@ export interface ResolvedBaseplateParams {
   readonly lightweight?: boolean;
   /** Hollow the straight grid joints while retaining corner posts and a bottom bridge. */
   readonly ecoPlate?: boolean;
+  /** With ecoPlate: 'ultra' keeps only thin shells at the nodes and low ribs between. */
+  readonly ecoLevel?: EcoLevel;
   /**
    * Drawer-fit padding built as an outer rim with cross ribs ('ribbed'), or cut
    * down to ribbed pads at the ends and middle of each edge ('pads'), instead of

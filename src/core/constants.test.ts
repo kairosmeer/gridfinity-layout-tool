@@ -430,6 +430,13 @@ describe('migrateBaseplateParams', () => {
     expect(migrateBaseplateParams({ ...base, ecoPlate: 'true' }).ecoPlate).toBeUndefined();
   });
 
+  it('keeps the ultra eco level and drops standard or unknown levels', () => {
+    const base = { ...DEFAULT_BASEPLATE_PARAMS, ecoPlate: true };
+    expect(migrateBaseplateParams({ ...base, ecoLevel: 'ultra' }).ecoLevel).toBe('ultra');
+    expect(migrateBaseplateParams({ ...base, ecoLevel: 'standard' }).ecoLevel).toBeUndefined();
+    expect(migrateBaseplateParams({ ...base, ecoLevel: 'extreme' }).ecoLevel).toBeUndefined();
+  });
+
   it('keeps a ribbed margin and drops solid or unknown fills', () => {
     const base = { ...DEFAULT_BASEPLATE_PARAMS };
     expect(migrateBaseplateParams({ ...base, marginInfill: 'ribbed' }).marginInfill).toBe('ribbed');
@@ -480,6 +487,7 @@ describe('migrateBaseplateParams', () => {
       connectorNubs: true,
       lightweight: true,
       ecoPlate: true,
+      ecoLevel: 'ultra',
       solidFloor: true,
       solidFloorThickness: mm(1.2),
       syncWithLayout: false,

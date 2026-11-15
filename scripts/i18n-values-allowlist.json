@@ -12,6 +12,7 @@
     "baseplate.connectorStyle.snapClip",
     "baseplate.connectors.label",
     "baseplate.connectors.none",
+    "baseplate.ecoLevel.standard",
     "baseplate.gridDimensions",
     "baseplate.gridUnitTooltip",
     "baseplate.magnetDepthInfo",

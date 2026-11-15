@@ -1184,6 +1184,7 @@ describe('pieceToBaseplateParams', () => {
       nozzleSizeMm: 0.6,
       lightweight: true,
       ecoPlate: true,
+      ecoLevel: 'ultra',
       marginInfill: 'ribbed',
       solidFloor: true,
       solidFloorThickness: 1.2,
