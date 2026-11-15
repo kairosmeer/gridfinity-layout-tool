@@ -10,6 +10,7 @@
  *   - Key includes the build's git SHA (`__GIT_SHA__`), so any generator change
  *     shipped in a new deploy invalidates the whole cache. Within one deploy the
  *     geometry pipeline is fixed, so cached bytes are byte-identical to a rebuild.
+ *     The dev server breaks that (hot reload under one SHA), so it skips the cache.
  *   - Key includes a complete, order-stable serialization of the exact params
  *     passed to `exportBaseplate` (the sole determinant of the worker output),
  *     plus the export format and the session nozzle size (which scales connector
@@ -47,6 +48,13 @@ interface CacheEntry {
 
 /** Build SHA, inlined by Vite at build time; falls back to 'dev' under test/SSR. */
 const BUILD_ID = typeof __GIT_SHA__ === 'string' ? __GIT_SHA__ : 'dev';
+
+/**
+ * The dev server keeps one build id while hot reload swaps the generator under
+ * it, so a cached export there can be bytes from code that no longer exists:
+ * an edited plate exported as it was before the edit. Off in development.
+ */
+const CACHE_ENABLED = import.meta.env.MODE !== 'development';
 
 // Strictly-monotonic recency stamp: wall-clock when it advances, else +1, so
 // entries written or touched in the same millisecond still order deterministically.
@@ -105,6 +113,7 @@ export function buildExportCacheKey(
 
 /** Read one cached export, touching its recency. Returns undefined on miss/error. */
 export async function getCachedExport(key: string): Promise<ArrayBuffer | undefined> {
+  if (!CACHE_ENABLED) return undefined;
   try {
     const db = await exportDb.get();
     if (!db) return undefined;
@@ -143,7 +152,7 @@ export async function getOrExport(
 export async function putCachedExports(
   entries: ReadonlyArray<{ key: string; data: ArrayBuffer }>
 ): Promise<void> {
-  if (entries.length === 0) return;
+  if (entries.length === 0 || !CACHE_ENABLED) return;
   try {
     const db = await exportDb.get();
     if (!db) return;
