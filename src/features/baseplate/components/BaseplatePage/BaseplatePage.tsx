@@ -19,7 +19,7 @@ import { gridUnits, effectiveGridUnitMmY } from '@/core/types';
 import { useTranslation } from '@/i18n';
 import { useResponsive } from '@/shared/hooks/useResponsive';
 
-import { Button } from '@/design-system';
+import { Button, SegmentedControl } from '@/design-system';
 import { ToolSwitcher } from '@/shared/components/ToolSwitcher';
 import { useBaseplateFirstRun } from '../../hooks/useBaseplateFirstRun';
 import { BaseplateQuickstartCard } from './BaseplateQuickstartCard';
@@ -138,6 +138,7 @@ export function BaseplatePage() {
   const tiling = useBaseplatePageStore((s) => s.tiling);
 
   const [splitEnabled, setSplitEnabled] = useState(true);
+  const [singleFile, setSingleFile] = useState(false);
   const [justExported, setJustExported] = useState(false);
 
   const activeFormat: ExportFileFormat = exportFileNameConfig.format ?? 'stl';
@@ -218,11 +219,16 @@ export function BaseplatePage() {
   // When stacking, a split drawer always takes the per-tower export path; the
   // user can't opt out, so there's no split checkbox to gate it.
   const useSplitExport = stackEnabled ? tiling?.isSplit === true : showSplitBanner && splitEnabled;
-  const isZipExport = stackEnabled ? stackFileCount > 1 : useSplitExport;
+  // A multi-part STL or 3MF can ship as one file with the parts spread apart,
+  // which a slicer splits into objects, instead of a ZIP of one file per part.
+  const hasRails = fullParams.detachMargins === true && (tiling?.margins.length ?? 0) > 0;
+  const showPackaging = !stackEnabled && activeFormat !== 'step' && (useSplitExport || hasRails);
+  const useSingleFile = showPackaging && singleFile;
+  const isZipExport = (stackEnabled ? stackFileCount > 1 : useSplitExport) && !useSingleFile;
   const displayExtension = isZipExport ? '.zip' : FORMAT_EXTENSIONS[activeFormat];
 
   const handleDownload = useCallback(() => {
-    void downloadBaseplate(activeFormat, useSplitExport).then((succeeded) => {
+    void downloadBaseplate(activeFormat, useSplitExport, useSingleFile).then((succeeded) => {
       if (!succeeded) return;
       // Show the support view only to returning makers (2nd+ export), at most
       // once per cooldown; otherwise take the low-friction path.
@@ -232,12 +238,12 @@ export function BaseplatePage() {
       }
       // Split/dedup exports are already confirmed by toasts from the hook;
       // single-file gets a brief confirmation here. Then close.
-      if (!useSplitExport) {
+      if (!useSplitExport || useSingleFile) {
         useToastStore.getState().addToast(t('export.complete'), 'success', 3000);
       }
       setExportDialogOpen(false);
     });
-  }, [downloadBaseplate, activeFormat, useSplitExport, setExportDialogOpen, t]);
+  }, [downloadBaseplate, activeFormat, useSplitExport, useSingleFile, setExportDialogOpen, t]);
 
   const closeExportDialog = useCallback(() => {
     setJustExported(false);
@@ -386,10 +392,12 @@ export function BaseplatePage() {
         splitBanner={
           showSplitBanner
             ? {
-                message: `${t('baseplate.export.splitBanner', {
-                  size: defaultPrintBedSize,
-                  count: tiling.pieces.length,
-                })} ${t('baseplate.export.bedLoads', { count: tiling.bedLoads })}`,
+                message: `${t(
+                  useSingleFile
+                    ? 'baseplate.export.splitBannerSingle'
+                    : 'baseplate.export.splitBanner',
+                  { size: defaultPrintBedSize, count: tiling.pieces.length }
+                )} ${t('baseplate.export.bedLoads', { count: tiling.bedLoads })}`,
                 checkboxLabel: t('baseplate.export.enableSplit'),
                 checked: splitEnabled,
                 onCheckedChange: setSplitEnabled,
@@ -405,6 +413,30 @@ export function BaseplatePage() {
                 }),
               }
             : null
+        }
+        extras={
+          showPackaging ? (
+            <div className="mb-4">
+              <span className="mb-2 block text-sm font-medium text-content-secondary">
+                {t('baseplate.export.packaging.label')}
+              </span>
+              <SegmentedControl<'zip' | 'single'>
+                aria-label={t('baseplate.export.packaging.label')}
+                size="sm"
+                options={[
+                  { value: 'zip', label: t('baseplate.export.packaging.zip') },
+                  { value: 'single', label: t('baseplate.export.packaging.single') },
+                ]}
+                value={singleFile ? 'single' : 'zip'}
+                onChange={(value) => setSingleFile(value === 'single')}
+              />
+              {singleFile && (
+                <p className="mt-2 text-xs text-content-secondary">
+                  {t('baseplate.export.packaging.singleHint')}
+                </p>
+              )}
+            </div>
+          ) : null
         }
         noMeshWarning={t('export.noMeshWarning')}
         sectionTitle={t('baseplate.export.threeDModel')}

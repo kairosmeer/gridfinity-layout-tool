@@ -172,6 +172,45 @@ describe('buildBaseplateExportPieces', () => {
     expect(result.guideText).toContain('Gridfinity Baseplate Print Guide');
   });
 
+  it('packs a split plate into one exploded file when asked', async () => {
+    const { bridge } = makeBridge();
+    const result = await buildBaseplateExportPieces(
+      bridge,
+      null,
+      input({
+        drawerWidth: 8,
+        drawerDepth: 8,
+        printBedWidthMm: 256,
+        printBedDepthMm: 256,
+        singleFile: true,
+      })
+    );
+
+    expect(result.pieces).toHaveLength(1);
+    expect(result.pieces[0].label).toBe('');
+    expect(result.guideText).toBe('');
+    // One triangle per stub piece, all four pieces in the one STL.
+    expect(new DataView(result.pieces[0].data).getUint32(80, true)).toBe(4);
+  });
+
+  it('keeps the ZIP pieces for STEP even when one file is asked for', async () => {
+    const { bridge } = makeBridge();
+    // A size no other test exports, so the export cache can't carry over.
+    const result = await buildBaseplateExportPieces(
+      bridge,
+      null,
+      input({
+        drawerWidth: 9,
+        drawerDepth: 7,
+        printBedWidthMm: 256,
+        printBedDepthMm: 256,
+        format: 'step',
+        singleFile: true,
+      })
+    );
+    expect(result.pieces.length).toBeGreaterThan(1);
+  });
+
   it('splits a large STEP plate into labelled pieces, same as STL/3MF (#3088)', async () => {
     const { bridge, exportBaseplate } = makeBridge();
     // 8×8u (336mm) plate on a 256mm bed forces a 2×2 split.

@@ -1944,10 +1944,17 @@ const en: Record<string, string> = {
   // Baseplate-specific export keys
   'baseplate.export.splitSuccess': 'Baseplate exported ({count} pieces)',
   'baseplate.export.splitBanner':
-    'Baseplate exceeds {size}mm print bed — will export as {count} pieces in a ZIP with print guide.',
+    'Baseplate exceeds {size}mm print bed - will export as {count} pieces in a ZIP with print guide.',
+  'baseplate.export.splitBannerSingle':
+    'Baseplate exceeds {size}mm print bed - will export as {count} pieces in one file.',
   'baseplate.export.bedLoads_one': 'Prints in {count} build-plate load.',
   'baseplate.export.bedLoads_other': 'Prints in {count} build-plate loads.',
   'baseplate.export.enableSplit': 'Split into pieces',
+  'baseplate.export.packaging.label': 'Files',
+  'baseplate.export.packaging.zip': 'ZIP, a file per part',
+  'baseplate.export.packaging.single': 'One file, spread apart',
+  'baseplate.export.packaging.singleHint':
+    "All parts in one file, laid out like the exploded view. In the slicer, use Split to objects (STL); a 3MF already holds each part as its own object. The print guide isn't included.",
   'baseplate.export.threeDModel': '3D model',
   'baseplate.export.threeDModelDescription': 'Export a printable baseplate model',
   'baseplate.export.dedupSuccess': 'Baseplate exported ({unique} unique pieces, {total} total)',

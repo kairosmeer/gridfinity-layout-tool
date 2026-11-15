@@ -111,6 +111,8 @@ Click <Ui k="common.export" /> in the header. The export dialog tells you that t
 
 The guide groups pieces with the same shape, so you can print any copy again later. Want one file of the whole plate instead? Clear <Ui k="baseplate.export.enableSplit" />.
 
+To skip the ZIP, set <Ui k="baseplate.export.packaging.label" /> to <Ui k="baseplate.export.packaging.single" />. You get one STL or 3MF file with every piece, plus any margin rails and connector keys, laid out like the exploded view with gaps between them. In the slicer, split an STL into objects; a 3MF already holds each piece as its own object. This file has no print guide, and STEP always exports as a ZIP.
+
 <Screenshot id="baseplates-splitting-export" alt="The export dialog of a plate that is bigger than the print bed. A note says that the plate exports as 4 pieces in a ZIP with a print guide, and Split into pieces is selected." spec="Baseplate generator, 10 by 7 plate on a 256 mm bed, so that it splits into four pieces. Click Export in the header. Crop to the dialog." />
 
 ## When it goes wrong

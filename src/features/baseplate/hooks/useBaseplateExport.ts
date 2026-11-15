@@ -33,7 +33,8 @@ interface UseBaseplateExportReturn {
   readonly exportProgress: { current: number; total: number } | null;
   readonly downloadBaseplate: (
     format: ExportFileFormat,
-    splitEnabled?: boolean
+    splitEnabled?: boolean,
+    singleFile?: boolean
   ) => Promise<boolean>;
 }
 
@@ -95,7 +96,7 @@ export function useBaseplateExport(): UseBaseplateExportReturn {
   const canExport = (hasSingleMesh || hasSplitMeshes) && engineReady && overBedPieceCount === 0;
 
   const downloadBaseplate = useCallback(
-    async (format: ExportFileFormat, splitEnabled = true) => {
+    async (format: ExportFileFormat, splitEnabled = true, singleFile = false) => {
       primeExportFolder();
       const bridge = getActiveBridge();
       if (!bridge) {
@@ -125,6 +126,7 @@ export function useBaseplateExport(): UseBaseplateExportReturn {
             printBedDepthMm: printBedDepth ?? printBedSize,
             format,
             splitEnabled,
+            singleFile,
             fileNameConfig: exportFileNameConfig,
             printSettings: {
               nozzleSizeMm: printSettings.nozzleSizeMm,

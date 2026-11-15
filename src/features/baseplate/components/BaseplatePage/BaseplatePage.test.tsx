@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { BaseplatePage } from './BaseplatePage';
 import { DEFAULT_BASEPLATE_PARAMS } from '@/core/baseplateDefaults';
 import { useBaseplatePageStore } from '../../store/baseplatePageStore';
@@ -160,6 +160,40 @@ describe('BaseplatePage', () => {
       render(<BaseplatePage />);
       expect(
         screen.getByText('baseplate.export.splitBanner baseplate.export.bedLoads_other')
+      ).toBeInTheDocument();
+    } finally {
+      useBaseplatePageStore.setState({ tiling: null, exportDialogOpen: false });
+    }
+  });
+
+  it('offers the split plate as one file in place of the ZIP', () => {
+    const tiling: BaseplateTiling = {
+      isSplit: true,
+      pieces: Array.from({ length: 4 }, () => ({}) as BaseplatePiece),
+      margins: [],
+      cols: 2,
+      rows: 2,
+      colSizes: [5, 5],
+      rowSizes: [4, 4],
+      totalWidthUnits: 10,
+      totalDepthUnits: 8,
+      stackCount: 1,
+      stackSeparatorThickness: 0,
+      bedLoads: 3,
+      paddingReductionHint: null,
+      isCustomSplit: false,
+      bedOverages: [],
+    };
+    useBaseplatePageStore.setState({ tiling, exportDialogOpen: true });
+
+    try {
+      render(<BaseplatePage />);
+      expect(screen.getByText('.zip')).toBeInTheDocument();
+      fireEvent.click(screen.getByText('baseplate.export.packaging.single'));
+      expect(screen.getByText('.stl')).toBeInTheDocument();
+      expect(screen.getByText('baseplate.export.packaging.singleHint')).toBeInTheDocument();
+      expect(
+        screen.getByText('baseplate.export.splitBannerSingle baseplate.export.bedLoads_other')
       ).toBeInTheDocument();
     } finally {
       useBaseplatePageStore.setState({ tiling: null, exportDialogOpen: false });

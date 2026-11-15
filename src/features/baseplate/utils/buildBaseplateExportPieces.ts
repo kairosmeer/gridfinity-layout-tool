@@ -47,6 +47,8 @@ import { countConnectorKeys } from './connectorKeys';
 import { generatePrintGuide, generateStackPrintNote, generateMarginGuide } from './printGuide';
 import { generateAssemblyMapImage } from './assemblyImage';
 import { generateBaseplateFileName, toNamingParams } from './fileNaming';
+import { packExplodedFile, wholePlatePiece } from './explodedExport';
+import type { ExplodedExportInput } from './explodedExport';
 
 /** Print settings the builder needs (subset of the global PrintSettings). */
 export interface BaseplateExportPrintSettings {
@@ -80,6 +82,11 @@ export interface BuildBaseplateExportInput {
   readonly format: ExportFileFormat;
   /** Split into print-bed-sized pieces when the plate exceeds the bed. Default true. */
   readonly splitEnabled?: boolean;
+  /**
+   * Ship a multi-part STL or 3MF as one file, the parts spread apart as in the
+   * exploded preview, instead of a ZIP. Ignored for STEP and stacking.
+   */
+  readonly singleFile?: boolean;
   readonly fileNameConfig: ExportFileNameConfig;
   readonly printSettings: BaseplateExportPrintSettings;
   readonly onProgress?: (progress: { current: number; total: number } | null) => void;
@@ -304,6 +311,17 @@ export async function buildBaseplateExportPieces(
     }
     return [{ data: keyData, label: 'key' }];
   };
+
+  const singleFile = input.singleFile === true && format !== 'step' && !stackEnabled;
+  const singleFileResult = async (
+    plates: ExplodedExportInput['plates']
+  ): Promise<BaseplateExportPieces> => {
+    const src = { plates, margins: railMargins, keyCount, tiling, params: fullParams, nozzleMm };
+    const fileFormat = format === '3mf' ? '3mf' : 'stl';
+    const data = await packExplodedFile(bridge, src, fileFormat, baseNameNoExt, printSettings);
+    return { pieces: [{ data, label: '' }], guideText: '', baseNameNoExt, extension };
+  };
+
   const keyNote =
     keyCount > 0
       ? {
@@ -366,6 +384,15 @@ export async function buildBaseplateExportPieces(
       if (data === undefined) throw new Error('Baseplate export piece missing after generation');
       return data;
     });
+
+    if (singleFile) {
+      return singleFileResult(
+        uniqueGroups.flatMap(([, group], i) => {
+          const soup = parseStlSoup(uniqueExports[i]);
+          return group.indices.map((idx) => ({ piece: tiling.pieces[idx], soup }));
+        })
+      );
+    }
 
     const pieces: ExportPiece[] = [];
     const mixedPlan =
@@ -482,6 +509,13 @@ export async function buildBaseplateExportPieces(
       extension,
       splitStats: { uniqueCount, totalPieces, stackEnabled },
     };
+  }
+
+  if (singleFile && (railMargins.length > 0 || keyCount > 0)) {
+    const stlData = await getOrExport(buildExportCacheKey(bodyExportParams, 'stl', nozzleMm), () =>
+      bridge.exportBaseplate(bodyExportParams, 'stl').then((r) => r.data)
+    );
+    return singleFileResult([{ piece: wholePlatePiece(tiling), soup: parseStlSoup(stlData) }]);
   }
 
   if (format === 'step') {
