@@ -101,6 +101,30 @@ describe('ultra light plate', () => {
     expect(node).toBeLessThan(box.minZ + ULTRA_BRACE_HEIGHT_MM + 0.05);
   }, 120000);
 
+  it('builds the grid inside a padded, rounded plate as one solid', () => {
+    const padded = {
+      paddingLeft: 7,
+      paddingRight: 5,
+      paddingFront: 3.5,
+      paddingBack: 3.5,
+      cornerRadius: 4,
+    };
+    const eco = generateBaseplate(plate(padded), noop, true);
+    const ultra = generateBaseplate(plate({ ...padded, ecoLevel: 'ultra' }), noop, true);
+    assertWatertight(ultra, 'padded ultra');
+    const a = boundingBox(eco.vertices);
+    const b = boundingBox(ultra.vertices);
+    expect(b.minX).toBeCloseTo(a.minX, 3);
+    expect(b.maxX).toBeCloseTo(a.maxX, 3);
+    expect(b.minY).toBeCloseTo(a.minY, 3);
+    expect(b.maxY).toBeCloseTo(a.maxY, 3);
+    // The solid padding keeps its full height; the grid inside is cut down.
+    expect(b.maxZ).toBeCloseTo(a.maxZ, 3);
+    expect(highest(ultra, 0, 0 + 21)).toBeLessThanOrEqual(b.minZ + ULTRA_RIB_HEIGHT_MM + 0.01);
+    // The rounded corner is cut through the padding.
+    expect(verticalSolidSpans(ultra, b.minX + 0.3, b.minY + 0.3)).toEqual([]);
+  }, 120000);
+
   it('keeps the plate solid round a seam connector', () => {
     const piece = plate({
       width: 2,

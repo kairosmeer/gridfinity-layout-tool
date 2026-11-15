@@ -12,11 +12,12 @@
  * height. The top of the plate is cut down by {@link ULTRA_TOP_CUT_MM}, where
  * the shells would otherwise run together into solid joints.
  *
- * Built per cell as one cutter: the cell's pitch square less what stays. Within
- * its pitch square a point is nearest that cell's own pocket, so "beside a
- * pocket" is "beside this pocket", and every full cell of a plate shares one
- * template. Each part a node or a grid line shares is kept by both cells'
- * cutters, so neighbours agree on it.
+ * Built per cell: the cell's pitch square with its pocket, less a cutter that
+ * is the square less what stays. Within its pitch square a point is nearest
+ * that cell's own pocket, so "beside a pocket" is "beside this pocket", and
+ * every full cell of a plate shares one part; the parts are then fused. Each
+ * part a node or a grid line shares is kept by both cells, so neighbours agree
+ * on it.
  */
 
 import {
@@ -33,15 +34,19 @@ import {
   unwrap,
 } from 'brepjs';
 import type { Shape3D, Sketch } from 'brepjs';
+import type { BaseplateEdges, ResolvedBaseplateParams } from '@/shared/types/bin';
+import { edgeCarriesSlot, hasAllEdgeSlots } from '@/shared/types/bin';
 import {
   COPLANAR_MARGIN,
+  forEachCell,
   PLATE_BIG_TAPER,
   PLATE_SMALL_TAPER,
   pocketCornerRadius,
   safeSectionRect,
 } from './generatorTypes';
+import { getPocketTemplate } from './baseplatePockets';
 import { buildCacheKey, quantize } from './cacheKeyUtils';
-import { ultraCellCutterCache } from './baseplateCaches';
+import { ultraCellPartCache } from './baseplateCaches';
 
 /** Shell, rib, rim and brace width: two perimeters of a 0.4–0.45 mm line. */
 export const ULTRA_WALL_MM = 0.9;
@@ -99,37 +104,156 @@ export interface UltraCellCutterInput {
   readonly connectorSides: UltraOuterSides;
 }
 
-/** The cutter for one cell, centered on the origin; the caller owns it. */
-export function getUltraCellCutter(input: UltraCellCutterInput): Shape3D {
-  const { cellW, cellD, totalHeight, profileHeight, outer, connectorSides } = input;
-  const key = buildCacheKey(
-    'ultra-v2',
-    quantize(cellW),
-    quantize(cellD),
-    quantize(totalHeight),
-    quantize(profileHeight),
-    ...[outer, connectorSides].flatMap((s) => [s.left, s.right, s.front, s.back])
+const cellKey = (input: UltraCellCutterInput): string =>
+  buildCacheKey(
+    'ultra-part-v1',
+    quantize(input.cellW),
+    quantize(input.cellD),
+    quantize(input.totalHeight),
+    quantize(input.profileHeight),
+    ...[input.outer, input.connectorSides].flatMap((s) => [s.left, s.right, s.front, s.back])
   );
-  let template = ultraCellCutterCache.get(key);
-  if (template === undefined) {
-    template = buildUltraCellCutter(input);
-    ultraCellCutterCache.set(key, template);
+
+/**
+ * One cell's share of the ultra light grid, centered on the origin: the cell's
+ * pitch square with its pocket, less the cutter. Cached per kind of cell; the
+ * caller owns the clone.
+ */
+function getUltraCellPart(input: UltraCellCutterInput): Shape3D {
+  const key = cellKey(input);
+  let part = ultraCellPartCache.get(key);
+  if (part === undefined) {
+    const { cellW, cellD, totalHeight, profileHeight } = input;
+    const square = box(cellW, cellD, totalHeight, { at: [0, 0, -totalHeight / 2] });
+    const pocket = getPocketTemplate(cellW, cellD, true, 0, profileHeight);
+    const cell = unwrap(cut(square, pocket));
+    square.delete();
+    pocket.delete();
+    const cutter = buildUltraCellCutter(input);
+    part = unwrap(cut(cell, cutter));
+    cell.delete();
+    cutter.delete();
+    ultraCellPartCache.set(key, part);
   }
-  return unwrap(clone(template));
+  return unwrap(clone(part));
 }
 
-/** Position a template cutter on a cell. */
-export function placeUltraCellCutter(
-  input: UltraCellCutterInput,
-  centerX: number,
-  centerY: number
+interface PlacedCell {
+  readonly input: UltraCellCutterInput;
+  readonly x: number;
+  readonly y: number;
+}
+
+/** Copies of `shapes` fused into one solid; consumes them. */
+function fuseConsuming(shapes: Shape3D[]): Shape3D {
+  if (shapes.length === 1) return shapes[0];
+  const fused = unwrap(fuseAll(shapes));
+  for (const shape of shapes) shape.delete();
+  return fused;
+}
+
+/**
+ * One row of the grid, centered on y = 0. A plate's inner rows are alike, so
+ * a row is fused once per kind and copied, and an edit that keeps the width
+ * (depth, padding front and back) reuses every row.
+ */
+function getUltraRow(cells: readonly PlacedCell[]): Shape3D {
+  const key = buildCacheKey(
+    'ultra-row-v1',
+    ...cells.flatMap((cell) => [cellKey(cell.input), quantize(cell.x)])
+  );
+  let row = ultraCellPartCache.get(key);
+  if (row === undefined) {
+    row = fuseConsuming(
+      cells.map((cell) => {
+        const part = getUltraCellPart(cell.input);
+        const placed = translate(part, [cell.x, 0, 0]);
+        part.delete();
+        return placed;
+      })
+    );
+    ultraCellPartCache.set(key, row);
+  }
+  return unwrap(clone(row));
+}
+
+/**
+ * The ultra light grid: every cell's share, fused. Building each kind of cell
+ * once and fusing the copies is several times faster than cutting the same
+ * cells out of a pocketed slab, where every cutter meets the whole plate; and
+ * fusing row by row lets alike rows share one fuse.
+ * The plate spans Z = -totalHeight to 0, the grid centered on the origin.
+ */
+export function buildUltraGrid(
+  params: ResolvedBaseplateParams,
+  totalHeight: number,
+  profileHeight: number
 ): Shape3D {
-  const template = getUltraCellCutter(input);
-  const placed = translate(template, [centerX, centerY, 0]);
-  template.delete();
-  return placed;
+  const pitchX = params.gridUnitMm;
+  const pitchY = params.gridUnitMmY ?? pitchX;
+  const halfW = (params.width * pitchX) / 2;
+  const halfD = (params.depth * pitchY) / 2;
+  const near = (a: number, b: number): boolean => Math.abs(a - b) < 1e-6;
+  const allEdgeSlots = hasAllEdgeSlots(params);
+  const carries = (side: keyof BaseplateEdges, paddingMm: number): boolean =>
+    params.connectorNubs === true &&
+    edgeCarriesSlot(params.edges?.[side] ?? 'exterior', allEdgeSlots, paddingMm);
+  const connectorEdges = {
+    left: carries('left', params.paddingLeft),
+    right: carries('right', params.paddingRight),
+    front: carries('front', params.paddingFront),
+    back: carries('back', params.paddingBack),
+  };
+  const rows = new Map<number, PlacedCell[]>();
+  forEachCell(
+    params.width,
+    params.depth,
+    (cell) => {
+      const cellW = cell.widthUnits * pitchX;
+      const cellD = cell.depthUnits * pitchY;
+      const outer = {
+        left: near(cell.centerX - cellW / 2, -halfW),
+        right: near(cell.centerX + cellW / 2, halfW),
+        front: near(cell.centerY - cellD / 2, -halfD),
+        back: near(cell.centerY + cellD / 2, halfD),
+      };
+      const rowY = quantize(cell.centerY);
+      const row = rows.get(rowY) ?? [];
+      row.push({
+        input: {
+          cellW,
+          cellD,
+          totalHeight,
+          profileHeight,
+          outer,
+          connectorSides: {
+            left: outer.left && connectorEdges.left,
+            right: outer.right && connectorEdges.right,
+            front: outer.front && connectorEdges.front,
+            back: outer.back && connectorEdges.back,
+          },
+        },
+        x: cell.centerX,
+        y: cell.centerY,
+      });
+      rows.set(rowY, row);
+    },
+    {
+      fractionalEdgeX: params.fractionalEdgeX,
+      fractionalEdgeY: params.fractionalEdgeY,
+      gridUnitMm: { x: pitchX, y: pitchY },
+    }
+  );
+  return fuseConsuming(
+    [...rows.values()].map((cells) => {
+      cells.sort((a, b) => a.x - b.x);
+      const row = getUltraRow(cells);
+      const placed = translate(row, [0, cells[0].y, 0]);
+      row.delete();
+      return placed;
+    })
+  );
 }
-
 /**
  * A wall `width` wide standing on `z0`, from (x0, y0) to (x1, y1), `h0` tall
  * at its start and `h1` at its end: ribs, ramps, Y branches and braces.

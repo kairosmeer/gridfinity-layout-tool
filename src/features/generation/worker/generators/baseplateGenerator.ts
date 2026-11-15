@@ -43,10 +43,12 @@ import {
   isOk,
   drawRectangle,
   drawRoundedRectangle,
+  box,
+  cut,
+  measureVolume,
 } from 'brepjs';
 import type { Shape3D, ValidSolid, BooleanPipelineStep } from 'brepjs';
-import type { ResolvedBaseplateParams, BaseplateEdges } from '@/shared/types/bin';
-import { edgeCarriesSlot, hasAllEdgeSlots } from '@/shared/types/bin';
+import type { ResolvedBaseplateParams } from '@/shared/types/bin';
 import type { MeshData, ExportFormat, ConnectorKeyMeshData } from '../../bridge/types';
 import {
   plateProfileHeightMm,
@@ -69,7 +71,7 @@ import { slabPocketsCacheKey } from './baseplateCacheKeys';
 import { sanitizeParams, tagOp, buildSlabProfile, cutAboveZ } from './baseplateSlab';
 import { cutInBatches } from './baseplateBatchOps';
 import { getPocketTemplate } from './baseplatePockets';
-import { placeUltraCellCutter, ULTRA_TOP_CUT_MM } from './baseplateUltraLight';
+import { buildUltraGrid, ULTRA_TOP_CUT_MM } from './baseplateUltraLight';
 import {
   buildMagnetPocketCutters,
   planMagnetPockets,
@@ -419,11 +421,19 @@ export function buildBaseplateSolid(
 
   const pocketMaskHash = pocketDecisions ? hashPocketDecisions(pocketDecisions) : undefined;
 
+  // The ultra light plate replaces the pocketed grid outright (see
+  // `buildUltraGrid`), so it is decided before the slab cache and keys it.
+  const ultra =
+    params.ecoPlate === true &&
+    params.ecoLevel === 'ultra' &&
+    floorDepth === 0 &&
+    ultraLightBlocker(params, { outline: outline !== undefined, stacking: false }) === null;
+
   // Cached separately so that toggling magnets or connectors doesn't redo the
   // pocket boolean cuts. Corner rounding is applied post-cache, but it is NOT
   // independent of the cached slab when screws are on: radii move the per-cell
   // screw-floor decision, which is why they join the key above.
-  const spKey = slabPocketsCacheKey(params, forExport, pocketMaskHash);
+  const spKey = `${slabPocketsCacheKey(params, forExport, pocketMaskHash)}${ultra ? '|ultra' : ''}`;
   const cachedSlab = slabWithPocketsCache.get(spKey);
   let baseplate: Shape3D;
 
@@ -465,6 +475,7 @@ export function buildBaseplateSolid(
     const floorsEveryCell = floorDepth - screwPadMm > 0;
     const pockets: Shape3D[] = [];
     const addPocket = (cell: CellInfo): void => {
+      if (ultra) return;
       const cellW_mm = cell.widthUnits * gridUnitMm;
       const cellD_mm = cell.depthUnits * gridUnitMmY;
       const keepsFloor = floorsEveryCell || cellHoldsScrew(cell);
@@ -500,7 +511,24 @@ export function buildBaseplateSolid(
       }
     }
 
-    if (pockets.length > 0) {
+    if (ultra) {
+      // Only the padding keeps the slab; the grid inside it is built whole.
+      const gridW = width * gridUnitMm;
+      const gridD = depth * gridUnitMmY;
+      const grid = buildUltraGrid(params, totalHeight, profileHeight);
+      if (gridW >= slabW - 1e-6 && gridD >= slabD - 1e-6) {
+        baseplate.delete();
+        baseplate = grid;
+      } else {
+        const hole = box(gridW, gridD, totalHeight + 2, { at: [0, 0, -totalHeight / 2] });
+        const frame = unwrap(cut(baseplate, hole));
+        baseplate.delete();
+        hole.delete();
+        baseplate = unwrap(fuseAll([frame, grid]));
+        frame.delete();
+        grid.delete();
+      }
+    } else if (pockets.length > 0) {
       baseplate = cutInBatches(baseplate, pockets);
     }
 
@@ -553,13 +581,40 @@ export function buildBaseplateSolid(
     ).extrude(-totalHeight);
     const roundedTranslated = translate(roundedSlab, [slabOffsetX, slabOffsetY, 0]);
     roundedSlab.delete();
-    // Intersect: keep only material that's inside both the cached rectangular
-    // slab-with-pockets AND the rounded profile.
-    const oldBaseplate = baseplate;
-    baseplate = tagOp('cornerClipIntersect', () => unwrap(intersect(baseplate, roundedTranslated)));
-    oldBaseplate.delete();
-    roundedTranslated.delete();
-    probe?.('cornerIntersected', baseplate);
+    if (ultra) {
+      // The fused ultra grid has many faces on the plate's sides, all of them
+      // coplanar with the rounded slab's; intersecting the whole plate costs
+      // seconds. Cut away only what lies outside the profile at each corner.
+      const reach = Math.max(cornerRadii.tl, cornerRadii.tr, cornerRadii.bl, cornerRadii.br) + 1;
+      const corners: Shape3D[] = [];
+      for (const sx of [-1, 1]) {
+        for (const sy of [-1, 1]) {
+          const cx = slabOffsetX + (sx * totalW) / 2;
+          const cy = slabOffsetY + (sy * totalD) / 2;
+          const square = box(reach + 1, reach + 1, totalHeight + 2, {
+            at: [cx - (sx * (reach - 1)) / 2, cy - (sy * (reach - 1)) / 2, -totalHeight / 2],
+          });
+          const outside = unwrap(cut(square, roundedTranslated));
+          square.delete();
+          const volume = measureVolume(outside);
+          if (isOk(volume) && volume.value > 1e-6) corners.push(outside);
+          else outside.delete();
+        }
+      }
+      roundedTranslated.delete();
+      baseplate = tagOp('cornerClipIntersect', () => cutInBatches(baseplate, corners));
+      probe?.('cornerIntersected', baseplate);
+    } else {
+      // Intersect: keep only material that's inside both the cached rectangular
+      // slab-with-pockets AND the rounded profile.
+      const oldBaseplate = baseplate;
+      baseplate = tagOp('cornerClipIntersect', () =>
+        unwrap(intersect(baseplate, roundedTranslated))
+      );
+      oldBaseplate.delete();
+      roundedTranslated.delete();
+      probe?.('cornerIntersected', baseplate);
+    }
   }
 
   // Shaped plates: magnets only in fully-inside cells — a magnet pocket in
@@ -627,63 +682,7 @@ export function buildBaseplateSolid(
         )
       : [];
 
-  const ultra =
-    params.ecoPlate === true &&
-    params.ecoLevel === 'ultra' &&
-    floorDepth === 0 &&
-    ultraLightBlocker(params, { outline: outline !== undefined, stacking: false }) === null;
-  if (ultra) {
-    const halfW = (width * gridUnitMm) / 2;
-    const halfD = (depth * gridUnitMmY) / 2;
-    const near = (a: number, b: number): boolean => Math.abs(a - b) < 1e-6;
-    const allEdgeSlots = hasAllEdgeSlots(params);
-    const carries = (side: keyof BaseplateEdges, paddingMm: number): boolean =>
-      params.connectorNubs === true &&
-      edgeCarriesSlot(params.edges?.[side] ?? 'exterior', allEdgeSlots, paddingMm);
-    const connectorEdges = {
-      left: carries('left', paddingLeft),
-      right: carries('right', paddingRight),
-      front: carries('front', paddingFront),
-      back: carries('back', paddingBack),
-    };
-    const cutters: Shape3D[] = [];
-    forEachCell(
-      width,
-      depth,
-      (cell) => {
-        const cellW = cell.widthUnits * gridUnitMm;
-        const cellD = cell.depthUnits * gridUnitMmY;
-        const outer = {
-          left: near(cell.centerX - cellW / 2, -halfW),
-          right: near(cell.centerX + cellW / 2, halfW),
-          front: near(cell.centerY - cellD / 2, -halfD),
-          back: near(cell.centerY + cellD / 2, halfD),
-        };
-        cutters.push(
-          placeUltraCellCutter(
-            {
-              cellW,
-              cellD,
-              totalHeight,
-              profileHeight,
-              outer,
-              connectorSides: {
-                left: outer.left && connectorEdges.left,
-                right: outer.right && connectorEdges.right,
-                front: outer.front && connectorEdges.front,
-                back: outer.back && connectorEdges.back,
-              },
-            },
-            cell.centerX,
-            cell.centerY
-          )
-        );
-      },
-      cellOpts
-    );
-    baseplate = cutInBatches(baseplate, cutters);
-    probe?.('ecoJointsCut', baseplate);
-  } else if (params.ecoPlate === true) {
+  if (params.ecoPlate === true && !ultra) {
     // Keep a bottom band so every corner post remains connected, with no
     // unsupported bridge to print across the relieved straight joints.
     const bridgeHeight = Math.min(1.6, totalHeight / 2);
