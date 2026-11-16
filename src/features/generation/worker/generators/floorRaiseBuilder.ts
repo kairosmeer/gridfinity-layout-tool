@@ -20,7 +20,9 @@ import {
   cutAll,
   cylinder,
   drawPolysides,
+  drawRoundedRectangle,
   fuseAll,
+  intersect,
   translate,
   unwrap,
   withScope,
@@ -33,6 +35,7 @@ import { FeatureTag } from './featureTags';
 import { buildCacheKey, compactKey, quantize, stableSerialize } from './cacheKeyUtils';
 import { resolveFloorRaises } from './floorRaisePlan';
 import { sketch } from './meshUtils';
+import { BOX_CORNER_RADIUS } from './generatorConstants';
 import { planHolders } from '@/shared/utils/holderPockets';
 import type { HolderPlan, HolderPocket } from '@/shared/utils/holderPockets';
 import { interiorFilletRadiusMm } from '@/shared/utils/interiorFillet';
@@ -111,8 +114,22 @@ export function buildFloorRaises(
       }
     }
     if (slabs.length === 0) return null;
-    const fused =
+    const joined =
       slabs.length === 1 ? slabs[0] : scope.register(unwrap(fuseAll(slabs as ValidSolid[])));
+    // The cell boxes are square, the cavity's outer corners round: grown into
+    // the walls, a corner box would poke out through the bin's rounded skin.
+    // Clip to the cavity outline, grown by the same overlap.
+    const radius = Math.max(BOX_CORNER_RADIUS - params.wallThickness, 0) + FUSE_OVERLAP_MM;
+    const outline = scope.register(
+      drawRoundedRectangle(
+        innerW + 2 * FUSE_OVERLAP_MM,
+        innerD + 2 * FUSE_OVERLAP_MM,
+        Math.min(radius, Math.min(innerW, innerD) / 2)
+      )
+        .sketchOnPlane('XY', z0 - 1)
+        .extrude(interiorHeight + 2)
+    );
+    const fused = scope.register(unwrap(intersect(joined as ValidSolid, outline as ValidSolid)));
 
     const holders = planHolders(params, innerW, innerD, raises);
     const tools: Shape3D[] = [];
@@ -123,7 +140,7 @@ export function buildFloorRaises(
       }
     }
     if (tools.length === 0) return unwrap(clone(fused));
-    const cut = unwrap(cutAll(fused as ValidSolid, tools as ValidSolid[]));
+    const cut = unwrap(cutAll(fused, tools as ValidSolid[]));
     return cut === fused ? unwrap(clone(cut)) : cut;
   });
 }
@@ -205,8 +222,9 @@ export const floorRaiseFeature: FeatureBuilder = {
     const { dimensions: dim, params } = ctx;
     return compactKey(
       buildCacheKey(
-        'v2',
+        'v3',
         dim.shellKey,
+        quantize(params.wallThickness),
         quantize(dim.innerW),
         quantize(dim.innerD),
         quantize(dim.floorThickness),

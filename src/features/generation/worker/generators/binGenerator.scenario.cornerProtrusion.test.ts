@@ -146,4 +146,38 @@ describe('corner protrusion regressions', () => {
       ).toBe(0);
     });
   }
+  // A raised compartment floor is built from square cell boxes grown into the
+  // walls; at the bin's rounded corners they must not reach the outer skin.
+  for (const wt of [1.2, 0.8]) {
+    it(`raised compartment floors stay inside the rounded footprint (wall ${wt} mm)`, () => {
+      const m = gen({
+        width: 2,
+        depth: 1,
+        height: 6,
+        wallThickness: wt,
+        compartments: {
+          cols: 2,
+          rows: 1,
+          cells: [0, 1],
+          thickness: 1.2,
+          floorRaises: [15, 8],
+          holders: ['aa', null],
+        },
+      });
+      assertStructurallyValid(m, `raised floors, wall ${wt}`);
+      const outerW = 2 * GRID_SIZE - TOLERANCE;
+      const outerD = GRID_SIZE - TOLERANCE;
+      const v = m.vertices;
+      let worst = -Infinity;
+      for (let i = 0; i < v.length; i += 3) {
+        // Above the feet, where the body's own footprint is the rounded rectangle.
+        if (v[i + 2] < SOCKET_HEIGHT + 0.5) continue;
+        worst = Math.max(
+          worst,
+          outsideRoundedRect(v[i], v[i + 1], outerW, outerD, BOX_CORNER_RADIUS)
+        );
+      }
+      expect(worst, `max protrusion ${worst.toFixed(3)}mm`).toBeLessThan(0.05);
+    });
+  }
 });
