@@ -129,6 +129,7 @@ export const BASE_CONFIG_KEYS = [
   'footLatticeY',
   'lightweight',
   'lightweightMode',
+  'undersideFloorMm',
   'feet',
   'feetPinDiameter',
   'spacer',

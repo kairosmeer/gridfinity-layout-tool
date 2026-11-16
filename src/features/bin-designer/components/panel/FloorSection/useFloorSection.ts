@@ -4,13 +4,19 @@ import { useDesignerStore } from '@/features/bin-designer/store';
 import { useTranslation } from '@/i18n';
 import { trackEvent } from '@/shared/analytics/posthog';
 import type { BinParams } from '@/features/bin-designer/types';
-import { hasDetachableFeet } from '@/features/bin-designer/types/base';
+import { hasDetachableFeet, UNDERSIDE_FLOOR_MAX_MM } from '@/features/bin-designer/types/base';
+import {
+  minUndersideFloorMm,
+  resolveBinFloorMm,
+  undersideFloorAdjustable,
+} from '@/shared/utils/slotMath';
 import { estimatePrint } from '@/features/bin-designer/utils/printEstimates';
 import { finalizeBaseParams } from '../BaseSection/finalizeBaseParams';
 import {
   FLOOR_TYPES,
   applyFloorType,
   applyHollowBelow,
+  applyUndersideFloor,
   deriveFloorType,
   floorTypeStatus,
   hollowBelow,
@@ -82,6 +88,26 @@ export function useFloorSection() {
     commit(applyHollowBelow(params, !hollow));
   };
 
+  const floorMin = Math.min(UNDERSIDE_FLOOR_MAX_MM, minUndersideFloorMm(params.wallThickness));
+  // A wall as thick as the spec floor leaves nothing to take off.
+  const floorAdjustable =
+    hollow && undersideFloorAdjustable(params) && floorMin < UNDERSIDE_FLOOR_MAX_MM;
+  const floorMm = resolveBinFloorMm(params);
+  const floorSaving = useMemo(() => {
+    if (!floorAdjustable || params.base.undersideFloorMm === undefined) return null;
+    const spec = applyUndersideFloor(params, UNDERSIDE_FLOOR_MAX_MM);
+    const grams = Math.round(
+      estimatePrint(spec).gramsFilament - estimatePrint(params).gramsFilament
+    );
+    const deeperMm = Math.round((resolveBinFloorMm(spec) - resolveBinFloorMm(params)) * 100) / 100;
+    return deeperMm > 0 ? { grams, deeperMm } : null;
+  }, [params, floorAdjustable]);
+
+  const setUndersideFloor = (mm: number): void => {
+    const next = applyUndersideFloor(params, mm);
+    if (next !== params) commit(next);
+  };
+
   return {
     t,
     state: {
@@ -92,7 +118,16 @@ export function useFloorSection() {
       grams,
       hollow,
       hollowReason,
+      undersideFloor: {
+        // Shown under the toggle; a hollow bin that cannot take it says why.
+        visible: hollow && params.base.tile !== true,
+        adjustable: floorAdjustable,
+        value: floorMm,
+        min: floorMin,
+        max: UNDERSIDE_FLOOR_MAX_MM,
+        saving: floorSaving,
+      },
     },
-    handlers: { setFloorType, toggleHollowBelow },
+    handlers: { setFloorType, toggleHollowBelow, setUndersideFloor },
   };
 }

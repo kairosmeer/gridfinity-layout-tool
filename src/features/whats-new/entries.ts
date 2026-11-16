@@ -14,6 +14,16 @@ import type { WhatsNewEntry } from './types';
  */
 export const WHATS_NEW_ENTRIES: WhatsNewEntry[] = [
   {
+    id: 'thin-floor-over-hollow-feet',
+    date: '2026-11-16',
+    kind: 'improved',
+    title: { en: 'A thinner floor over hollow feet' },
+    body: {
+      en: 'With Hollow feet from below on, Floor thickness now sets how thick the floor over the feet prints, from the standard 2.25 mm down to 1 mm, never thinner than the wall. The outside stays the same and the bin gets deeper inside. On a 2×2 bin that saves about 8 g.',
+    },
+    action: { kind: 'openTool', tool: 'designer' },
+  },
+  {
     id: 'bento-holders',
     date: '2026-11-16',
     kind: 'new',

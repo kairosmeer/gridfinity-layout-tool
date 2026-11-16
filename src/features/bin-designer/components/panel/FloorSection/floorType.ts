@@ -9,7 +9,11 @@
 import { getFeatureStatus, resolveConstraints } from '@/shared/constraints';
 import type { FeatureStatus } from '@/shared/constraints';
 import type { BinParams } from '@/features/bin-designer/types';
-import { DEFAULT_LIGHTWEIGHT_MODE } from '@/features/bin-designer/types/base';
+import {
+  DEFAULT_LIGHTWEIGHT_MODE,
+  UNDERSIDE_FLOOR_MAX_MM,
+} from '@/features/bin-designer/types/base';
+import { minUndersideFloorMm } from '@/shared/utils/slotMath';
 
 export const FLOOR_TYPES = ['flat', 'followsFeet'] as const;
 export type FloorType = (typeof FLOOR_TYPES)[number];
@@ -33,9 +37,19 @@ function leaveFloorType(params: BinParams): BinParams {
   return resolveConstraints(params, { feature: 'base.lightweight', enabled: false }).params;
 }
 
+const withoutUndersideFloor = (base: BinParams['base']): BinParams['base'] => {
+  const { undersideFloorMm: _floor, ...rest } = base;
+  return rest;
+};
+
+// The floor over hollow feet is read only under the relief, so a mode that
+// leaves it drops the value rather than keep a number nothing builds.
 const withMode = (params: BinParams, mode: 'interior' | 'underside'): BinParams => ({
   ...params,
-  base: { ...params.base, lightweightMode: mode },
+  base: {
+    ...(mode === 'underside' ? params.base : withoutUndersideFloor(params.base)),
+    lightweightMode: mode,
+  },
 });
 
 /**
@@ -81,7 +95,7 @@ export function applyHollowBelow(params: BinParams, on: boolean): BinParams {
       feature: 'base.lightweight',
       enabled: false,
     });
-    const { lightweightMode: _mode, ...base } = off.base;
+    const { lightweightMode: _mode, ...base } = withoutUndersideFloor(off.base);
     return { ...off, base };
   }
   return resolveConstraints(withMode(params, 'underside'), {
@@ -92,4 +106,20 @@ export function applyHollowBelow(params: BinParams, on: boolean): BinParams {
 
 export function hollowBelowStatus(params: BinParams): FeatureStatus {
   return getFeatureStatus(withMode(params, 'underside'), 'base.lightweight');
+}
+
+/**
+ * The floor over hollow feet set to `mm`, clamped to what prints. The spec
+ * floor is the default, so reaching it removes the field.
+ */
+export function applyUndersideFloor(params: BinParams, mm: number): BinParams {
+  if (!Number.isFinite(mm)) return params;
+  const clamped = Math.min(
+    UNDERSIDE_FLOOR_MAX_MM,
+    Math.max(minUndersideFloorMm(params.wallThickness), mm)
+  );
+  const next = clamped >= UNDERSIDE_FLOOR_MAX_MM ? undefined : clamped;
+  if (next === params.base.undersideFloorMm) return params;
+  const base = withoutUndersideFloor(params.base);
+  return { ...params, base: next === undefined ? base : { ...base, undersideFloorMm: next } };
 }

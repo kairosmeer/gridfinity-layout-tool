@@ -5,6 +5,7 @@ import { finalizeBaseParams } from '../BaseSection/finalizeBaseParams';
 import {
   applyFloorType,
   applyHollowBelow,
+  applyUndersideFloor,
   deriveFloorType,
   floorTypeStatus,
   hollowBelow,
@@ -59,6 +60,17 @@ describe('floor type', () => {
     const off = applyHollowBelow(applyHollowBelow(bin(), true), false);
     expect(off.base.lightweight).toBe(false);
     expect('lightweightMode' in off.base).toBe(false);
+  });
+
+  it('thins the floor over hollow feet and drops it with the hollow', () => {
+    const hollowed = applyHollowBelow(bin(), true);
+    expect(applyUndersideFloor(hollowed, 1.4).base.undersideFloorMm).toBe(1.4);
+    // Clamped to the wall, and the spec floor is the default.
+    expect(applyUndersideFloor(hollowed, 0.5).base.undersideFloorMm).toBe(1.2);
+    expect('undersideFloorMm' in applyUndersideFloor(hollowed, 3).base).toBe(false);
+    const thin = applyUndersideFloor(hollowed, 1.4);
+    expect('undersideFloorMm' in applyHollowBelow(thin, false).base).toBe(false);
+    expect('undersideFloorMm' in applyFloorType(thin, 'followsFeet').base).toBe(false);
   });
 
   it('lets leftover cutouts stand after leaving solid mode, and clears them', () => {

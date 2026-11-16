@@ -51,6 +51,35 @@ describe('FloorSection', () => {
     expect(scoop.enabled).toBe(true);
   });
 
+  it('thins the floor over hollow feet and says what it saves', () => {
+    useDesignerStore.setState({
+      params: {
+        ...DEFAULT_BIN_PARAMS,
+        base: { ...DEFAULT_BIN_PARAMS.base, lightweight: true, lightweightMode: 'underside' },
+      },
+    });
+    render(<FloorSection />);
+    const slider = screen.getByRole('slider', { name: en['binDesigner.floor.undersideFloor'] });
+    fireEvent.change(slider, { target: { value: '1.2' } });
+    expect(useDesignerStore.getState().params.base.undersideFloorMm).toBe(1.2);
+    expect(screen.getByText(/1\.05 mm/)).toBeInTheDocument();
+  });
+
+  it('keeps the standard floor on a slotted bin, with the reason', () => {
+    useDesignerStore.setState({
+      params: {
+        ...DEFAULT_BIN_PARAMS,
+        style: 'slotted',
+        base: { ...DEFAULT_BIN_PARAMS.base, lightweight: true, lightweightMode: 'underside' },
+      },
+    });
+    render(<FloorSection />);
+    expect(
+      screen.queryByRole('slider', { name: en['binDesigner.floor.undersideFloor'] })
+    ).toBeNull();
+    expect(screen.getByText(en['binDesigner.floor.undersideFloorUnavailable'])).toBeInTheDocument();
+  });
+
   it('holds the scoop, fillet, drainage and floor text in one place', () => {
     const { container } = render(<FloorSection />);
     for (const target of ['bd-scoop', 'bd-interior-fillet', 'bd-floor-pattern']) {

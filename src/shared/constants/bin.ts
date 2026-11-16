@@ -12,3 +12,4 @@ export {
   DISABLED_WALL_CUTOUT,
 } from '@/features/bin-designer/constants/defaults';
 export { GRIDFINITY, DESIGNER_CONSTRAINTS } from '@/features/bin-designer/constants/gridfinity';
+export { UNDERSIDE_FLOOR_MIN_MM, UNDERSIDE_FLOOR_MAX_MM } from '@/features/bin-designer/types/base';

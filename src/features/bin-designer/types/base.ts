@@ -237,6 +237,16 @@ export const DEFAULT_LIGHTWEIGHT_MODE: LightweightMode = 'interior';
 export const UNDERSIDE_RELIEF_BORDER_MM = 3;
 
 /**
+ * Thinnest floor (mm) over feet hollowed from below: five layers at 0.2 mm,
+ * enough for the bridge over each half-cell to close and print a flat top.
+ * The shell's own floor is one wall thick, so a thicker wall raises this.
+ */
+export const UNDERSIDE_FLOOR_MIN_MM = 1;
+
+/** The spec floor, and the most {@link BaseConfig.undersideFloorMm} can ask for. */
+export const UNDERSIDE_FLOOR_MAX_MM = GRIDFINITY.BASE_HEIGHT - GRIDFINITY.SOCKET_HEIGHT;
+
+/**
  * How a bin's Gridfinity feet are joined to it.
  *
  *  - `integral` — the feet are part of the bin solid and print with it. Every
@@ -559,6 +569,14 @@ export interface BaseConfig {
    * punched through by definition.
    */
   readonly lightweightMode?: LightweightMode;
+  /**
+   * Floor thickness (mm) over feet hollowed from below. Missing = the spec
+   * floor. A thinner floor lowers the inside floor and leaves the outside
+   * untouched, so the bin gets that much deeper. Read only while the underside
+   * relief is built on a standard interior; clamped to
+   * [{@link UNDERSIDE_FLOOR_MIN_MM} or the wall, whichever is thicker, spec].
+   */
+  readonly undersideFloorMm?: number;
   /**
    * Whether the feet print with the bin or as separate parts pressed on after.
    * Missing/undefined = `'integral'`, so every design saved before the setting

@@ -189,6 +189,16 @@
             "enum": "LIGHTWEIGHT_MODES"
           }
         },
+        "undersideFloorMm": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 2.25,
+          "x-constant": {
+            "minimum": "UNDERSIDE_FLOOR_MIN_MM",
+            "maximum": "UNDERSIDE_FLOOR_MAX_MM"
+          },
+          "description": "Floor thickness in mm over feet hollowed from below (lightweight with lightweightMode underside). Thinner than the spec floor lowers the inside floor and makes the bin deeper; the outside is unchanged. Never thinner than the wall. Standard interior only. Omit for the spec floor."
+        },
         "feet": {
           "enum": ["integral", "detachable"],
           "default": "integral",

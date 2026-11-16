@@ -1,5 +1,13 @@
 import { DEFAULT_BIN_PARAMS } from '@/shared/constants/bin';
-import { assertBoundingBoxMatchesParams } from '../__kernel-tests__/meshAssertions';
+import { expect } from 'vitest';
+import {
+  assertBoundingBoxMatchesParams,
+  columnCrossings,
+  meshVolume,
+} from '../__kernel-tests__/meshAssertions';
+import { deriveDimensions } from '../pipeline/context';
+import type { BinParams } from '@/shared/types/bin';
+import type { MeshData } from '@/features/generation/bridge/types';
 import { defineScenario, makeCutout } from '../__kernel-tests__/scenarioTypes';
 import type { ScenarioCase } from '../__kernel-tests__/scenarioTypes';
 
@@ -11,6 +19,12 @@ const lite = { ...DEFAULT_BIN_PARAMS.base, lightweight: true };
  * reach because it keeps the floor the feature needs.
  */
 const underside = { ...lite, lightweightMode: 'underside' as const };
+
+/** Top of the cavity floor a quarter cell in from the bin's centre. */
+function floorTopAt(mesh: MeshData, params: BinParams): number {
+  const dim = deriveDimensions(params, false);
+  return Math.max(...columnCrossings(mesh, dim.innerOffsetX + 10, dim.innerOffsetY + 10));
+}
 
 export const lightweight: ScenarioCase[] = [
   defineScenario('lightweight', '1×1 lite, no lip', {
@@ -243,6 +257,52 @@ export const lightweight: ScenarioCase[] = [
             `underside mesh (${undersideResult.triangleCount} tris) identical to the interior mode — the relief direction was not applied`
           );
         }
+      },
+    },
+  }),
+  // ── A thinner floor over the relief ──────────────────────────────────────
+  // The floor drops from the inside; the feet and the outside stay put, so the
+  // bin still seats and its outer box is unchanged.
+  defineScenario('lightweight', '2×2 underside, 1.2 mm floor', {
+    assert: 'structural',
+    forExport: true,
+    params: { width: 2, depth: 2, base: { ...underside, undersideFloorMm: 1.2 } },
+    customAssert: (result, params) => {
+      assertBoundingBoxMatchesParams(result, params, '2x2-underside-thin');
+      const dim = deriveDimensions(params, false);
+      expect(dim.floorThickness).toBeCloseTo(1.2, 6);
+      expect(floorTopAt(result, params)).toBeCloseTo(dim.baseOffsetZ + 1.2, 1);
+    },
+    compareWith: {
+      params: { width: 2, depth: 2, base: underside },
+      assert: (thin, spec) => {
+        // About 1.05 mm of floor across the cavity comes out.
+        const removed = meshVolume(spec) - meshVolume(thin);
+        expect(removed).toBeGreaterThan(1.05 * 78 * 78 * 0.85);
+        expect(removed).toBeLessThan(1.05 * 84 * 84);
+      },
+    },
+  }),
+  defineScenario('lightweight', '2×2 underside, 1.0 mm floor + scoop + drainage holes', {
+    assert: 'structural',
+    forExport: true,
+    params: {
+      width: 2,
+      depth: 2,
+      wallThickness: 0.8,
+      base: { ...underside, undersideFloorMm: 1 },
+      scoop: { enabled: true, radius: 'auto' },
+      floorPattern: { enabled: true, pattern: 'round', scale: 0.5 },
+    },
+  }),
+  // Removable dividers seat in the floor, so a slotted bin keeps the spec floor.
+  defineScenario('lightweight', '2×2 underside + slotted ignores a thin floor', {
+    assert: 'structural',
+    params: { width: 2, depth: 2, style: 'slotted', base: { ...underside, undersideFloorMm: 1.2 } },
+    compareWith: {
+      params: { width: 2, depth: 2, style: 'slotted', base: underside },
+      assert: (thin, spec) => {
+        expect(meshVolume(thin)).toBeCloseTo(meshVolume(spec), 0);
       },
     },
   }),

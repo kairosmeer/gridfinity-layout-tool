@@ -568,3 +568,37 @@ describe('resolveBinFloorMm on a flat slotted bin', () => {
     );
   });
 });
+
+describe('resolveBinFloorMm over feet hollowed from below', () => {
+  const bin = (base: Partial<BinParams['base']>, patch: Partial<BinParams> = {}): BinParams => ({
+    ...DEFAULT_BIN_PARAMS,
+    ...patch,
+    base: { ...DEFAULT_BIN_PARAMS.base, lightweight: true, lightweightMode: 'underside', ...base },
+  });
+
+  it('takes the thinner floor, never below the wall or the bridge minimum', () => {
+    expect(resolveBinFloorMm(bin({}))).toBeCloseTo(2.25, 9);
+    expect(resolveBinFloorMm(bin({ undersideFloorMm: 1.6 }))).toBeCloseTo(1.6, 9);
+    expect(resolveBinFloorMm(bin({ undersideFloorMm: 1 }))).toBeCloseTo(1.2, 9);
+    expect(resolveBinFloorMm(bin({ undersideFloorMm: 1 }, { wallThickness: 0.8 }))).toBe(1);
+    expect(resolveBinFloorMm(bin({ undersideFloorMm: 0.4 }, { wallThickness: 0.4 }))).toBe(1);
+  });
+
+  it('ignores it without the relief, on a slotted or solid bin and on base only', () => {
+    expect(resolveBinFloorMm(bin({ undersideFloorMm: 1.2, lightweight: false }))).toBeCloseTo(
+      2.25,
+      9
+    );
+    expect(
+      resolveBinFloorMm(bin({ undersideFloorMm: 1.2, lightweightMode: 'interior' }))
+    ).toBeCloseTo(2.25, 9);
+    expect(resolveBinFloorMm(bin({ undersideFloorMm: 1.2 }, { style: 'slotted' }))).toBeCloseTo(
+      2.25,
+      9
+    );
+    expect(
+      resolveBinFloorMm(bin({ undersideFloorMm: 1.2, solid: true }, { style: 'solid' }))
+    ).toBeCloseTo(2.25, 9);
+    expect(resolveBinFloorMm(bin({ undersideFloorMm: 1.2, tile: true }))).toBeCloseTo(2.25, 9);
+  });
+});

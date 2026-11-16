@@ -51,6 +51,8 @@ import {
   LIGHTWEIGHT_MODES,
   LIP_TIP_STYLES,
   BIN_STYLES,
+  UNDERSIDE_FLOOR_MAX_MM,
+  UNDERSIDE_FLOOR_MIN_MM,
 } from '@/features/bin-designer/types/base';
 import { SCOOP_SIDES } from '@/shared/utils/scoopCalculations';
 import { PULL_TAB_WALLS } from '@/shared/utils/pullTabPlan';
@@ -163,6 +165,8 @@ const SOURCES: Record<string, unknown> = {
   LID_SLIDE_PULLS,
   LIGHTWEIGHT_MODES,
   LIP_TIP_STYLES,
+  UNDERSIDE_FLOOR_MAX_MM,
+  UNDERSIDE_FLOOR_MIN_MM,
   SCOOP_SIDES,
   PULL_TAB_WALLS,
   PULL_TAB_CENTER_AXES,

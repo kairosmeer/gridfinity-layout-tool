@@ -54,7 +54,7 @@ export function paramFieldModified(params: BinParams, key: string): boolean {
 }
 
 /** `base` fields edited in the Floor section rather than with the rest of the base. */
-const FLOOR_BASE_FIELDS = ['lightweight', 'lightweightMode'] as const;
+const FLOOR_BASE_FIELDS = ['lightweight', 'lightweightMode', 'undersideFloorMm'] as const;
 
 /**
  * Whether `base` differs from its default, split by where it is edited: the

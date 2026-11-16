@@ -28,6 +28,10 @@ export const VALID_FEET_MODES = ['integral', 'detachable'] as const;
 
 export const VALID_PIN_DIAMETERS = [2.6, 2.7, 2.8, 2.9, 3, 3.1, 3.2] as const;
 
+// Mirror `UNDERSIDE_FLOOR_MIN_MM` and the spec floor in the same file.
+export const UNDERSIDE_FLOOR_MIN_MM = 1;
+export const UNDERSIDE_FLOOR_MAX_MM = 2.25;
+
 const VALID_WALL_CUTOUT_SHAPES = ['u-shape', 'scoop', 'funnel'] as const;
 
 /**
@@ -88,6 +92,16 @@ export function validateBase(base: unknown): string | null {
   // is a different solid entirely, so it must be declared as a real boolean.
   if (base.tile !== undefined && !isBoolean(base.tile)) {
     return 'base.tile must be boolean';
+  }
+  // Floor over hollow feet: thinner than the spec floor, never below the
+  // bridge minimum. Mirrors `UNDERSIDE_FLOOR_MIN_MM` and the spec floor
+  // (`BASE_HEIGHT - SOCKET_HEIGHT`) in src/features/bin-designer/types/base.ts.
+  if (
+    base.undersideFloorMm !== undefined &&
+    (!isNumber(base.undersideFloorMm) ||
+      !inRange(base.undersideFloorMm, UNDERSIDE_FLOOR_MIN_MM, UNDERSIDE_FLOOR_MAX_MM))
+  ) {
+    return `base.undersideFloorMm must be ${UNDERSIDE_FLOOR_MIN_MM}-${UNDERSIDE_FLOOR_MAX_MM}`;
   }
   // Foot lattice per axis: a closed set, so an unknown value is
   // rejected rather than silently falling back to a different set of feet than

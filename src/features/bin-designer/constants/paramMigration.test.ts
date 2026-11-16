@@ -836,6 +836,15 @@ describe('migrateParams', () => {
     expect(result.base.feetPinDiameter).toBe(DEFAULT_DETACHABLE_PIN_DIAMETER_MM);
   });
 
+  it('clamps a stored floor over hollow feet and drops one at the spec floor', () => {
+    const floor = (mm: number) =>
+      migrateParams({ base: { ...DEFAULT_BIN_PARAMS.base, undersideFloorMm: mm } }).base;
+    expect(floor(1.4).undersideFloorMm).toBe(1.4);
+    expect(floor(0.2).undersideFloorMm).toBe(1);
+    expect('undersideFloorMm' in floor(2.25)).toBe(false);
+    expect('undersideFloorMm' in floor(Number.NaN)).toBe(false);
+  });
+
   it('keeps a valid pin diameter and an absent one alone', () => {
     const kept = migrateParams({
       base: { ...DEFAULT_BIN_PARAMS.base, feetPinDiameter: 2.9 },

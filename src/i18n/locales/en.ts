@@ -4198,6 +4198,12 @@ const en: Record<string, string> = {
   'binDesigner.floor.hollowBelow': 'Hollow feet from below',
   'binDesigner.floor.hollowBelowDetail':
     'Hollows each foot from underneath and keeps the floor whole, so nothing falls into it. Saves filament without giving up scoops or drainage holes.',
+  'binDesigner.floor.undersideFloor': 'Floor thickness',
+  'binDesigner.floor.undersideFloorDetail':
+    'How thick the floor over the hollow feet prints. The standard floor is 2.25 mm. A thinner floor makes the bin deeper inside and leaves the outside the same. Below about 1 mm the floor over each foot can sag.',
+  'binDesigner.floor.undersideFloorSaves': 'Saves {grams} g; the inside is {depth} mm deeper.',
+  'binDesigner.floor.undersideFloorUnavailable':
+    'Removable dividers, solid bins and thick walls keep the standard floor thickness.',
   'binDesigner.floor.gramsSaved': '−{grams} g',
   'binDesigner.floor.noFloor': 'This body has no inside floor.',
   'binDesigner.walls.text.heading': 'Wall text',

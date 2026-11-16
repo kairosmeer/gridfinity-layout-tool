@@ -14,6 +14,7 @@ import type {
   SlotConfig,
 } from '@/shared/types/bin';
 import { binFloorMm, hasDetachableFeet, isUndersideRelief } from '@/shared/types/bin';
+import { UNDERSIDE_FLOOR_MIN_MM } from '@/shared/constants/bin';
 import { resolveDetachableFeet } from '@/shared/utils/detachableFeetPlan';
 import type { DetachableFeetParams } from '@/shared/utils/detachableFeetPlan';
 import { isPartialMask } from '@/shared/utils/cellMask';
@@ -217,7 +218,32 @@ export function resolveBinFloorMm(
   params: Pick<BinParams, 'wallThickness' | 'style' | 'dividerPieces' | 'base' | 'slotConfig'> &
     DetachableFeetParams
 ): number {
-  return binFloorMm(params.wallThickness, params.base.style, dividerGrooveDepth(params));
+  const spec = binFloorMm(params.wallThickness, params.base.style, dividerGrooveDepth(params));
+  const thin = params.base.undersideFloorMm;
+  if (thin === undefined || !Number.isFinite(thin) || !undersideFloorAdjustable(params)) {
+    return spec;
+  }
+  return Math.min(spec, Math.max(thin, minUndersideFloorMm(params.wallThickness)));
+}
+
+/** Thinnest floor over hollow feet: the bridge minimum, or the shell's own wall. */
+export function minUndersideFloorMm(wallThickness: number): number {
+  return Math.max(UNDERSIDE_FLOOR_MIN_MM, wallThickness);
+}
+
+/**
+ * Whether {@link BinParams.base.undersideFloorMm} is read: feet hollowed from
+ * below under a plain hollow interior. Removable dividers seat in the floor,
+ * a solid or base-only body has no cavity floor to lower, and detachable feet
+ * leave no foot to hollow.
+ */
+export function undersideFloorAdjustable(
+  params: Pick<BinParams, 'style' | 'base'> & DetachableFeetParams
+): boolean {
+  const { base } = params;
+  if (!isUndersideRelief(base) || params.style !== 'standard') return false;
+  if (base.solid || base.tile === true || base.style === 'weighted') return false;
+  return !(hasDetachableFeet(base) && resolveDetachableFeet(params).placements.length > 0);
 }
 
 /**

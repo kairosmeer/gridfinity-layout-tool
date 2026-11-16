@@ -8,13 +8,15 @@
  */
 
 import type { ReactNode } from 'react';
+import { SliderInput } from '@/design-system';
+import { LabelInfo } from '@/shared/components/InfoDot';
 import { isPartialMask } from '@/shared/utils/cellMask';
 import { useDesignerStore } from '@/features/bin-designer/store';
 import { jumpToDesignerControl } from '@/features/bin-designer/settingsManifest';
 import { FeatureGate } from '../FeatureGate';
 import { FeatureToggle } from '../FeatureToggle';
 import { FeatureTip } from '../../FeatureTip';
-import { DependencyHint, ModeTiles, OptionNotes, SubHeader } from '../shared';
+import { DependencyHint, Hint, ModeTiles, OptionNotes, SubHeader } from '../shared';
 import { UnavailableFamily } from '../BaseSection/BaseSection';
 import { ScoopSection } from '../ScoopSection';
 import { InteriorFilletSection } from '../InteriorFilletSection';
@@ -47,6 +49,35 @@ export function FloorSection() {
       disabledReason={state.hollowReason}
       info={t('binDesigner.floor.hollowBelowDetail')}
     />
+  );
+
+  const floor = state.undersideFloor;
+  const floorLabel = t('binDesigner.floor.undersideFloor');
+  const undersideFloor = !floor.visible ? null : floor.adjustable ? (
+    <div className="space-y-1">
+      <SliderInput
+        label={floorLabel}
+        value={floor.value}
+        onChange={handlers.setUndersideFloor}
+        min={floor.min}
+        max={floor.max}
+        step={0.05}
+        unit="mm"
+        labelAddon={
+          <LabelInfo label={floorLabel}>{t('binDesigner.floor.undersideFloorDetail')}</LabelInfo>
+        }
+      />
+      {floor.saving && (
+        <Hint>
+          {t('binDesigner.floor.undersideFloorSaves', {
+            grams: floor.saving.grams,
+            depth: floor.saving.deeperMm,
+          })}
+        </Hint>
+      )}
+    </div>
+  ) : (
+    <Hint>{t('binDesigner.floor.undersideFloorUnavailable')}</Hint>
   );
 
   if (state.noFloor) {
@@ -103,7 +134,12 @@ export function FloorSection() {
               ) : undefined,
           }))}
         >
-          {state.floorType !== 'followsFeet' && hollowToggle}
+          {state.floorType !== 'followsFeet' && (
+            <>
+              {hollowToggle}
+              {undersideFloor}
+            </>
+          )}
         </ModeTiles>
       </div>
 

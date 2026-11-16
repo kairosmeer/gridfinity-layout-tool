@@ -33,7 +33,12 @@ import type { FeatureColorConfig } from '../types/featureColors';
 import type { SlideConfig, SlideRailMount } from '../types/slide';
 import { DEFAULT_SLIDE_CONFIG, SLIDE_RAIL_MOUNTS } from '../types/slide';
 import type { BaseConfig } from '../types/base';
-import { DEFAULT_DETACHABLE_PIN_DIAMETER_MM, DETACHABLE_PIN_DIAMETERS_MM } from '../types/base';
+import {
+  DEFAULT_DETACHABLE_PIN_DIAMETER_MM,
+  DETACHABLE_PIN_DIAMETERS_MM,
+  UNDERSIDE_FLOOR_MAX_MM,
+  UNDERSIDE_FLOOR_MIN_MM,
+} from '../types/base';
 import {
   DEFAULT_LID_CONFIG,
   LID_EXTRA_HEIGHT_MIN_MM,
@@ -230,6 +235,16 @@ export function migrateParams(params: MigrateParamsInput): BinParams {
     !(DETACHABLE_PIN_DIAMETERS_MM as readonly number[]).includes(mergedBase.feetPinDiameter)
   ) {
     mergedBase.feetPinDiameter = DEFAULT_DETACHABLE_PIN_DIAMETER_MM;
+  }
+  // A floor over hollow feet outside [min, spec] would 400 on re-publish; one
+  // at or above the spec floor is the default, so it goes.
+  if (mergedBase.undersideFloorMm !== undefined) {
+    const mm = mergedBase.undersideFloorMm;
+    if (!Number.isFinite(mm) || mm >= UNDERSIDE_FLOOR_MAX_MM) {
+      delete (mergedBase as { undersideFloorMm?: number }).undersideFloorMm;
+    } else if (mm < UNDERSIDE_FLOOR_MIN_MM) {
+      mergedBase.undersideFloorMm = UNDERSIDE_FLOOR_MIN_MM;
+    }
   }
   const baseConfig: BaseConfig =
     mergedBase.style === 'lid'

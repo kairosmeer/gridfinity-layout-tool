@@ -21,6 +21,14 @@ import { meshRefHashes } from './designerCutoutValidation.js';
 import { MAX_MESH_UPLOAD_BYTES } from './meshFile.js';
 import { LABEL_PLATE_ICONS } from '../../src/shared/constants/labelPlates.js';
 import { HOLDER_ITEM_IDS } from '../../src/shared/constants/holderItems.js';
+import {
+  UNDERSIDE_FLOOR_MAX_MM,
+  UNDERSIDE_FLOOR_MIN_MM,
+} from '../../src/features/bin-designer/types/base.js';
+import {
+  UNDERSIDE_FLOOR_MAX_MM as SERVER_FLOOR_MAX,
+  UNDERSIDE_FLOOR_MIN_MM as SERVER_FLOOR_MIN,
+} from './designerBaseValidation.js';
 
 import { DEFAULT_PULL_TAB } from '../../src/shared/utils/pullTabPlan.js';
 
@@ -681,6 +689,25 @@ describe('validateDesignerShare', () => {
       (payload.params.base as Record<string, unknown>).lightweightMode = 'sideways';
       const result = validateDesignerShare(payload, JSON.stringify(payload).length);
       expect(result.valid).toBe(false);
+    });
+
+    it('bounds the floor over hollow feet to the bridge minimum and the spec floor', () => {
+      const valid = (mm: unknown): boolean => {
+        const payload = validPayload();
+        (payload.params.base as Record<string, unknown>).undersideFloorMm = mm;
+        return validateDesignerShare(payload, JSON.stringify(payload).length).valid;
+      };
+      expect(valid(undefined)).toBe(true);
+      expect(valid(1.2)).toBe(true);
+      expect(valid(UNDERSIDE_FLOOR_MIN_MM)).toBe(true);
+      expect(valid(0.6)).toBe(false);
+      expect(valid(3)).toBe(false);
+      expect(valid('thin')).toBe(false);
+    });
+
+    it('mirrors the client floor bounds', () => {
+      expect(SERVER_FLOOR_MIN).toBe(UNDERSIDE_FLOOR_MIN_MM);
+      expect(SERVER_FLOOR_MAX).toBeCloseTo(UNDERSIDE_FLOOR_MAX_MM, 9);
     });
 
     it('accepts both feet modes, and absent', () => {

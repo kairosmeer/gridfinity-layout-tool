@@ -122,6 +122,8 @@ Small or flat items can fall into the dips of <Ui k="binDesigner.floor.type.foll
 
 Turn on <Ui k="binDesigner.floor.hollowBelow" /> under a flat floor to save filament and keep a flat floor inside the bin. If you're not sure which way to save filament, this is the safer pick. Each foot becomes a ring with a 3 mm wall, and the floor of the bin closes it at the top. Finger scoops and drainage holes still work.
 
+The floor over the hollow feet is 2.25 mm thick, the standard Gridfinity floor. To save more, lower <Ui k="binDesigner.floor.undersideFloor" /> below the toggle, down to 1 mm. The outside of the bin stays the same and the inside gets deeper. The panel shows the grams saved. The floor is never thinner than the wall, so a 1.2 mm wall stops at 1.2 mm. Removable dividers and solid bins keep the standard floor.
+
 A spacer has no inside floor. A <Ui k="binDesigner.tile" /> bin can still hollow its feet from below.
 
 <Screenshot id="designer-base-lightweight" alt="In the Floor section, Follows feet is picked, then Flat, then Hollow feet from below is turned on. The bin then shows from below, with each foot hollow." spec="Bin designer, bin 2 x 2 x 3. Close-up of the Floor section in the Interior group: pick Follows feet, pick Flat, turn on Hollow feet from below. Cut to the bin from below." />
