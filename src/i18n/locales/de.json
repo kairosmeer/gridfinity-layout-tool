@@ -1788,6 +1788,8 @@
   "binDesigner.lid.slide.pull.tabHint": "Eine Nase, die in der Deckelebene über die Boxvorderseite hinausragt. Auch mit Handschuhen gut zu greifen.",
   "binDesigner.lid.slide.pull.catch": "Fingergriff",
   "binDesigner.lid.slide.pull.catchHint": "Ein beweglicher Abschnitt des Stapelrands an der Außenkante des Deckels. Geschlossen vervollständigt er den Rand, geöffnet bietet er einen breiten Griff.",
+  "binDesigner.lid.slide.pull.groove": "Fingerrille",
+  "binDesigner.lid.slide.pull.grooveHint": "Zwei flache Rillen quer über den Deckel, etwa 2 cm von seiner Außenkante entfernt, um ihn mit dem Fingernagel auf- und zuzuschieben. Die Deckelkontur bleibt unverändert.",
   "binDesigner.lid.slide.sagThicknessReadout": "Eine Platte von {thickness} mm würde diese Spannweite tragen",
   "binDesigner.lid.slide.spanReadout": "Freie Spannweite: {span} mm",
   "binDesigner.lid.stackGridHint": "Ein vollständiges Rastermuster über die ganze Oberseite. Darauf gestapelte Boxen rasten in einzelne Zellen ein.",
@@ -2224,7 +2226,6 @@
   "binDesigner.splitConnectors": "Ausrichtungsverbinder",
   "binDesigner.splitConnectorsUnavailableLightweight": "Bei Leichtbau-Böden nicht verfügbar – der ausgehöhlte Boden bietet kein Material für die Schäftung.",
   "binDesigner.splitExploded": "Explodiert",
-  "binDesigner.splitExport.colorLossWarning": "Geteilter Export verwirft Farbdaten — jedes Teil wird einfarbig gedruckt. Deaktiviere das Teilen, um deine Farbzonen zu behalten.",
   "binDesigner.splitExport.downloadSplit": "Geteiltes {format} herunterladen (ZIP)",
   "binDesigner.splitExport.enableSplit": "In Teile aufteilen",
   "binDesigner.splitExport.exceedsPrintBed": "Dieses Bin überschreitet Ihr Druckbett ({size}mm). Es wird in {count} Teile aufgeteilt.",
@@ -5587,5 +5588,7 @@
   "exportDestination.fellBack": "{file} konnte nicht am gewählten Ort gespeichert werden, daher wurde die Datei heruntergeladen.",
   "exportDestination.failed": "{file} konnte nicht gespeichert werden. Versuche den Export erneut.",
   "exportDestination.fail.timeout": "Upload an {host} hat zu lange gedauert. Die Datei ist vielleicht trotzdem beim Empfänger angekommen.",
-  "exportDestination.fail.redirect": "Upload an {host} wurde umgeleitet. Trage in den Einstellungen die endgültige Adresse ein."
+  "exportDestination.fail.redirect": "Upload an {host} wurde umgeleitet. Trage in den Einstellungen die endgültige Adresse ein.",
+  "baseplate.mountMagnets.crushRibs": "Klemmrippen",
+  "baseplate.mountMagnets.crushRibsDetail": "Acht Rippen in jeder Magnetöffnung auf der Unterseite halten einen eingepressten Magneten ohne Klebstoff."
 }

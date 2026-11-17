@@ -5,13 +5,14 @@
  * intersection, with optional stacking lip separation and split connectors.
  */
 
-import { box, unwrap, fuse, cut, translate, intersect, getBounds } from 'brepjs';
+import { box, unwrap, fuse, cut, translate, intersect, getBounds, setShapeOrigin } from 'brepjs';
 import type { Shape3D, ValidSolid } from 'brepjs';
 import type { BinParams, SplitConnectorConfig } from '@/shared/types/bin';
 import { resolveLipTip } from '@/shared/types/bin';
 import type { ExportFormat } from '../../bridge/types';
 
 import { CLEARANCE } from './generatorTypes';
+import { FeatureTag } from './featureTags';
 import { LIP_HEIGHT, LIP_TAPER_WIDTH } from './generatorConstants';
 import { pitchFromParams } from './gridPitch';
 import { buildTopShape } from './boxBuilder';
@@ -188,14 +189,15 @@ function splitSolidIntoPieces(
   // the exact threshold it had.
   const expectedBodyZ = Math.min(totalHeight + splitDims.collarHeight, wallTopZ);
 
-  // Wall cutouts eat down from the wall top (up to the interior height), so a
-  // split piece whose only surviving perimeter wall carries a deep cutout is
-  // legitimately shorter than the full body — the boolean did nothing wrong.
-  // Drop the loss threshold by the deepest a wall cutout can reach so those
-  // pieces export instead of tripping the coplanar-loss guard, which was built
-  // for an OCCT wall-drop that current kernels no longer produce.
+  // Wall cutouts eat down from the rim through the collar and up to the
+  // interior height, so a split piece whose only surviving perimeter wall
+  // carries a deep cutout is legitimately shorter than the full body — the
+  // boolean did nothing wrong. Drop the loss threshold by the deepest a wall
+  // cutout can reach so those pieces export instead of tripping the
+  // coplanar-loss guard, which was built for an OCCT wall-drop that current
+  // kernels no longer produce.
   const maxWallCutoutDropMm = params.walls.enabled
-    ? Math.max(0, wallHeight - params.wallThickness)
+    ? Math.max(0, wallHeight - params.wallThickness) + splitDims.collarHeight
     : 0;
   const lossFloorZ = Math.max(0, expectedBodyZ - maxWallCutoutDropMm);
 
@@ -258,6 +260,9 @@ function splitSolidIntoPieces(
     // rather than a shared edge (which comes out as degenerate faces).
     lipSolid = translate(lipBase, [0, 0, wallTopZ]);
     lipBase.delete();
+    // The whole bin's lip carries this tag from `shellStage`. Stamped before
+    // the cuts below so their faces keep the cutters' own tags, as there.
+    setShapeOrigin(lipSolid, FeatureTag.LIP);
 
     // For slotted bins, cut divider notches through the lip so removable
     // dividers can slide in from the top. The wall slot cuts already live in
@@ -370,6 +375,7 @@ function splitSolidIntoPieces(
         innerW,
         innerD,
         wallHeight,
+        splitDims.collarHeight,
         true,
         interiorDividerTopZ(params, splitDims)
       );
@@ -632,7 +638,7 @@ export async function exportSplitBin(
   try {
     for (; nextIdx < splitPieces.length; nextIdx++) {
       const piece = splitPieces[nextIdx];
-      const data = await exportPiece(
+      const written = await exportPiece(
         piece,
         params,
         outerW,
@@ -641,7 +647,7 @@ export async function exportSplitBin(
         angularTolerance,
         format
       );
-      pieces.push({ data, label: piece.label, col: piece.col, row: piece.row });
+      pieces.push({ ...written, label: piece.label, col: piece.col, row: piece.row });
     }
   } finally {
     // exportPiece disposes the solid it processed (including on throw, via its
@@ -747,7 +753,7 @@ export async function exportSplitBinRange(
   try {
     for (; nextIdx < splitPieces.length; nextIdx++) {
       const piece = splitPieces[nextIdx];
-      const data = await exportPiece(
+      const written = await exportPiece(
         piece,
         params,
         outerW,
@@ -756,7 +762,7 @@ export async function exportSplitBinRange(
         angularTolerance,
         format
       );
-      pieces.push({ data, label: piece.label, col: piece.col, row: piece.row });
+      pieces.push({ ...written, label: piece.label, col: piece.col, row: piece.row });
     }
   } finally {
     // exportPiece disposes the solid it processed (including on throw).

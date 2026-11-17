@@ -1788,6 +1788,8 @@
   "binDesigner.lid.slide.pull.tabHint": "En knast som stikker ut forbi boksens forside, i lokkets eget plan. Lettest å gripe med hansker på.",
   "binDesigner.lid.slide.pull.catch": "Fingergrep",
   "binDesigner.lid.slide.pull.catchHint": "En bevegelig del av stablekanten på lokkets ytterkant. Lukket fullfører den kanten, åpen gir den et bredt grep.",
+  "binDesigner.lid.slide.pull.groove": "Neglspor",
+  "binDesigner.lid.slide.pull.grooveHint": "To grunne spor tvers over lokket, omtrent 2 cm inn fra ytterkanten, så du kan skyve det opp og igjen med neglen. Lokkets omriss forblir uendret.",
   "binDesigner.lid.slide.sagThicknessReadout": "En plate på {thickness} mm ville båret dette spennet",
   "binDesigner.lid.slide.spanReadout": "Fri spennvidde: {span} mm",
   "binDesigner.lid.stackGridHint": "Et fullt rutenett av sokler over hele oversiden. Binger som stables oppå, låses til enkeltceller.",
@@ -2224,7 +2226,6 @@
   "binDesigner.splitConnectors": "Justeringskoblinger",
   "binDesigner.splitConnectorsUnavailableLightweight": "Ikke tilgjengelig på lette baser – det uthulte gulvet har ikke materiale til skjøten.",
   "binDesigner.splitExploded": "Eksplodert",
-  "binDesigner.splitExport.colorLossWarning": "Delt eksport mister fargedata — hver del skrives ut i én farge. Slå av deling for å beholde fargesonene.",
   "binDesigner.splitExport.downloadSplit": "Last ned delt {format} (ZIP)",
   "binDesigner.splitExport.enableSplit": "Del opp i deler",
   "binDesigner.splitExport.exceedsPrintBed": "Denne binnen overskrider printplaten din ({size}mm). Den vil bli delt i {count} deler.",
@@ -5587,5 +5588,7 @@
   "exportDestination.fellBack": "Kunne ikke lagre {file} der du valgte, så filen ble lastet ned i stedet.",
   "exportDestination.failed": "Kunne ikke lagre {file}. Prøv eksporten på nytt.",
   "exportDestination.fail.timeout": "Opplasting til {host} tok for lang tid. Filen kan likevel ha kommet fram.",
-  "exportDestination.fail.redirect": "Opplasting til {host} ble videresendt. Bruk den endelige adressen i Innstillinger."
+  "exportDestination.fail.redirect": "Opplasting til {host} ble videresendt. Bruk den endelige adressen i Innstillinger.",
+  "baseplate.mountMagnets.crushRibs": "Klemribber",
+  "baseplate.mountMagnets.crushRibsDetail": "Åtte ribber i hvert magnethull på undersiden holder en innpresset magnet uten lim."
 }

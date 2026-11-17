@@ -18,10 +18,18 @@
  * margin opens the rail into cells like the integral margin.
  */
 
-import { mesh, meshEdges, translate, getKernelCapabilities, exportSTEP, unwrap } from 'brepjs';
-import type { Shape3D } from 'brepjs';
+import {
+  mesh,
+  meshEdges,
+  translate,
+  fuseAll,
+  getKernelCapabilities,
+  exportSTEP,
+  unwrap,
+} from 'brepjs';
+import type { Shape3D, ValidSolid } from 'brepjs';
 import type { ResolvedBaseplateParams, MarginPiece } from '@/shared/types/bin';
-import { isMarginSeamStyle } from '@/shared/types/bin';
+import { isMarginSeamStyle, marginSeamInverted } from '@/shared/types/bin';
 import type { MeshData, ExportFormat } from '../../bridge/types';
 import {
   plateProfileHeightMm,
@@ -33,7 +41,7 @@ import {
 } from './generatorTypes';
 import type { SideMargins } from './generatorTypes';
 import { buildSlabProfile, cutAboveZ } from './baseplateSlab';
-import { buildMarginSeamGroove } from './baseplateConnectors';
+import { buildMarginSeamGroove, buildMarginSeamTongue } from './baseplateConnectors';
 import { computeCellBoundariesMm, computeCellCentersMm } from './cellDecomposition';
 import { cutInBatches } from './baseplateBatchOps';
 import { getPocketTemplate } from './baseplatePockets';
@@ -173,7 +181,8 @@ function buildMarginSolid(params: ResolvedBaseplateParams, margin: MarginPiece):
   // Opt-in connector: carve seam grooves into the rail's inner face to receive
   // the body's tongues — or, under `dovetailKey`, one lobe of the seated key that
   // also engages the body's own groove (splitPlanner marks the matching body edge
-  // `marginSeam`). Positions are recomputed from the same `cellUnits`/
+  // `marginSeam`). An inverted seam grows the tongues here instead, into grooves
+  // the body cuts. Positions are recomputed from the same `cellUnits`/
   // `fractionalEdge` the body used, then shifted by `centerOffsetMm` onto the
   // corner-extended rail.
   if (grooved) {
@@ -201,7 +210,15 @@ function buildMarginSolid(params: ResolvedBaseplateParams, margin: MarginPiece):
     const centerOffset = seam?.centerOffsetMm ?? 0;
     const fallback = keyed ? [] : [0];
     const positions = (anchors.length > 0 ? anchors : fallback).map((b) => b + centerOffset);
-    if (positions.length > 0) {
+    if (positions.length > 0 && marginSeamInverted(params)) {
+      const tongues = positions.map((pos) =>
+        buildMarginSeamTongue(params, margin, railW, railD, totalHeight, pos)
+      );
+      const fused = unwrap(fuseAll([rail, ...tongues] as ValidSolid[]));
+      rail.delete();
+      for (const t of tongues) t.delete();
+      rail = fused;
+    } else if (positions.length > 0) {
       const grooves = positions.map((pos) =>
         buildMarginSeamGroove(
           margin.side,

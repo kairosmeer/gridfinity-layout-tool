@@ -1,5 +1,44 @@
 # Changelog
 
+## [4.544.2](https://github.com/andymai/gridfinity-layout-tool/compare/gridfinity-layout-tool-v4.544.1...gridfinity-layout-tool-v4.544.2) (2026-11-17)
+
+
+### Bug Fixes
+
+* **bin-designer:** replace values in post-write syncs instead of writing into them ([#5075](https://github.com/andymai/gridfinity-layout-tool/issues/5075)) ([8a7c210](https://github.com/andymai/gridfinity-layout-tool/commit/8a7c210a3efd9c1af83836feb5a901a753a17fef))
+* **three-preview:** serve 3D label fonts from our own copy ([#5076](https://github.com/andymai/gridfinity-layout-tool/issues/5076)) ([91d598b](https://github.com/andymai/gridfinity-layout-tool/commit/91d598ba5f0e2626ae808435b71e6ba64e410235))
+
+## [4.544.1](https://github.com/andymai/gridfinity-layout-tool/compare/gridfinity-layout-tool-v4.544.0...gridfinity-layout-tool-v4.544.1) (2026-11-16)
+
+
+### Bug Fixes
+
+* **baseplate:** clear the old rectangle when a plate gets an outline ([#5060](https://github.com/andymai/gridfinity-layout-tool/issues/5060)) ([e3967b7](https://github.com/andymai/gridfinity-layout-tool/commit/e3967b7c3d4503e579d50c81c1c84a191d343dfb))
+
+## [4.544.0](https://github.com/andymai/gridfinity-layout-tool/compare/gridfinity-layout-tool-v4.543.1...gridfinity-layout-tool-v4.544.0) (2026-11-16)
+
+
+### Features
+
+* **baseplate:** add crush ribs to underside mounting magnets ([#5054](https://github.com/andymai/gridfinity-layout-tool/issues/5054)) ([28d89ee](https://github.com/andymai/gridfinity-layout-tool/commit/28d89eeb50326d56df5a746476597f9a3691e380))
+* **bin-designer:** add finger groove pull to sliding lids ([#5044](https://github.com/andymai/gridfinity-layout-tool/issues/5044)) ([cd9faab](https://github.com/andymai/gridfinity-layout-tool/commit/cd9faabd119c27a3e8f169e90bfb21a339582236))
+
+
+### Bug Fixes
+
+* **bin-designer:** backfill the cutout fields the design schema leaves optional ([#5057](https://github.com/andymai/gridfinity-layout-tool/issues/5057)) ([04ff6aa](https://github.com/andymai/gridfinity-layout-tool/commit/04ff6aa8c1ed22b8dbcf8f002af6bd8a7ef3a3d1))
+* **bin-designer:** cut wall cutouts up through the extra wall height ([#5051](https://github.com/andymai/gridfinity-layout-tool/issues/5051)) ([e1e9f6f](https://github.com/andymai/gridfinity-layout-tool/commit/e1e9f6f875b281deaf2244d0c8513aba5a401c90))
+* **bin-designer:** keep a finger scoop smooth beside wall cutouts that miss it ([#5056](https://github.com/andymai/gridfinity-layout-tool/issues/5056)) ([f78efa2](https://github.com/andymai/gridfinity-layout-tool/commit/f78efa21f58132ccda8d7e4538996e2a487f2eab))
+* **layout:** migrate imported baseplate params into a copy ([#5050](https://github.com/andymai/gridfinity-layout-tool/issues/5050)) ([9d227ab](https://github.com/andymai/gridfinity-layout-tool/commit/9d227ab514884e1dcae4ba282cb4192789dd9abc))
+
+## [4.543.1](https://github.com/andymai/gridfinity-layout-tool/compare/gridfinity-layout-tool-v4.543.0...gridfinity-layout-tool-v4.543.1) (2026-11-14)
+
+
+### Bug Fixes
+
+* **baseplate:** invert the connectors on detached margin seams ([#5039](https://github.com/andymai/gridfinity-layout-tool/issues/5039)) ([3eeb7c5](https://github.com/andymai/gridfinity-layout-tool/commit/3eeb7c598f7213b2c308b0f2cfa7cd405ceb40f0))
+* **bin-designer:** keep multi-color on split bins in the preview and 3MF export ([#5040](https://github.com/andymai/gridfinity-layout-tool/issues/5040)) ([dd04362](https://github.com/andymai/gridfinity-layout-tool/commit/dd04362acac1a77ede45c40d545c85d47828514b))
+
 ## [4.543.0](https://github.com/andymai/gridfinity-layout-tool/compare/gridfinity-layout-tool-v4.542.0...gridfinity-layout-tool-v4.543.0) (2026-11-13)
 
 

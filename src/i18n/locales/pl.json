@@ -1850,6 +1850,8 @@
   "binDesigner.lid.slide.pull.tabHint": "Występ wystający poza czoło pojemnika, w płaszczyźnie samej pokrywy. Najłatwiejszy do chwycenia w rękawicach.",
   "binDesigner.lid.slide.pull.catch": "Zaczep na palec",
   "binDesigner.lid.slide.pull.catchHint": "Ruchomy odcinek krawędzi do układania w stos na zewnętrznej krawędzi pokrywy. Zamknięty uzupełnia krawędź, otwarty daje szeroki uchwyt.",
+  "binDesigner.lid.slide.pull.groove": "Rowek na paznokieć",
+  "binDesigner.lid.slide.pull.grooveHint": "Dwa płytkie rowki w poprzek pokrywki, około 2 cm od zewnętrznej krawędzi, by otwierać i zamykać ją paznokciem. Obrys pokrywki pozostaje bez zmian.",
   "binDesigner.lid.slide.sagThicknessReadout": "Płyta o grubości {thickness} mm udźwignęłaby tę rozpiętość",
   "binDesigner.lid.slide.spanReadout": "Rozpiętość bez podparcia: {span} mm",
   "binDesigner.lid.stackGridHint": "Pełna siatka gniazd na całej górnej ściance. Pojemniki ustawione na wierzchu wpasowują się w poszczególne komórki.",
@@ -2286,7 +2288,6 @@
   "binDesigner.splitConnectors": "Łączniki wyrównujące",
   "binDesigner.splitConnectorsUnavailableLightweight": "Niedostępne dla lekkich binów — wydrążona podłoga nie ma litego materiału na złącze na jaskółczy ogon.",
   "binDesigner.splitExploded": "Rozłożony",
-  "binDesigner.splitExport.colorLossWarning": "Eksport z podziałem obecnie usuwa dane o kolorze — każda część wydrukuje się jako jednokolorowa. Wyłącz podział, aby zachować strefy koloru.",
   "binDesigner.splitExport.downloadSplit": "Pobierz dzielony {format} (ZIP)",
   "binDesigner.splitExport.enableSplit": "Podziel na części",
   "binDesigner.splitExport.exceedsPrintBed": "Ten bin przekracza Twój stół roboczy ({size} mm). Zostanie podzielony na {count} części.",
@@ -5865,5 +5866,7 @@
   "exportDestination.fellBack": "Nie udało się zapisać {file} w wybranym miejscu, więc plik został pobrany.",
   "exportDestination.failed": "Nie udało się zapisać {file}. Spróbuj wyeksportować ponownie.",
   "exportDestination.fail.timeout": "Przesyłanie do {host} trwało zbyt długo. Plik mógł jednak dotrzeć do odbiornika.",
-  "exportDestination.fail.redirect": "Przesyłanie do {host} zostało przekierowane. Wpisz w Ustawieniach adres docelowy."
+  "exportDestination.fail.redirect": "Przesyłanie do {host} zostało przekierowane. Wpisz w Ustawieniach adres docelowy.",
+  "baseplate.mountMagnets.crushRibs": "Żebra zaciskowe",
+  "baseplate.mountMagnets.crushRibsDetail": "Osiem żeber w każdym otworze od spodu utrzymuje magnes wciskany bez kleju."
 }

@@ -1757,6 +1757,8 @@
   "binDesigner.lid.slide.pull.tabHint": "フタと同じ平面のまま、ビンの前面より外に出る突起です。手袋をしていても最もつかみやすい形です。",
   "binDesigner.lid.slide.pull.catch": "指掛かり",
   "binDesigner.lid.slide.pull.catchHint": "蓋の外側の縁にある、積み重ね用リップの可動部分です。閉じるとリップがつながり、開けるときは幅広い持ち手になります。",
+  "binDesigner.lid.slide.pull.groove": "指かけ溝",
+  "binDesigner.lid.slide.pull.grooveHint": "フタの外側の縁から約2 cm内側に、フタを横切る浅い溝を2本設け、爪で開け閉めできます。フタの外形はそのままです。",
   "binDesigner.lid.slide.sagThicknessReadout": "{thickness} mm のプレートならこのスパンを支えられます",
   "binDesigner.lid.slide.spanReadout": "支持のない幅: {span} mm",
   "binDesigner.lid.stackGridHint": "天面全体にソケットのグリッドを配置します。上に積んだビンは各セルに固定されます。",
@@ -2193,7 +2195,6 @@
   "binDesigner.splitConnectors": "位置合わせコネクタ",
   "binDesigner.splitConnectorsUnavailableLightweight": "軽量ベースでは使用できません（中空の床にスカーフ用の材料がありません）。",
   "binDesigner.splitExploded": "分解表示",
-  "binDesigner.splitExport.colorLossWarning": "分割エクスポートでは現在色データが失われます — 各パーツは単色で印刷されます。色ゾーンを保持するには分割を無効にしてください。",
   "binDesigner.splitExport.downloadSplit": "分割{format}をダウンロード(ZIP)",
   "binDesigner.splitExport.enableSplit": "パーツに分割",
   "binDesigner.splitExport.exceedsPrintBed": "このビンはプリントベッド({size}mm)を超えています。{count}個のパーツに分割されます。",
@@ -5448,5 +5449,7 @@
   "exportDestination.fellBack": "{file} を選んだ場所に保存できなかったため、ダウンロードしました。",
   "exportDestination.failed": "{file} を保存できませんでした。もう一度エクスポートしてください。",
   "exportDestination.fail.timeout": "{host} へのアップロードがタイムアウトしました。ファイルは届いている可能性があります。",
-  "exportDestination.fail.redirect": "{host} へのアップロードはリダイレクトされました。設定でリダイレクト先のアドレスを指定してください。"
+  "exportDestination.fail.redirect": "{host} へのアップロードはリダイレクトされました。設定でリダイレクト先のアドレスを指定してください。",
+  "baseplate.mountMagnets.crushRibs": "圧入用リブ",
+  "baseplate.mountMagnets.crushRibsDetail": "下面の各磁石穴にある8本のリブが、接着剤なしで圧入した磁石を保持します。"
 }

@@ -1788,6 +1788,8 @@
   "binDesigner.lid.slide.pull.tabHint": "Una oreja que sobresale de la cara de la caja, en el plano de la propia tapa. La más fácil de agarrar con guantes.",
   "binDesigner.lid.slide.pull.catch": "Tope para el dedo",
   "binDesigner.lid.slide.pull.catchHint": "Un tramo móvil del borde de apilado en el canto exterior de la tapa. Cerrada, completa el borde; abierta, ofrece un agarre amplio.",
+  "binDesigner.lid.slide.pull.groove": "Ranura para la uña",
+  "binDesigner.lid.slide.pull.grooveHint": "Dos ranuras poco profundas a lo ancho de la tapa, a unos 2 cm de su borde exterior, para abrirla o cerrarla con la uña. El contorno de la tapa no cambia.",
   "binDesigner.lid.slide.sagThicknessReadout": "Una placa de {thickness} mm soportaría esta luz",
   "binDesigner.lid.slide.spanReadout": "Luz sin apoyo: {span} mm",
   "binDesigner.lid.stackGridHint": "Una rejilla completa de huecos por toda la parte superior. Las cajas apiladas encima encajan en celdas individuales.",
@@ -2224,7 +2226,6 @@
   "binDesigner.splitConnectors": "Conectores de alineación",
   "binDesigner.splitConnectorsUnavailableLightweight": "No disponible en bases ligeras: el suelo ahuecado no tiene material para el bisel.",
   "binDesigner.splitExploded": "Explosionado",
-  "binDesigner.splitExport.colorLossWarning": "La exportación dividida descarta los datos de color — cada pieza se imprimirá en un solo color. Desactiva la división para conservar tus zonas de color.",
   "binDesigner.splitExport.downloadSplit": "Descargar {format} dividido (ZIP)",
   "binDesigner.splitExport.enableSplit": "Dividir en piezas",
   "binDesigner.splitExport.exceedsPrintBed": "Este bin excede el tamaño de tu cama de impresión ({size}mm). Se dividirá en {count} piezas.",
@@ -5587,5 +5588,7 @@
   "exportDestination.fellBack": "No se pudo guardar {file} donde elegiste, así que se descargó.",
   "exportDestination.failed": "No se pudo guardar {file}. Vuelve a intentar la exportación.",
   "exportDestination.fail.timeout": "La subida a {host} tardó demasiado. Puede que el archivo haya llegado igualmente.",
-  "exportDestination.fail.redirect": "La subida a {host} fue redirigida. Usa la dirección final en Configuración."
+  "exportDestination.fail.redirect": "La subida a {host} fue redirigida. Usa la dirección final en Configuración.",
+  "baseplate.mountMagnets.crushRibs": "Nervios de presión",
+  "baseplate.mountMagnets.crushRibsDetail": "Ocho nervios en cada orificio inferior sujetan el imán a presión sin pegamento."
 }

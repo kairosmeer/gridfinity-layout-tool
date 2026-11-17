@@ -1788,6 +1788,8 @@
   "binDesigner.lid.slide.pull.tabHint": "Un ergot qui dépasse de la face du bac, dans le plan du couvercle. Le plus facile à saisir avec des gants.",
   "binDesigner.lid.slide.pull.catch": "Butée pour le doigt",
   "binDesigner.lid.slide.pull.catchHint": "Une section mobile du rebord d’empilage sur le bord extérieur du couvercle. Fermé, il complète le rebord ; ouvert, il offre une large prise.",
+  "binDesigner.lid.slide.pull.groove": "Rainure pour l’ongle",
+  "binDesigner.lid.slide.pull.grooveHint": "Deux rainures peu profondes en travers du couvercle, à environ 2 cm de son bord extérieur, pour l’ouvrir ou le fermer avec l’ongle. Le contour du couvercle reste intact.",
   "binDesigner.lid.slide.sagThicknessReadout": "Une plaque de {thickness} mm porterait cette portée",
   "binDesigner.lid.slide.spanReadout": "Portée libre : {span} mm",
   "binDesigner.lid.stackGridHint": "Une grille complète d’alvéoles sur toute la face supérieure. Les bacs empilés dessus se verrouillent dans chaque cellule.",
@@ -2224,7 +2226,6 @@
   "binDesigner.splitConnectors": "Connecteurs d'alignement",
   "binDesigner.splitConnectorsUnavailableLightweight": "Indisponible sur les bases allégées — le fond évidé n’offre pas de matière pour le biseau.",
   "binDesigner.splitExploded": "Éclaté",
-  "binDesigner.splitExport.colorLossWarning": "L'export découpé supprime les données de couleur — chaque pièce sera imprimée d'une seule couleur. Désactivez la découpe pour conserver vos zones de couleur.",
   "binDesigner.splitExport.downloadSplit": "Télécharger le {format} découpé (ZIP)",
   "binDesigner.splitExport.enableSplit": "Diviser en pièces",
   "binDesigner.splitExport.exceedsPrintBed": "Ce bac dépasse la taille de votre plateau d'impression ({size}mm). Il sera divisé en {count} pièces.",
@@ -5587,5 +5588,7 @@
   "exportDestination.fellBack": "Impossible d'enregistrer {file} à l'endroit choisi, le fichier a donc été téléchargé.",
   "exportDestination.failed": "Impossible d'enregistrer {file}. Relancez l'export.",
   "exportDestination.fail.timeout": "L'envoi vers {host} a pris trop de temps. Le fichier est peut-être quand même arrivé.",
-  "exportDestination.fail.redirect": "L'envoi vers {host} a été redirigé. Indiquez l'adresse finale dans les Paramètres."
+  "exportDestination.fail.redirect": "L'envoi vers {host} a été redirigé. Indiquez l'adresse finale dans les Paramètres.",
+  "baseplate.mountMagnets.crushRibs": "Nervures de serrage",
+  "baseplate.mountMagnets.crushRibsDetail": "Huit nervures dans chaque logement sous la plaque retiennent un aimant emboîté sans colle."
 }

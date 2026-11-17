@@ -1788,6 +1788,8 @@
   "binDesigner.lid.slide.pull.tabHint": "Un’aletta che sporge oltre la faccia del contenitore, sul piano del coperchio. La più facile da afferrare con i guanti.",
   "binDesigner.lid.slide.pull.catch": "Presa per il dito",
   "binDesigner.lid.slide.pull.catchHint": "Un tratto mobile del bordo di impilamento sul lato esterno del coperchio. Chiuso completa il bordo, aperto offre una presa ampia.",
+  "binDesigner.lid.slide.pull.groove": "Scanalatura per unghia",
+  "binDesigner.lid.slide.pull.grooveHint": "Due scanalature poco profonde lungo la larghezza del coperchio, a circa 2 cm dal bordo esterno, per aprirlo o chiuderlo con l’unghia. Il profilo del coperchio resta invariato.",
   "binDesigner.lid.slide.sagThicknessReadout": "Una piastra da {thickness} mm sosterrebbe questa campata",
   "binDesigner.lid.slide.spanReadout": "Luce libera: {span} mm",
   "binDesigner.lid.stackGridHint": "Una griglia completa di alloggiamenti su tutta la faccia superiore. I contenitori impilati sopra si incastrano nelle singole celle.",
@@ -2224,7 +2226,6 @@
   "binDesigner.splitConnectors": "Connettori di allineamento",
   "binDesigner.splitConnectorsUnavailableLightweight": "Non disponibile sui bin alleggeriti; il fondo a guscio non ha materiale pieno per il giunto a sbieco.",
   "binDesigner.splitExploded": "Esploso",
-  "binDesigner.splitExport.colorLossWarning": "L'esportazione divisa al momento perde i dati di colore; ogni pezzo verrà stampato in tinta unita. Disattiva la divisione per mantenere le tue zone di colore.",
   "binDesigner.splitExport.downloadSplit": "Scarica {format} diviso (ZIP)",
   "binDesigner.splitExport.enableSplit": "Dividi in pezzi",
   "binDesigner.splitExport.exceedsPrintBed": "Questo bin supera il tuo piano di stampa ({size}mm). Verrà diviso in {count} pezzi.",
@@ -5587,5 +5588,7 @@
   "exportDestination.fellBack": "Impossibile salvare {file} dove hai scelto, quindi è stato scaricato.",
   "exportDestination.failed": "Impossibile salvare {file}. Riprova l'esportazione.",
   "exportDestination.fail.timeout": "Il caricamento su {host} ha impiegato troppo tempo. Il file potrebbe comunque essere arrivato.",
-  "exportDestination.fail.redirect": "Il caricamento su {host} è stato reindirizzato. Usa l'indirizzo finale nelle Impostazioni."
+  "exportDestination.fail.redirect": "Il caricamento su {host} è stato reindirizzato. Usa l'indirizzo finale nelle Impostazioni.",
+  "baseplate.mountMagnets.crushRibs": "Nervature di pressione",
+  "baseplate.mountMagnets.crushRibsDetail": "Otto nervature in ogni foro inferiore trattengono il magnete inserito a pressione senza colla."
 }

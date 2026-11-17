@@ -89,7 +89,8 @@ export function computePieceFingerprint(params: ResolvedBaseplateParams): string
     ...(params.mountMagnets?.enabled === true
       ? [
           `mm:${params.mountMagnets.diameter},${params.mountMagnets.depth},` +
-            `${params.mountMagnets.perPiece ?? ''},${params.mountMagnets.chamfer === true ? 1 : 0}`,
+            `${params.mountMagnets.perPiece ?? ''},${params.mountMagnets.chamfer === true ? 1 : 0},` +
+            `${params.mountMagnets.crushRibs === true ? 1 : 0}`,
         ]
       : []),
     `sft:${params.solidFloor ? (params.solidFloorThickness ?? '') : ''}`,
@@ -144,7 +145,7 @@ export function computePieceFingerprint(params: ResolvedBaseplateParams): string
   // tiles). Padding is captured separately, so padded edge pieces still differ.
   if (params.edges) {
     const canon = params.preferIdenticalPieces ? canonicalizeEdges(params.edges) : params.edges;
-    // A margin-seam tongue is body geometry the piece carries
+    // A margin-seam tongue or groove is body geometry the piece carries
     // independently of split connectors (`connectorNubs`), so it must ALWAYS
     // distinguish the fingerprint — otherwise a tongued piece dedupes with a
     // plain exterior one and the export reuses a tongue-less mesh.
